@@ -1,8 +1,8 @@
-class userInterface:
+class UI:
     def __init__(self) -> None:
         pass
 
-    def displayLogo():
+    def displayLogo(self):
         ascii_art = """
             $$\   $$\           $$\                                     $$\      $$\                     $$\ 
             $$ |  $$ |          \__|                                    $$$\    $$$ |                    $$ |
@@ -15,8 +15,9 @@ class userInterface:
                                         $$ |                                                               
                                         $$ |                                                               
                                         \__|
+            ==================================================================================================
             """
         print(ascii_art)
     
-    def clearScreen():
+    def clearScreen(self):
         print("\033c", end="")
