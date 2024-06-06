@@ -11,8 +11,6 @@ def main():
         dbInitialization.create_members_table()
         dbInitialization.create_users_table()
         dbInitialization.init_superadmin()
-        checkSum = Checksum()
-        print(checkSum.generate_membership_id())
         time.sleep(2)
     initDB()
 

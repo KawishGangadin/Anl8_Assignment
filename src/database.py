@@ -90,14 +90,25 @@ class DB:
     def findID(self, id):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
-        query = "SELECT * FROM users"
+        query = "SELECT * FROM members"
         cursor.execute(query)
         
         users = cursor.fetchall()
         exists = False
-        for IDs in users:
-            print(IDs[0], id)
-            if IDs[0] == id:
-                return True
+        if users != None:
+            for IDs in users:
+                print(IDs[0], id)
+                if IDs[0] == id:
+                    return True
         return False
     
+    def getUsers(self):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM users"
+        cursor.execute(query)
+
+        users = cursor.fetchall()
+        if users != None:
+            return users
+        return None
