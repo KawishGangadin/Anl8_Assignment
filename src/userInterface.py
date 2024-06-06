@@ -128,20 +128,14 @@ Super Admin Menu:
         if input_ in ['0', 'Q']:
             print("Exiting by choice...")
             exit()
-        elif input_.isdigit() in optionsNum or input_.lower() in optionsStr:
-            if input_.isdigit():
-                if input_.isdigit() in optionsNum:
-                    methodCallNum[int(input_)]()
-                else:
-                    print("Invalid input given")
+        elif input_.isdigit():
+            if int(input_) in optionsNum:
+                methodCallNum[int(input_)]()
             else:
-                if input_.lower() in optionsStr:
-                    methodCallStr[input_.lower()]()
-                else:
-                    print("Invalid input given")
-            print("Exiting not by choice...")
-            exit()
+                print("Invalid input given")
+        elif input_.lower() in optionsStr:
+            methodCallStr[input_.lower()]()
         else:
-            print("Exiting...")
             print("Invalid input given")
+            print("Exiting not by choice...")
             exit()

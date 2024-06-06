@@ -4,6 +4,8 @@ from sqlite3 import Error
 import time
 
 class DB:
+    cities = ['Den Haag', 'Rotterdam', 'Amsterdam', 'Utrecht', 'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 'Breda', 'Nijmegen']
+
     def __init__(self,databaseFile) -> None:
         self.databaseFile = databaseFile
 
@@ -17,6 +19,7 @@ class DB:
             gender TEXT CHECK(gender IN ('Male', 'Female', 'Other')),
             weight REAL CHECK(weight >= 0),
             address TEXT,
+            city TEXT CHECK (city IN ('Den Haag', 'Rotterdam', 'Amsterdam', 'Utrecht', 'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 'Breda', 'Nijmegen')),
             email TEXT UNIQUE NOT NULL,
             mobile TEXT UNIQUE NOT NULL,
             registration_date DATE NOT NULL,

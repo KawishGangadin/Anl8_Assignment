@@ -47,11 +47,11 @@ def main():
                 password = input("Enter your password: \n")
                 attemptedPasswords.append(password.lower())
 
-                data = dataBase.getUserData(username,password)
-                if data != None:
+                user = logIn_System.loginFunc(username,password)
+                # TODO:log login
+                if user != None:
                     print("succesfully logged in!")
                     loggedIn = True
-                    user = logIn_System.loginFunc(username,password)
                     time.sleep(2)
                     break
                 else:
