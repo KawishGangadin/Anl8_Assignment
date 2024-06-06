@@ -5,7 +5,8 @@ from datetime import datetime
 class Logger:
     def __init__(self):
         self.log_format = '%(log_number)s | %(asctime)s | %(username)s | %(activity)s | %(additional_info)s | Suspicious: %(suspicious)s | Checked: %(checked)s | %(message)s'
-        self.log_file = 'src/logs/uniquemeal.log'  # Absolute path to the log file
+        self.log_dir = os.path.dirname(os.path.abspath(__file__))
+        self.log_file = os.path.join(self.log_dir, 'logs', 'uniquemeal.log')  # Absolute path to the log file
         self.check_create_log_file()  # Create the log file if it doesn't exist
         self.basicConfig()  # Configure logging
 

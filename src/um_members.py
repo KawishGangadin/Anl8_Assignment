@@ -1,4 +1,5 @@
 from userInterface import UI
+import os
 from database import DB
 from log import Logger
 from checkSum import Checksum
@@ -7,12 +8,14 @@ import time
 
 def main():
     def initDB():
-        dbInitialization = DB('src/uniqueMeal.db')
+        dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
+        dbInitialization = DB(dbPath)
         dbInitialization.create_members_table()
         dbInitialization.create_users_table()
         dbInitialization.init_superadmin()
         time.sleep(2)
     initDB()
+    time.sleep(2)
 
     running = True
     loggedIn = False
@@ -20,7 +23,8 @@ def main():
     attemptedPasswords = []
     userInterface = UI()
 
-    dataBase = DB('src/uniqueMeal.db')
+    dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
+    dataBase = DB(dbPath)
     loggingSys = Logger()
     logIn_System = loginAuth(dataBase)
     while running:
