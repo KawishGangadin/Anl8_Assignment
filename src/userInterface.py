@@ -2,6 +2,7 @@ from users import roles
 from users import consultant
 from users import systemAdministrator
 from users import superAdministrator
+import os
 import time
 
 class UI:
@@ -74,7 +75,7 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
         print(ascii_art)
     
     def clearScreen(self):
-        print("\033c", end="")
+        os.system('cls' if os.name == 'nt' else 'clear')
 
     def optionMenu(self,user,db):
         while True:
