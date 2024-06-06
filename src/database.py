@@ -54,7 +54,6 @@ class DB:
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
 
-        # Check if super_admin user already exists
         cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'super_admin'")
         user_exists = cursor.fetchone()[0] > 0
 
@@ -63,9 +62,42 @@ class DB:
             parameters = ("Babak", "Basharirad", "super_admin", "Admin_123!", date.today().strftime("%Y-%m-%d"), "superadmin", False)
             cursor.execute(query, parameters)
             conn.commit()
-            print("Super admin user created")
         else:
-            print("Super admin user already exists")
+            pass
 
         cursor.close()
         conn.close()
+    
+    def getUserData(self, username, password):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM users"
+        cursor.execute(query)
+
+        users = cursor.fetchall()
+        for userData in users:
+            # userData is a tuple representing a row from the database
+            # Use the correct index to access each column in the tuple
+            print(username,userData[3], password,userData[4])
+            if username == userData[3] and password == userData[4]:
+                print("correct credentials")
+                return userData
+            else:
+                print("incorrect credentials")
+
+        return None
+
+    def findID(self, id):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM users"
+        cursor.execute(query)
+        
+        users = cursor.fetchall()
+        exists = False
+        for IDs in users:
+            print(IDs[0], id)
+            if IDs[0] == id:
+                return True
+        return False
+    
