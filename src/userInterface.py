@@ -2,6 +2,7 @@ from users import roles
 from users import consultant
 from users import systemAdministrator
 from users import superAdministrator
+from users import roles
 import os
 import time
 
@@ -81,10 +82,10 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
         while True:
             time.sleep(1)
             print(type(user))
-            if isinstance(user, systemAdministrator):
+            if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.systemAdministrator_Menu(user,db)
+                self.superAdministrator_Menu(user,db)
             elif isinstance(user,systemAdministrator):
                 self.clearScreen()
                 self.displayLogo()
@@ -92,22 +93,46 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
             elif isinstance(user,consultant):
                 self.clearScreen()
                 self.displayLogo()
-                self.systemAdministrator_Menu(user,db)
+                self.consultant_Menu(user,db)
             else:
                 print("Unauthorized access to menu!")
 
     def superAdministrator_Menu(self,user,db):
         print(f"Welcome {user.userName}")
         methodCall = {
-            1: user.displayUsers, 2: self.func2, 3: self.func3, 4: self.func4,
-            5: self.func5, 6: self.func6, 7: self.func7, 8: self.func8,
-            9: self.func9, 10: self.func10, 11: self.func11, 12: self.func12,
-            13: self.func13, 14: self.func14, 15: self.func15, 16: self.func16,
-            'L': user.displayUsers, 'AC': self.func2, 'UC': self.func3, 'DC': self.func4,
-            'RC': self.func5, 'AA': self.func6, 'UA': self.func7, 'DA': self.func8,
-            'RA': self.func9, 'BA': self.func10, 'RB': self.func11, 'SL': self.func12,
-            'AM': self.func13, 'UM': self.func14, 'DM': self.func15, 'SM': self.func16,
-        }
+            1: lambda : user.displayUsers(db),
+            2: lambda : user.userCreation(db, roles.CONSULTANT),
+            3: lambda : self.func3(db),
+            4: lambda : self.func4(db),
+            5: lambda : self.func5(db),
+            6: lambda : user.userCreation(db, roles.ADMIN),
+            7: lambda : self.func7(db),
+            8: lambda : self.func8(db),
+            9: lambda : self.func9(db),
+            10: lambda : self.func10(db),
+            11: lambda : self.func11(db),
+            12: lambda : self.func12(db),
+            13: lambda : self.func13(db),
+            14: lambda : self.func14(db),
+            15: lambda : self.func15(db),
+            16: lambda : self.func16(db),
+            'L': lambda : user.displayUsers(db),
+            'AC': lambda : user.userCreation(db, roles.CONSULTANT),
+            'UC': lambda : self.func3(db),
+            'DC': lambda : self.func4(db),
+            'RC': lambda : self.func5(db),
+            'AA': lambda : user.userCreation(db, roles.ADMIN),
+            'UA': lambda : self.func7(db),
+            'DA': lambda : self.func8(db),
+            'RA': lambda : self.func9(db),
+            'BA': lambda : self.func10(db),
+            'RB': lambda : self.func11(db),
+            'SL': lambda : self.func12(db),
+            'AM': lambda : self.func13(db),
+            'UM': lambda : self.func14(db),
+            'DM': lambda : self.func15(db),
+            'SM': lambda : self.func16(db),
+            }
         print("""
 Super Admin Menu:
 [1] or [L] - Get list of users and their roles
@@ -136,14 +161,14 @@ Super Admin Menu:
             if int(input_) in methodCall:
                 self.clearScreen()
                 self.displayLogo()
-                methodCall[int(input_)](db)
+                methodCall[int(input_)]()
             else:
                 print("Invalid input given")
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
                 self.displayLogo()
-                methodCall[input_.upper()](db)
+                methodCall[input_.upper()]()
             else:
                 print("Invalid input given")
                 print("Exiting not by choice...")
@@ -153,6 +178,10 @@ Super Admin Menu:
             print("Invalid input given")
             exit()
 
+    
+    
+    
+    
     def systemAdministrator_Menu(self,user,db):
         print(f"Welcome {user.userName}")
         methodCall = {
@@ -204,3 +233,8 @@ System Administrator Menu:
             print("Exiting...")
             print("Invalid input given")
             exit()
+
+
+
+    def consultant_Menu(self,user,db):
+        print("Consultant Menu")

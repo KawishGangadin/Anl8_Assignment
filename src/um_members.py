@@ -54,6 +54,7 @@ def main():
                     print("succesfully logged in!")
                     loggedIn = True
                     user = logIn_System.loginFunc(username,password)
+                    loggingSys.log("Multiple usernames and passwords are tried wrong in a row", "True")
                     time.sleep(2)
                     break
                 else:
@@ -64,6 +65,7 @@ def main():
         while loggedIn:
             userInterface.clearScreen()
             print("Logged In")
+            time.sleep(2)
             userInterface.optionMenu(user,dataBase)
 
 

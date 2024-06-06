@@ -1,6 +1,7 @@
 from datetime import date
 import sqlite3
 from sqlite3 import Error
+from users import roles
 import time
 
 class DB:
@@ -76,14 +77,10 @@ class DB:
 
         users = cursor.fetchall()
         for userData in users:
-            # userData is a tuple representing a row from the database
-            # Use the correct index to access each column in the tuple
-            print(username,userData[3], password,userData[4])
             if username == userData[3] and password == userData[4]:
-                print("correct credentials")
                 return userData
             else:
-                print("incorrect credentials")
+                pass
 
         return None
 
@@ -102,13 +99,60 @@ class DB:
                     return True
         return False
     
-    def getUsers(self):
+    def findUsername(self, username):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
         query = "SELECT * FROM users"
         cursor.execute(query)
-
+        
         users = cursor.fetchall()
         if users != None:
-            return users
-        return None
+            for usernames in users:
+                if usernames[3] == username:
+                    return True
+        return False
+    
+    def getUsers(self, role):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        if role == None:
+            query = "SELECT * FROM users"
+            cursor.execute(query)
+            users = cursor.fetchall()
+            if users != None:
+                return users
+            return None
+        elif role == roles.CONSULTANT:
+            query = "SELECT * FROM users WHERE role = ?"
+            cursor.execute(query, (role.value,))
+            users = cursor.fetchall()
+            if users != None:
+                return users
+            return None
+        elif role == roles.ADMIN:
+            query = "SELECT * FROM users WHERE role = ?"
+            cursor.execute(query, (role.value,))
+            users = cursor.fetchall()
+            if users != None:
+                return users
+            return None
+        else:
+            return None
+    
+    def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
+        conn = sqlite3.connect(self.databaseFile)
+        query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        parameters = (first_name, last_name, username, password, registration_date, role, temp)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while creating the user:", e)
+            cursor.close()
+            conn.close()
+            return None
