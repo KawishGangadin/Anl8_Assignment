@@ -1,6 +1,7 @@
 from enum import Enum
 from datetime import date
 import time
+from inputValidation import Validation
 class roles(Enum):
     CONSULTANT = 'consultant'
     ADMIN = 'admin'
@@ -13,9 +14,16 @@ class userBlueprint:
         self.userName = userName
 
 class consultant(userBlueprint):
-    pass
+    def consultantMenu(self):
+        print("""[1] Search members
+[2] Register member
+[3] Update member info
+[4] Update password\n""")
+
 
 class systemAdministrator(consultant):
+    def administratorMenu(self):
+        pass
     def displayUsers(self,db,role=None):
         allUsers = db.getUsers(role)
         title = ""
@@ -115,26 +123,55 @@ class superAdministrator(systemAdministrator):
         print("hello")
         time.sleep(2)
 
-    def userCreation(self,db,role):
+    def userCreation(self, db, role, loggingSys):
         roleType = ""
-        if role == roles.ADMIN:
-            roleType = role.value
-        elif role == roles.CONSULTANT:
+        if role in [roles.ADMIN, roles.CONSULTANT]:
             roleType = role.value
         else:
             print("Invalid role")
-            exit()
+            loggingSys.log("User tried to create a user with an invalid RoleType", True)
+            return
+        
         print(f"=========creating a {roleType} =========")
+        
         availableUsername = False
-        firstName = input(f"Enter the first name of the new {roleType} \n")
-        lastName = input(f"Enter the last name of the new {roleType} \n")
-        while availableUsername == False:
-            username = input(f"Enter the username of the new {roleType} \n")
-            if not db.findUsername(username):
-                availableUsername = True
+        validPassword = False
+        validFL_Name = False
+        while not validFL_Name:
+            firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
+            if firstName.upper() == 'Q':
+                return
+            lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
+            if lastName.upper() == 'Q':
+                return
+            if not Validation.validateName(firstName) or not Validation.validateName(lastName):
+                loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", True)
+                continue
             else:
-                availableUsername = False
-        password = input(f"Enter the password of the new {roleType} \n")
-        creationDate =date.today().strftime("%Y-%m-%d")
-        db.createUser(firstName,lastName,username,password,creationDate,roleType,False)
-    
+                validFL_Name = True
+
+        while not availableUsername:
+            username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
+            if username.upper() == 'Q':
+                return
+            if not Validation.usernameValidation(username):
+                loggingSys.log(f"User tried to create a {roleType} with an invalid username", True)
+                continue
+            if db.findUsername(username):
+                loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
+            else:
+                availableUsername = True
+        
+        while not validPassword:
+            password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
+            if password.upper() == 'Q':
+                return
+            if not Validation.passwordValidation(password):
+                loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", True)
+                continue
+            else:
+                validPassword = True
+
+        creationDate = date.today().strftime("%Y-%m-%d")
+        db.createUser(firstName, lastName, username, password, creationDate, roleType, False)
+        loggingSys.log(f"User has created a {roleType}", False)

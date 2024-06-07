@@ -78,34 +78,35 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
     def clearScreen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def optionMenu(self,user,db):
+    def optionMenu(self,user,db,loggingSys):
         while True:
             time.sleep(1)
             print(type(user))
             if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.superAdministrator_Menu(user,db)
+                self.superAdministrator_Menu(user,db,loggingSys)
             elif isinstance(user,systemAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.systemAdministrator_Menu(user,db)
+                self.systemAdministrator_Menu(user,db,loggingSys)
             elif isinstance(user,consultant):
                 self.clearScreen()
                 self.displayLogo()
-                self.consultant_Menu(user,db)
+                self.consultant_Menu(user,db,loggingSys)
             else:
                 print("Unauthorized access to menu!")
+                loggingSys.log("User tried to access options without proper access.",True)
 
-    def superAdministrator_Menu(self,user,db):
+    def superAdministrator_Menu(self,user,db,loggingSys):
         print(f"Welcome {user.userName}")
         methodCall = {
             1: lambda : user.displayUsers(db),
-            2: lambda : user.userCreation(db, roles.CONSULTANT),
+            2: lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
             3: lambda : user.editUser(user,db,roles.CONSULTANT),
             4: lambda : self.func4(db),
             5: lambda : self.func5(db),
-            6: lambda : user.userCreation(db, roles.ADMIN),
+            6: lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             7: lambda : user.editUser(user,db,roles.ADMIN),
             8: lambda : self.func8(db),
             9: lambda : self.func9(db),
@@ -117,11 +118,11 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
             15: lambda : self.func15(db),
             16: lambda : self.func16(db),
             'L': lambda : user.displayUsers(db),
-            'AC': lambda : user.userCreation(db, roles.CONSULTANT),
+            'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
             'UC': lambda : user.editUser(user,db,roles.CONSULTANT),
             'DC': lambda : self.func4(db),
             'RC': lambda : self.func5(db),
-            'AA': lambda : user.userCreation(db, roles.ADMIN),
+            'AA': lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             'UA': lambda : user.editUser(user,db,roles.ADMIN),
             'DA': lambda : self.func8(db),
             'RA': lambda : self.func9(db),
@@ -170,19 +171,19 @@ Super Admin Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
+                loggingSys.log("User gave an invalid option.",False)
                 print("Invalid input given")
-                print("Exiting not by choice...")
-                exit()
+                time.sleep(1)
         else:
-            print("Exiting...")
+            loggingSys.log("User gave an invalid option.",True)
             print("Invalid input given")
-            exit()
+            time.sleep(1)
 
     
     
     
     
-    def systemAdministrator_Menu(self,user,db):
+    def systemAdministrator_Menu(self,user,db,loggingSys):
         print(f"Welcome {user.userName}")
         methodCall = {
             1: lambda : self.func1(db), 
@@ -246,15 +247,15 @@ System Administrator Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
+                loggingSys.log("User gave an invalid option.",False)
                 print("Invalid input given")
-                print("Exiting not by choice...")
-                exit()
+                time.sleep(1)
         else:
-            print("Exiting...")
+            loggingSys.log("User gave an invalid option.",True)
             print("Invalid input given")
-            exit()
+            time.sleep(1)
 
 
 
-    def consultant_Menu(self,user,db):
+    def consultant_Menu(self,user,db,loggingSys):
         print("Consultant Menu")

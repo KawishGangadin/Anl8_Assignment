@@ -1,24 +1,39 @@
-1 | 2024-06-06 21:20:30 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-06 21:26:35 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-06 21:29:35 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-06 21:33:28 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-06 21:35:24 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-06 21:43:04 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 00:22:55 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 00:43:37 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 00:49:53 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 00:50:56 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 00:54:07 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 00:55:24 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 02:12:53 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 02:40:58 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 02:46:38 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 02:48:25 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 02:51:56 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 02:57:44 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 02:59:41 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 03:02:50 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 03:18:22 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 03:20:12 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 03:20:47 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-1 | 2024-06-07 03:23:51 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 20:03:01 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 20:22:51 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 20:41:31 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 20:44:25 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 21:46:35 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 21:53:07 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:06:00 | no username | User tried to log into the system with invalid credentials | username: a, password: a | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:06:16 | no username | User tried to log into the system with invalid credentials | username: s, password: s | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:06:23 | no username | User tried to log into the system with invalid credentials | username: super_admin, password: Admin_123? | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:10:27 | no username | User tried to log into the system with invalid credentials | username: super_admin, password: Admin_123? | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:11:11 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:14:45 | no username | User tried to log into the system with invalid credentials | username: fajh asdha sdj a, password: asdkj a kasdkjas dj a | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:15:03 | no username | User tried to log into the system with invalid credentials | username: _ , password:   | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:15:05 | no username | User tried to log into the system with invalid credentials | username:  , password:   | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:15:06 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:25:20 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:25:24 | no username | User gave an invalid option. | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:26:33 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:26:37 | no username | User gave an invalid option. | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:27:32 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:27:35 | no username | User gave an invalid option. | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:27:39 | no username | User gave an invalid option. | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:27:44 | no username | User gave an invalid option. | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:39:42 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:39:43 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:53:47 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 22:53:48 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 22:54:40 | no username | User has created a consultant | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 23:16:42 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 23:16:43 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 23:18:36 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 23:18:37 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 23:21:09 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 23:21:10 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 23:21:23 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 23:27:19 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 23:27:20 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-07 23:36:01 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+1 | 2024-06-07 23:36:02 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 

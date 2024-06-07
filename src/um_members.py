@@ -4,6 +4,7 @@ from database import DB
 from log import Logger
 from checkSum import Checksum
 from auth import loginAuth
+from inputValidation import Validation
 import time
 
 def main():
@@ -25,6 +26,7 @@ def main():
     dataBase = DB(dbPath)
     loggingSys = Logger()
     logIn_System = loginAuth(dataBase)
+
     while running:
         maxTries = 3
         while not loggedIn:
@@ -47,6 +49,13 @@ def main():
                 password = input("Enter your password: \n")
                 attemptedPasswords.append(password.lower())
 
+                if not Validation.usernameValidation(username) or not Validation.passwordValidation(password):
+                    maxTries -= 1
+                    print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
+                    loggingSys.log("User tried to log into the system with invalid credentials", "False", f"username: {username}, password: {password}")
+                    time.sleep(1)
+                    continue
+
                 data = dataBase.getUserData(username,password)
                 if data != None:
                     print("succesfully logged in!")
@@ -63,8 +72,9 @@ def main():
         while loggedIn:
             userInterface.clearScreen()
             print("Logged In")
+            loggingSys.log("User has succesfully logged into Unique Meal",False)
             time.sleep(1)
-            userInterface.optionMenu(user,dataBase)
+            userInterface.optionMenu(user,dataBase,loggingSys)
 
 
 if __name__ == '__main__':

@@ -60,7 +60,7 @@ class DB:
 
         if not user_exists:
             query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-            parameters = ("Babak", "Basharirad", "super_admin", "Admin_123!", date.today().strftime("%Y-%m-%d"), "superadmin", False)
+            parameters = ("Kawish", "Gangadin", "super_admin", "Admin_123?", date.today().strftime("%Y-%m-%d"), "superadmin", False)
             cursor.execute(query, parameters)
             conn.commit()
         else:
@@ -72,31 +72,26 @@ class DB:
     def getUserData(self, username, password):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
-        query = "SELECT * FROM users"
-        cursor.execute(query)
+        query = "SELECT * FROM users WHERE username = ? AND password = ?"
+        cursor.execute(query,(username,password,))
 
         users = cursor.fetchall()
-        for userData in users:
-            if username == userData[3] and password == userData[4]:
-                return userData
-            else:
-                pass
-
-        return None
+        if users:
+            for user in users:
+                return user
+        else:
+            return None
 
     def findID(self, id):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
-        query = "SELECT * FROM members"
-        cursor.execute(query)
+        query = "SELECT * FROM members WHERE id = ?"
+        cursor.execute(query,(id,))
         
         users = cursor.fetchall()
         exists = False
         if users != None:
-            for IDs in users:
-                print(IDs[0], id)
-                if IDs[0] == id:
-                    return True
+            return True
         return False
     
     def findUserID(self, id,role):
@@ -116,14 +111,12 @@ class DB:
     def findUsername(self, username):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
-        query = "SELECT * FROM users"
-        cursor.execute(query)
+        query = "SELECT * FROM users WHERE username = ?"
+        cursor.execute(query,(username,))
         
         users = cursor.fetchall()
-        if users != None:
-            for usernames in users:
-                if usernames[3] == username:
-                    return True
+        if users:
+            return True
         return False
     
     def getUsers(self, role):
