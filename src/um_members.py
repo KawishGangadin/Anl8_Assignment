@@ -13,9 +13,7 @@ def main():
         dbInitialization.create_members_table()
         dbInitialization.create_users_table()
         dbInitialization.init_superadmin()
-        time.sleep(2)
     initDB()
-    time.sleep(2)
 
     running = True
     loggedIn = False
@@ -55,17 +53,17 @@ def main():
                     loggedIn = True
                     user = logIn_System.loginFunc(username,password)
                     loggingSys.log("Multiple usernames and passwords are tried wrong in a row", "True")
-                    time.sleep(2)
+                    time.sleep(1)
                     break
                 else:
                     print("please input valid credentials")
-                    time.sleep(2)
+                    time.sleep(1)
                     maxTries -= 1
         
         while loggedIn:
             userInterface.clearScreen()
             print("Logged In")
-            time.sleep(2)
+            time.sleep(1)
             userInterface.optionMenu(user,dataBase)
 
 

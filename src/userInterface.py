@@ -102,11 +102,11 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
         methodCall = {
             1: lambda : user.displayUsers(db),
             2: lambda : user.userCreation(db, roles.CONSULTANT),
-            3: lambda : self.func3(db),
+            3: lambda : user.editUser(user,db,roles.CONSULTANT),
             4: lambda : self.func4(db),
             5: lambda : self.func5(db),
             6: lambda : user.userCreation(db, roles.ADMIN),
-            7: lambda : self.func7(db),
+            7: lambda : user.editUser(user,db,roles.ADMIN),
             8: lambda : self.func8(db),
             9: lambda : self.func9(db),
             10: lambda : self.func10(db),
@@ -118,11 +118,11 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
             16: lambda : self.func16(db),
             'L': lambda : user.displayUsers(db),
             'AC': lambda : user.userCreation(db, roles.CONSULTANT),
-            'UC': lambda : self.func3(db),
+            'UC': lambda : user.editUser(user,db,roles.CONSULTANT),
             'DC': lambda : self.func4(db),
             'RC': lambda : self.func5(db),
             'AA': lambda : user.userCreation(db, roles.ADMIN),
-            'UA': lambda : self.func7(db),
+            'UA': lambda : user.editUser(user,db,roles.ADMIN),
             'DA': lambda : self.func8(db),
             'RA': lambda : self.func9(db),
             'BA': lambda : self.func10(db),
@@ -185,12 +185,32 @@ Super Admin Menu:
     def systemAdministrator_Menu(self,user,db):
         print(f"Welcome {user.userName}")
         methodCall = {
-            1: self.func1, 2: user.displayUsers, 3: self.func3, 4: self.func4,
-            5: self.func5, 6: self.func6, 7: self.func7, 8: self.func8,
-            9: self.func9, 10: self.func10, 11: self.func11, 12: self.func12,
-            'UP': self.func1, 'LU': user.displayUsers, 'AC': self.func3, 'UC': self.func4,
-            'DC': self.func5, 'RC': self.func6, 'MB': self.func7, 'SL': self.func8,
-            'AM': self.func9, 'UM': self.func10, 'DM': self.func11, 'SM': self.func12,}
+            1: lambda : self.func1(db), 
+            2: lambda : user.displayUsers(db), 
+            3: lambda : self.func3(db), 
+            4: lambda : user.editUser(user, db, roles.CONSULTANT),
+            5: lambda : self.func5(db), 
+            6: lambda : self.func6(db), 
+            7: lambda : self.func7(db), 
+            8: lambda : self.func8(db),
+            9: lambda : self.func9(db), 
+            10: lambda : self.func10(db), 
+            11: lambda : self.func11(db), 
+            12: lambda : self.func12(db),
+            'UP': lambda : self.func1(db), 
+            'LU': lambda : user.displayUsers(db), 
+            'AC': lambda : self.func3(db), 
+            'UC': lambda : user.editUser(user, db, roles.CONSULTANT),
+            'DC': lambda : self.func5(db), 
+            'RC': lambda : self.func6(db), 
+            'MB': lambda : self.func7(db), 
+            'SL': lambda : self.func8(db),
+            'AM': lambda : self.func9(db), 
+            'UM': lambda : self.func10(db), 
+            'DM': lambda : self.func11(db), 
+            'SM': lambda : self.func12(db),
+        }
+
 
         print("""
 System Administrator Menu:
@@ -217,14 +237,14 @@ System Administrator Menu:
             if int(input_) in methodCall:
                 self.clearScreen()
                 self.displayLogo()
-                methodCall[int(input_)](db)
+                methodCall[int(input_)]()
             else:
                 print("Invalid input given")
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
                 self.displayLogo()
-                methodCall[input_.upper()](db)
+                methodCall[input_.upper()]()
             else:
                 print("Invalid input given")
                 print("Exiting not by choice...")

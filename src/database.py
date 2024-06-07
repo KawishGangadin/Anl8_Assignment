@@ -99,6 +99,20 @@ class DB:
                     return True
         return False
     
+    def findUserID(self, id,role):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM users WHERE role = ?"
+        cursor.execute(query, (role.value,))
+        
+        users = cursor.fetchall()
+        exists = False
+        if users != None:
+            for IDs in users:
+                if IDs[0] == id:
+                    return True
+        return False
+    
     def findUsername(self, username):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
