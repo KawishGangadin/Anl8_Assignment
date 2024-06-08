@@ -59,3 +59,4 @@
 59 | 2024-06-08 23:30:30 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
 60 | 2024-06-08 23:32:50 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
 61 | 2024-06-08 23:32:51 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+62 | 2024-06-08 23:33:30 | no username | User 5 password has been reset | - | Suspicious: False | Checked: False | 
