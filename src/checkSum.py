@@ -1,9 +1,9 @@
 from datetime import datetime
-from database import DB
 import random
 
 class Checksum:
-    def generate_membership_id(self):
+    @staticmethod
+    def generateMembershipId():
         membership_id = ""
         while True:
             current_year = datetime.now().year

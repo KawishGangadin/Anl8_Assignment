@@ -1,4 +1,3 @@
-from database import DB
 from users import roles
 from users import consultant
 from users import systemAdministrator

@@ -118,7 +118,7 @@ class DB:
         if users:
             return True
         return False
-    
+
     def getUsers(self, role):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
@@ -146,6 +146,28 @@ class DB:
         else:
             return None
     
+    def createMember(self, first_name, last_name, age, gender, weight, address, email, mobile, registration_date, membership_id):
+        conn = sqlite3.connect(self.databaseFile)
+        query = """
+        INSERT INTO members (first_name, last_name, age, gender, weight, address, email, mobile, registration_date, membership_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        parameters = (first_name, last_name, age, gender, weight, address, email, mobile, registration_date, membership_id)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while creating the member:", e)
+            cursor.close()
+            conn.close()
+            return None
+
+
     def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
         conn = sqlite3.connect(self.databaseFile)
         query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -160,6 +182,44 @@ class DB:
             return "OK"
         except sqlite3.Error as e:
             print("An error occurred while creating the user:", e)
+            cursor.close()
+            conn.close()
+            return None
+        
+    def deleteUser(self, userID, role):
+        conn = sqlite3.connect(self.databaseFile)
+        query = "DELETE FROM users WHERE id = ? AND role = ?"
+        parameters = (userID, role.value)
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while deleting the user:", e)
+            cursor.close()
+            conn.close()
+            return None
+        
+    def updateUser(self, userId, firstName, lastName, username, role):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = """
+        UPDATE users
+        SET first_name = ?, last_name = ?, username = ?
+        WHERE id = ? AND role = ?
+        """
+        parameters = (firstName, lastName, username, userId, role.value)
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while updating the user:", e)
             cursor.close()
             conn.close()
             return None

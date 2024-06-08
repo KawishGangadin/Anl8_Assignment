@@ -7,7 +7,7 @@ class Logger:
         self.log_format = '%(log_number)s | %(asctime)s | %(username)s | %(activity)s | %(additional_info)s | Suspicious: %(suspicious)s | Checked: %(checked)s | %(message)s'
         self.log_dir = os.path.dirname(os.path.abspath(__file__))
         self.log_file = os.path.join(self.log_dir, 'logs', 'uniquemeal.log')  # Absolute path to the log file
-        self.check_create_log_file()  # Create the log file if it doesn't exist
+        self.checkLogFile()  # Create the log file if it doesn't exist
         self.basicConfig()  # Configure logging
 
     def basicConfig(self):
@@ -17,7 +17,7 @@ class Logger:
         logging.info(
             '',
             extra={
-                'log_number': self.get_next_log_number(),
+                'log_number': self.nextNumber(),
                 'username': username,
                 'activity': activity,
                 'additional_info': additional_info,
@@ -26,7 +26,7 @@ class Logger:
             }
         )
 
-    def check_create_log_file(self):
+    def checkLogFile(self):
         # Ensure the log directory exists
         os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
         # Create an empty log file if it doesn't exist
@@ -34,7 +34,37 @@ class Logger:
             with open(self.log_file, 'w'):
                 pass
 
-    def get_next_log_number(self):
-        # Here you can implement logic to get the next log number from a database or file
-        # For now, returning a static value
-        return 1
+    def nextNumber(self):
+            # Count the number of lines in the log file to determine the next log number
+            if os.path.exists(self.log_file):
+                with open(self.log_file, 'r') as file:
+                    lines = file.readlines()
+                    return len(lines) + 1
+            return 1
+    
+    def printLogs(self):
+        # Print all logs in the log file
+        if os.path.exists(self.log_file):
+            with open(self.log_file, 'r') as file:
+                logs = file.readlines()
+                for log in logs:
+                    print(log.strip())
+            self.markLogs()
+        else:
+            print("No logs found.")
+
+    def markLogs(self):
+    # Mark all logs as checked that aren't already marked
+        if os.path.exists(self.log_file):
+            with open(self.log_file, 'r') as file:
+                logs = file.readlines()
+            
+            with open(self.log_file, 'w') as file:
+                for log in logs:
+                    log_parts = log.strip().split('|')
+                    if len(log_parts) > 6 and "Checked: False" in log_parts[6]:
+                        log_parts[6] = "Checked: True"
+                    file.write('|'.join(log_parts) + "\n")
+            print("All logs have now been marked as checked.")
+        else:
+            print("No logs found.")
