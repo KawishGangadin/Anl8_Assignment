@@ -69,6 +69,33 @@ class DB:
         cursor.close()
         conn.close()
     
+    def searchMember(self, search_key):
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = """
+            SELECT * FROM members 
+            WHERE 
+                id LIKE ? OR
+                first_name LIKE ? OR
+                last_name LIKE ? OR
+                address LIKE ? OR
+                email LIKE ? OR
+                mobile LIKE ?
+            """
+            # Constructing search patterns for partial matches
+            search_pattern = '%' + search_key + '%'
+            parameters = (search_pattern, search_pattern, search_pattern, search_pattern, search_pattern, search_pattern)
+            
+            cursor.execute(query, parameters)
+            members = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return members
+        except sqlite3.Error as e:
+            print("An error occurred while searching members:", e)
+            return None
+
     def getUserData(self, username, password):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
@@ -86,13 +113,15 @@ class DB:
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
         query = "SELECT * FROM members WHERE id = ?"
-        cursor.execute(query,(id,))
+        cursor.execute(query, (id,))
         
-        users = cursor.fetchall()
-        exists = False
-        if users != None:
-            return True
-        return False
+        user = cursor.fetchone()  # Fetch one row
+        
+        if user is not None:
+            return True  # Member ID exists
+        else:
+            return False  # Member ID does not exist
+
     
     def findUserID(self, id,role):
         conn = sqlite3.connect(self.databaseFile)
@@ -146,6 +175,16 @@ class DB:
         else:
             return None
     
+    def getMembers(self):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = "SELECT * FROM members"
+        cursor.execute(query)
+        members = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return members
+
     def createMember(self, first_name, last_name, age, gender, weight, address, email, mobile, registration_date, membership_id):
         conn = sqlite3.connect(self.databaseFile)
         query = """
@@ -203,6 +242,24 @@ class DB:
             conn.close()
             return None
         
+    def deleteMember(self, id):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = "DELETE FROM members WHERE id = ?"
+        parameters = (id,)
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while deleting the member:", e)
+            cursor.close()
+            conn.close()
+            return None
+
+
     def updateUser(self, userId, firstName, lastName, username, role):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()

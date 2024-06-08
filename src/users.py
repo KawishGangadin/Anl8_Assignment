@@ -40,7 +40,6 @@ class consultant(userBlueprint):
                 print("Invalid lastName!")
                 lastName = ""
 
-        # Generate membership ID
         membershipId = Checksum.generateMembershipId()
 
         age = ""
@@ -108,11 +107,99 @@ class consultant(userBlueprint):
             print("An error occurred while registering the member.")
             loggingSys.log("Failed to register a member", True)
 
+    def userDeletion(self, user, db, role, loggingSys):
+        def processDeletion(role):
+            roleType = ""
+            if role == None:
+                self.displayMembers(db)
+                roleType = "member"
+            else:
+                self.displayUsers(db, role)
+                roleType = role.value
+            validID = False
+            while True:
+                Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
+                if Id.upper() == "Q":
+                    return
+                elif Id.isdigit():
+                    if not role == None:
+                        if db.findUserID(int(Id), role):
+                            validID = True
+                            break
+                    else:
+                        if db.findID(Id):
+                           validID = True
+                           break 
+                print("ID not found in the database!" if Id.isdigit() else "ID is invalid!")
+                time.sleep(0.5)
+            if validID:
+                if not role == None:
+                    db.deleteUser(Id, role)
+                    print("User deleted")
+                    loggingSys.log("User has been deleted", False)
+                    time.sleep(1)
+                else:
+                    db.deleteMember(Id)
+                    print("Member deleted")
+                    loggingSys.log("Member has been deleted", False)
+                    time.sleep(1)
+        if role is None:  # Consultant role
+            if isinstance(user, consultant):
+                processDeletion(role)
+            else:
+                print("Unauthorized access...")
+        elif isinstance(user, superAdministrator):
+            if role in [None, roles.CONSULTANT, roles.ADMIN]:
+                processDeletion(role)
+            else:
+                print("Invalid request....")
+        elif isinstance(user, systemAdministrator):
+            if role in [None, roles.CONSULTANT]:
+                processDeletion(role)
+            else:
+                print("Unauthorized request.")
+        else:
+            print("Unauthorized access...")
 
-
+    def displayMembers(self, db):
+        allMembers = db.getMembers()
+        
+        print(f"========List of Members====================================================================================================")
+        if allMembers == None:
+            print("No members found:")
+        else:
+            for member in allMembers:
+                print(f"| ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | Email: {member[7]} | Mobile: {member[8]} | Registration Date: {member[9]} | Membership ID: {member[10]} |\n")
+        input("Press any key to continue...")
+        return
+    
+    def memberSearch(self, db):
+        search_key = input("Enter the search key: ")
+        result = db.searchMember(search_key)
+        if result:
+            print("Search Results:")
+            print("----------------")
+            for row in result:
+                print(f"ID: {row[0]}")
+                print(f"First Name: {row[1]}")
+                print(f"Last Name: {row[2]}")
+                print(f"Age: {row[3]}")
+                print(f"Gender: {row[4]}")
+                print(f"Weight: {row[5]}")
+                print(f"Address: {row[6]}")
+                print(f"Email: {row[7]}")
+                print(f"Mobile: {row[8]}")
+                print(f"Registration Date: {row[9]}")
+                print(f"Membership ID: {row[10]}")
+                print("----------------")
+        else:
+            print("No results found.")
+        keyPress = input("Press any key to continue...")
+    
 class systemAdministrator(consultant):
     def administratorMenu(self):
         pass
+
     def displayUsers(self,db,role=None):
         allUsers = db.getUsers(role)
         title = ""
@@ -187,39 +274,6 @@ class systemAdministrator(consultant):
         elif isinstance(user, systemAdministrator):
             if role == roles.CONSULTANT:
                 processEdit(role)
-            else:
-                print("Unauthorized request.")
-        else:
-            print("Unauthorized access...")
-                
-    def userDeletion(self, user, db, role, loggingSys):
-        def processDeletion(role):
-            self.displayUsers(db, role)
-            validID = False
-            while True:
-                ID = input(f"Enter the ID of the {role.value} you would like to delete or enter 'Q' to quit: ").strip()
-                if ID.upper() == "Q":
-                    return
-                elif ID.isdigit() and db.findUserID(int(ID), role):
-                    validID = True
-                    break
-                else:
-                    print("ID not found in the database!" if ID.isdigit() else "ID is invalid!")
-                time.sleep(0.5)
-            if validID:
-                db.deleteUser(ID,role)
-                print("User deleted")
-                loggingSys.log("User has been deleted",False)
-                time.sleep(1)
-
-        if isinstance(user, superAdministrator):
-            if role in [roles.ADMIN, roles.CONSULTANT]:
-                processDeletion(role)
-            else:
-                print("Invalid request....")
-        elif isinstance(user, systemAdministrator):
-            if role == roles.CONSULTANT:
-                processDeletion(role)
             else:
                 print("Unauthorized request.")
         else:
