@@ -285,6 +285,50 @@ class systemAdministrator(consultant):
         print("Press any key to continue...")
         keyPress = input()
 
+    def resetUserPassword(self, user, db, role, loggingSys):
+        def processReset(role):
+            self.displayUsers(db, role)
+            validID = False
+            userID = ""
+            while True:
+                userID = input(f"Enter the ID of the {role.value} you would like to reset the password for or enter 'Q' to quit: ").strip()
+                if userID.upper() == "Q":
+                    return
+                elif userID.isdigit() and db.findUserID(int(userID), role):
+                    validID = True
+                    break
+                else:
+                    print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
+                time.sleep(0.5)
+            
+            if validID:
+                while True:
+                    password = input(f"Enter a temporary password for user or press 'Q' to quit: ").strip()
+                    if password.upper() == 'Q':
+                        return
+                    if not Validation.passwordValidation(password):
+                        print("Invalid password!")
+                    else:
+                        break
+
+                # Update the user in the database
+                db.updateUserPassword(int(userID), password, role)
+                print("User password updated successfully.")
+                loggingSys.log(f"User {userID} password has been reset", False)
+
+        if isinstance(user, superAdministrator):
+            if role in [roles.ADMIN, roles.CONSULTANT]:
+                processReset(role)
+            else:
+                print("Invalid request....")
+        elif isinstance(user, systemAdministrator):
+            if role == roles.CONSULTANT:
+                processReset(role)
+            else:
+                print("Unauthorized request.")
+        else:
+            print("Unauthorized access...")
+
 
 class superAdministrator(systemAdministrator):
 

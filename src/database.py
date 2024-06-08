@@ -280,3 +280,24 @@ class DB:
             cursor.close()
             conn.close()
             return None
+    
+    def updateUserPassword(self, userId, tempPassword, role):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = """
+        UPDATE users
+        SET password = ?, temp = 1
+        WHERE id = ? AND role = ?
+        """
+        parameters = (tempPassword, userId, role.value)
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while updating the user password:", e)
+            cursor.close()
+            conn.close()
+            return None
