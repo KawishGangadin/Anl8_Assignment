@@ -1,5 +1,6 @@
 from enum import Enum
-from datetime import date
+from datetime import date, datetime
+import os
 import time
 from inputValidation import Validation
 from checkSum import Checksum
@@ -329,12 +330,57 @@ class systemAdministrator(consultant):
         else:
             print("Unauthorized access...")
 
+    def backupCreation(self, db, loggingSys):
+        print("Creating a backup of the database...")
+        # ask for confirmation
+        backup = input('Are you sure you want to create a backup of the database and log files? (Y/N): ').strip().upper()
+        while backup not in ['Y', 'N']:
+            backup = input('Invalid input! Please enter Y or N: ').strip().upper()
+        if backup == 'N':
+            return
+        db.createBackup()
+        loggingSys.log("Database and logs have been backed up", False)
+        print("Database and log files have been backed up successfully.")
+        time.sleep(1)
+    
+    def backupRestore(self, db, loggingSys):
+        # get list of available backups
+        backups = db.getBackupList()
+        if not backups:
+            print("No backups found!")
+            return
+        print("Available backups:")
+        for i, backup in enumerate(backups):
+            timestamp = backup.split("_")[1] + "_" + backup.split("_")[2].strip(".zip") # get the timestamp part of the backup file name
+            dt = datetime.strptime(timestamp, '%Y%m%d_%H%M%S')
+            dtr = dt.strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{i+1}] {backup} - Made on: { dtr }") # convert timestamp to readable datetime
+        while True:
+            try:
+                backupNum = (input("Enter the number of the backup you would like to restore or enter 'Q' to quit: ").strip())
+                if backupNum.upper() == 'Q':
+                    return
+                if not backupNum.isdigit() or int(backupNum) < 1 or int(backupNum) > len(backups):
+                    print("Invalid backup number!")
+                    continue
+                break
+            except ValueError:        
+                print("Invalid input!")
+
+        # ask for confirmation
+        print(f"Restoring the database from backup '{backups[int(backupNum)-1]}'...")
+        print("WARNING: This will overwrite the current database and log files!")
+        restore = input('Are you sure you want to restore the database from a backup? (Y/N): ').strip().upper()
+        while restore not in ['Y', 'N']:
+            restore = input('Invalid input! Please enter Y or N: ').strip().upper()
+        if restore == 'N':
+            return
+        db.restoreBackup(os.path.join('backups', backups[int(backupNum)-1]))
+        loggingSys.log("Database and logs have been restored from a backup", False)
+        print("Database and log files have been restored successfully.")
+
 
 class superAdministrator(systemAdministrator):
-
-    def testFunc(self):
-        print("hello")
-        time.sleep(2)
 
     def userCreation(self, db, role, loggingSys):
         roleType = ""

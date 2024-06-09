@@ -60,3 +60,54 @@
 60 | 2024-06-08 23:32:50 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
 61 | 2024-06-08 23:32:51 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
 62 | 2024-06-08 23:33:30 | no username | User 5 password has been reset | - | Suspicious: False | Checked: False | 
+63 | 2024-06-09 00:43:06 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+64 | 2024-06-09 00:43:07 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+65 | 2024-06-09 00:44:03 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+66 | 2024-06-09 00:44:04 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+67 | 2024-06-09 00:45:10 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+68 | 2024-06-09 00:45:11 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+69 | 2024-06-09 00:45:17 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+70 | 2024-06-09 00:48:30 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+71 | 2024-06-09 00:48:31 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+72 | 2024-06-09 00:48:37 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+73 | 2024-06-09 00:57:49 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+74 | 2024-06-09 00:57:50 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+75 | 2024-06-09 00:57:58 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+76 | 2024-06-09 00:58:38 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+77 | 2024-06-09 00:58:39 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+78 | 2024-06-09 00:59:00 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+79 | 2024-06-09 01:00:50 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+80 | 2024-06-09 01:00:51 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+81 | 2024-06-09 01:01:01 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+82 | 2024-06-09 01:08:50 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+83 | 2024-06-09 01:08:51 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+84 | 2024-06-09 01:09:07 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+85 | 2024-06-09 01:09:41 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+86 | 2024-06-09 01:09:42 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+87 | 2024-06-09 01:09:54 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+88 | 2024-06-09 01:10:21 | no username | User gave an invalid option. | - | Suspicious: False | Checked: False | 
+89 | 2024-06-09 01:10:30 | no username | User tried to log into the system with invalid credentials | username: super_admin, password: y | Suspicious: False | Checked: False | 
+90 | 2024-06-09 01:10:37 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+91 | 2024-06-09 01:10:38 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+92 | 2024-06-09 01:10:42 | no username | User gave an invalid option. | - | Suspicious: False | Checked: False | 
+93 | 2024-06-09 01:10:52 | no username | Database and logs have been backed up | - | Suspicious: False | Checked: False | 
+94 | 2024-06-09 01:12:26 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+95 | 2024-06-09 01:12:27 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+96 | 2024-06-09 01:13:49 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+97 | 2024-06-09 01:13:50 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+98 | 2024-06-09 02:04:50 | no username | Database has been restored from a backup | - | Suspicious: False | Checked: False | 
+99 | 2024-06-09 02:09:21 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+100 | 2024-06-09 02:09:22 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+101 | 2024-06-09 02:11:17 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+102 | 2024-06-09 02:11:18 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+103 | 2024-06-09 02:12:33 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+104 | 2024-06-09 02:12:34 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+105 | 2024-06-09 02:17:17 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+106 | 2024-06-09 02:17:18 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+107 | 2024-06-09 02:18:49 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+108 | 2024-06-09 02:18:50 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+109 | 2024-06-09 02:19:36 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+110 | 2024-06-09 02:19:37 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+111 | 2024-06-09 02:26:23 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+112 | 2024-06-09 02:26:24 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+113 | 2024-06-09 02:26:38 | no username | Database and logs have been restored from a backup | - | Suspicious: False | Checked: False | 
