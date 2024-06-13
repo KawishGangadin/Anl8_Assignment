@@ -1,5 +1,6 @@
 from enum import Enum
-from datetime import date
+from datetime import date, datetime
+import os
 import time
 from inputValidation import Validation
 from checkSum import Checksum
@@ -15,11 +16,6 @@ class userBlueprint:
         self.userName = userName
 
 class consultant(userBlueprint):
-    def consultantMenu(self):
-        print("""[1] Search members
-[2] Register member
-[3] Update member info
-[4] Update password\n""")
 
     def memberCreation(self, db, loggingSys):
         firstName = ""
@@ -284,13 +280,34 @@ class systemAdministrator(consultant):
         loggingSys.printLogs()
         print("Press any key to continue...")
         keyPress = input()
+    
+    def createBackup(self, user,backUpSystem):
+        while True:
+            keyPress =input("Would you like to create a back up [Y/N] ")
+            if keyPress.upper() == "Y":
+                print("Creating backup....")
+                backUpSystem.createBackupZip(user)
+                break
+            elif keyPress.upper() == "N":
+                print("Exiting.....")
+                break
+            else:
+                print("Invalid input...")
+    
+    def restoreBackup(self,backUpSystem):
+        backUpSystem.listBackupNames()
+        while True:
+            name =input("Enter the file name of the backup to start restoring or press Q to quit...")
+            if name.upper() == "Q":
+                print("Quitting...")
+                break
+            else:
+                print("Creating backup....")
+                backUpSystem.restoreBackup(name)
+
 
 
 class superAdministrator(systemAdministrator):
-
-    def testFunc(self):
-        print("hello")
-        time.sleep(2)
 
     def userCreation(self, db, role, loggingSys):
         roleType = ""

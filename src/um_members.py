@@ -5,6 +5,7 @@ from log import Logger
 from checkSum import Checksum
 from auth import loginAuth
 from inputValidation import Validation
+from backup import backup
 import time
 
 def main():
@@ -25,6 +26,7 @@ def main():
     dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
     dataBase = DB(dbPath)
     loggingSys = Logger()
+    backupSys = backup()
     logIn_System = loginAuth(dataBase)
 
     while running:
@@ -74,7 +76,7 @@ def main():
             print("Logged In")
             loggingSys.log("User has succesfully logged into Unique Meal",False)
             time.sleep(1)
-            userInterface.optionMenu(user,dataBase,loggingSys)
+            userInterface.optionMenu(user,dataBase,loggingSys,backupSys)
 
 
 if __name__ == '__main__':

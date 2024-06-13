@@ -26,6 +26,7 @@ class Logger:
             }
         )
 
+
     def checkLogFile(self):
         # Ensure the log directory exists
         os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
@@ -33,6 +34,7 @@ class Logger:
         if not os.path.exists(self.log_file):
             with open(self.log_file, 'w'):
                 pass
+
 
     def nextNumber(self):
             # Count the number of lines in the log file to determine the next log number

@@ -78,18 +78,18 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
     def clearScreen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def optionMenu(self,user,db,loggingSys):
+    def optionMenu(self,user,db,loggingSys,backupSys):
         while True:
             time.sleep(1)
             print(type(user))
             if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.superAdministrator_Menu(user,db,loggingSys)
+                self.superAdministrator_Menu(user,db,loggingSys,backupSys)
             elif isinstance(user,systemAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.systemAdministrator_Menu(user,db,loggingSys)
+                self.systemAdministrator_Menu(user,db,loggingSys,backupSys)
             elif isinstance(user,consultant):
                 self.clearScreen()
                 self.displayLogo()
@@ -98,20 +98,20 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
                 print("Unauthorized access to menu!")
                 loggingSys.log("User tried to access options without proper access.",True)
 
-    def superAdministrator_Menu(self,user,db,loggingSys):
+    def superAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
             1: lambda : user.displayUsers(db),
             2: lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
             3: lambda : user.editUser(user,db,roles.CONSULTANT),
             4: lambda : user.userDeletion(user, db, roles.CONSULTANT, loggingSys),
-            5: lambda : self.func5(db),
+            5: lambda : self.func14(db), 
             6: lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             7: lambda : user.editUser(user,db,roles.ADMIN),
             8: lambda : user.userDeletion(user, db, roles.ADMIN, loggingSys),
-            9: lambda : self.func9(db),
-            10: lambda : self.func10(db),
-            11: lambda : self.func11(db),
+            9: lambda : self.func14(db), 
+            10: lambda : user.createBackup(backupSys),
+            11: lambda : user.restoreBackup(backupSys),
             12: lambda : user.displayLogs(loggingSys),
             13: lambda : user.memberCreation(db,loggingSys),
             14: lambda : self.func14(db),
@@ -121,13 +121,13 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
             'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
             'UC': lambda : user.editUser(user,db,roles.CONSULTANT),
             'DC': lambda : user.userDeletion(user, db, roles.CONSULTANT, loggingSys),
-            'RC': lambda : self.func5(db),
+            'RC': lambda : self.func14(db),
             'AA': lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             'UA': lambda : user.editUser(user,db,roles.ADMIN),
             'DA': lambda : user.userDeletion(user, db, roles.ADMIN, loggingSys),
-            'RA': lambda : self.func9(db),
-            'BA': lambda : self.func10(db),
-            'RB': lambda : self.func11(db),
+            'RA': lambda : self.func14(db), 
+            'BA': lambda : user.createBackup(backupSys),
+            'RB': lambda : user.restoreBackup(backupSys),
             'SL': lambda : user.displayLogs(loggingSys),
             'AM': lambda : user.memberCreation(db,loggingSys),
             'UM': lambda : self.func14(db),
@@ -183,7 +183,7 @@ Super Admin Menu:
     
     
     
-    def systemAdministrator_Menu(self,user,db,loggingSys):
+    def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
             1: lambda : self.func1(db), 
@@ -191,25 +191,27 @@ Super Admin Menu:
             3: lambda : self.func3(db), 
             4: lambda : user.editUser(user, db, roles.CONSULTANT),
             5: lambda : self.func5(db), 
-            6: lambda : self.func6(db), 
-            7: lambda : self.func7(db), 
-            8: lambda : self.func8(db),
+            6: lambda : user.resetUserPassword(user, db, roles.CONSULTANT, loggingSys), 
+            7: lambda : user.backupCreation(user,db, loggingSys), 
+            8: lambda :  user.displayLogs(loggingSys),
             9: lambda : self.func9(db), 
             10: lambda : self.func10(db), 
             11: lambda : self.func11(db), 
             12: lambda : self.func12(db),
+            13: lambda : user.backupRestore(db, loggingSys),
             'UP': lambda : self.func1(db), 
             'LU': lambda : user.displayUsers(db), 
             'AC': lambda : self.func3(db), 
             'UC': lambda : user.editUser(user, db, roles.CONSULTANT),
             'DC': lambda : self.func5(db), 
-            'RC': lambda : self.func6(db), 
-            'MB': lambda : self.func7(db), 
-            'SL': lambda : self.func8(db),
+            'RC': lambda : user.resetUserPassword(user, db, roles.CONSULTANT, loggingSys),  
+            'MB': lambda : user.backupCreation(user,db, loggingSys),
+            'SL': lambda :  user.displayLogs(loggingSys),
             'AM': lambda : self.func9(db), 
             'UM': lambda : self.func10(db), 
             'DM': lambda : self.func11(db), 
             'SM': lambda : self.func12(db),
+            'RB': lambda : user.backupRestore(db, loggingSys)
         }
 
 
@@ -221,12 +223,13 @@ System Administrator Menu:
 [4] or [UC] - Modify or update an existing consultant’s account and profile
 [5] or [DC] - Delete an existing consultant’s account
 [6] or [RC] - Reset an existing consultant’s password (a temporary password)
-[7] or [MB] - Make a backup of the system and restore a backup (members information and users’ data)
+[7] or [MB] - Make a backup of the system (members and users’ information, logs)
 [8] or [SL] - See the logs file(s) of the system
 [9] or [AM] - Add a new member to the system
 [10] or [UM] - Modify or update the information of a member in the system
 [11] or [DM] - Delete a member's record from the database (note that a consultant cannot delete a record but can only modify or update a member’s information)
 [12] or [SM] - Search and retrieve the information of a member
+[13] or [RB] - Restore a backup of the system
 [0] or [Q] - Quit
 """)
 
