@@ -9,54 +9,8 @@ import time
 class UI:
     def __init__(self) -> None:
         pass
-    
-    def func1(self,db):
-        print("Welcome to function 1")
-
-    def func2(self,db):
-        print("Welcome to function 2")
-
-    def func3(self,db):
-        print("Welcome to function 3")
-
-    def func4(self,db):
-        print("Welcome to function 4")
-
-    def func5(self,db):
-        print("Welcome to function 5")
-
-    def func6(self,db):
-        print("Welcome to function 6")
-
-    def func7(self,db):
-        print("Welcome to function 7")
-
-    def func8(self,db):
-        print("Welcome to function 8")
-
-    def func9(self,db):
-        print("Welcome to function 9")
-
-    def func10(self,db):
-        print("Welcome to function 10")
-
-    def func11(self,db):
-        print("Welcome to function 11")
-
-    def func12(self,db):
-        print("Welcome to function 12")
-
-    def func13(self,db):
-        print("Welcome to function 13")
-
     def func14(self,db):
         print("Welcome to function 14")
-
-    def func15(self,db):
-        print("Welcome to function 15")
-
-    def func16(self,db):
-        print("Welcome to function 16")
 
     def displayLogo(self):
         ascii_art = """
@@ -105,32 +59,32 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
             2: lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
             3: lambda : user.editUser(user,db,roles.CONSULTANT),
             4: lambda : user.userDeletion(user, db, roles.CONSULTANT, loggingSys),
-            5: lambda : self.func14(db), 
+            5: lambda : user.resetPassword(user,db,roles.CONSULTANT), 
             6: lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             7: lambda : user.editUser(user,db,roles.ADMIN),
             8: lambda : user.userDeletion(user, db, roles.ADMIN, loggingSys),
-            9: lambda : self.func14(db), 
-            10: lambda : user.createBackup(backupSys),
+            9: lambda : user.resetPassword(user,db,roles.ADMIN), 
+            10: lambda : user.createBackup(user,backupSys),
             11: lambda : user.restoreBackup(backupSys),
             12: lambda : user.displayLogs(loggingSys),
             13: lambda : user.memberCreation(db,loggingSys),
-            14: lambda : self.func14(db),
+            14: lambda : user.editMember(db),
             15: lambda : user.userDeletion(user, db, None, loggingSys),
             16: lambda : user.memberSearch(db),
             'L': lambda : user.displayUsers(db),
             'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
             'UC': lambda : user.editUser(user,db,roles.CONSULTANT),
             'DC': lambda : user.userDeletion(user, db, roles.CONSULTANT, loggingSys),
-            'RC': lambda : self.func14(db),
+            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT),
             'AA': lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             'UA': lambda : user.editUser(user,db,roles.ADMIN),
             'DA': lambda : user.userDeletion(user, db, roles.ADMIN, loggingSys),
-            'RA': lambda : self.func14(db), 
-            'BA': lambda : user.createBackup(backupSys),
+            'RA': lambda : user.resetPassword(user,db,roles.ADMIN), 
+            'BA': lambda : user.createBackup(user,backupSys),
             'RB': lambda : user.restoreBackup(backupSys),
             'SL': lambda : user.displayLogs(loggingSys),
             'AM': lambda : user.memberCreation(db,loggingSys),
-            'UM': lambda : self.func14(db),
+            'UM': lambda : user.editMember(db),
             'DM': lambda : user.userDeletion(user, db, None, loggingSys),
             'SM': lambda : user.memberSearch(db),
             }

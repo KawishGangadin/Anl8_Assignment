@@ -113,3 +113,13 @@ class Validation:
     @staticmethod
     def validateMenuOption(input,optionList):
         pass
+
+    @staticmethod
+    def validateMembershipID(membershipID):
+        try:
+            membershipID = int(membershipID)
+            if 999999999 < membershipID < 10000000000:
+                return True
+        except ValueError:
+            return False
+        return False

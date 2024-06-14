@@ -36,7 +36,7 @@ class consultant(userBlueprint):
                 print("Invalid lastName!")
                 lastName = ""
 
-        membershipId = Checksum.generateMembershipId()
+        membershipId = Checksum.generateMembershipId(db)
 
         age = ""
         while not age:
@@ -192,6 +192,68 @@ class consultant(userBlueprint):
             print("No results found.")
         keyPress = input("Press any key to continue...")
     
+    def editMember(self, db):
+        self.displayMembers(db)
+        while True:
+            membershipID = input("Enter the membership ID of the member you would like to edit or press Q to quit...: ")
+            if membershipID.upper() == "Q":
+                return
+            if Validation.validateMembershipID(membershipID) and db.findMembershipID(membershipID):
+                break
+            else:
+                print("Invalid membership ID!!!")
+
+        def getValidInput(prompt, validation_func):
+            while True:
+                user_input = input(prompt).strip()
+                if user_input.upper() == "Q":
+                    return "Q"
+                if user_input == "" or validation_func(user_input):
+                    return user_input
+                else:
+                    print("Invalid input!!!")
+
+        updates = {}
+        fields_validations = {
+            "first_name": Validation.validateName,
+            "last_name": Validation.validateName,
+            "age": Validation.validateAge,
+            "gender": lambda x: x in ["Male", "Female", "Other"],
+            "weight": lambda x: x.replace('.', '', 1).isdigit() and float(x) > 0,
+            "address": lambda x: True,
+            "email": Validation.validateEmail,
+            "mobile": Validation.validateMobileNumber
+        }
+        for field, validation in fields_validations.items():
+            input_value = getValidInput(f"Enter new {field.replace('_', ' ')} or leave empty to make no changes: ", validation)
+            if input_value == "Q":
+                print("Edit process terminated by user.")
+                return
+            if input_value:
+                updates[field] = int(input_value) if field == "age" else float(input_value) if field == "weight" else input_value
+
+        result = db.updateMember(membershipID, **updates)
+        print("Member updated successfully." if result == "OK" else "Failed to update member.")
+
+    def changePassword(self,user,db):
+        def processChangePW(role):
+            pass
+        role = None
+        if isinstance(user,superAdministrator):
+            print("Unauthorized acess...")
+            time.sleep(0.5)
+            return
+        elif isinstance(user,systemAdministrator):
+            role = roles.ADMIN
+            processChangePW(role)
+        elif isinstance(user,consultant):
+            role = roles.CONSULTANT
+            processChangePW(role)
+        else:
+            print("Unauthorized access...")
+        
+    
+
 class systemAdministrator(consultant):
     def administratorMenu(self):
         pass
@@ -281,7 +343,7 @@ class systemAdministrator(consultant):
         print("Press any key to continue...")
         keyPress = input()
     
-    def createBackup(self, user,backUpSystem):
+    def createBackup(self,user,backUpSystem):
         while True:
             keyPress =input("Would you like to create a back up [Y/N] ")
             if keyPress.upper() == "Y":
@@ -305,6 +367,45 @@ class systemAdministrator(consultant):
                 print("Creating backup....")
                 backUpSystem.restoreBackup(name)
 
+    def resetPassword(self,user,db,role):
+        def processReset(role):
+            self.displayUsers(db,role)
+            validID = False
+            userID = ""
+            while True:
+                userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
+                if userID.upper() == "Q":
+                    return
+                elif userID.isdigit() and db.findUserID(int(userID), role):
+                    validID = True
+                    break
+                else:
+                    print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
+                    time.sleep(0.5)
+            if validID:
+                while True:
+                    password = input("Enter the new temporary password for the user or press Q to quit...: ")
+                    if password.upper() == "Q":
+                        print("Exiting...")
+                        time.sleep(0.5)
+                        return
+                    elif Validation.passwordValidation(password):
+                        db.updatePassword(userID,password,role)
+                        break
+                    else:
+                        print("Please enter a valid password!!!!")
+        if isinstance(user, superAdministrator):
+            if role in [roles.ADMIN, roles.CONSULTANT]:
+                processReset(role)
+            else:
+                print("Invalid request....")
+        elif isinstance(user, systemAdministrator):
+            if role == roles.CONSULTANT:
+                processReset(role)
+            else:
+                print("Unauthorized request.")
+        else:
+            print("Unauthorized access...")
 
 
 class superAdministrator(systemAdministrator):

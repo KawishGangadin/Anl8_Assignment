@@ -8,7 +8,7 @@ class DB:
     def __init__(self,databaseFile) -> None:
         self.databaseFile = databaseFile
 
-    def create_members_table(self):
+    def createMembersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS members (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,7 +31,7 @@ class DB:
         cursor.close()
         conn.close()
 
-    def create_users_table(self):
+    def createUsersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +51,7 @@ class DB:
         cursor.close()
         conn.close()
 
-    def init_superadmin(self):
+    def initSuperadmin(self):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
 
@@ -102,25 +102,24 @@ class DB:
         query = "SELECT * FROM users WHERE username = ? AND password = ?"
         cursor.execute(query,(username,password,))
 
-        users = cursor.fetchall()
+        users = cursor.fetchone()
         if users:
-            for user in users:
-                return user
+            return users
         else:
             return None
 
-    def findID(self, id):
+    def findMembershipID(self, id):
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
-        query = "SELECT * FROM members WHERE id = ?"
+        query = "SELECT * FROM members WHERE membership_id = ?"
         cursor.execute(query, (id,))
         
-        user = cursor.fetchone()  # Fetch one row
+        member = cursor.fetchone()
         
-        if user is not None:
-            return True  # Member ID exists
+        if member is not None:
+            return True 
         else:
-            return False  # Member ID does not exist
+            return False
 
     
     def findUserID(self, id,role):
@@ -152,7 +151,7 @@ class DB:
         conn = sqlite3.connect(self.databaseFile)
         cursor = conn.cursor()
         if role == None:
-            query = "SELECT * FROM users"
+            query = "SELECT * FROM users WHERE role != 'superadmin'"
             cursor.execute(query)
             users = cursor.fetchall()
             if users != None:
@@ -280,3 +279,55 @@ class DB:
             cursor.close()
             conn.close()
             return None
+        
+    def updateMember(self, membershipID, **fields):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+
+        # Create the base query
+        query = "UPDATE members SET"
+        parameters = []
+
+        for field, value in fields.items():
+            query += f" {field} = ?,"
+            parameters.append(value)
+
+        # Remove the last comma and add the WHERE clause
+        query = query.rstrip(",") + " WHERE membership_id = ?"
+        parameters.append(membershipID)
+
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while updating the member:", e)
+            cursor.close()
+            conn.close()
+            return None
+    
+    def updatePassword(self, userId, newPassword, role):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        query = """
+        UPDATE users
+        SET password = ?, temp = 1
+        WHERE id = ? AND role = ?
+        """
+        parameters = (newPassword, userId, role.value)
+        
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while resetting the password:", e)
+            cursor.close()
+            conn.close()
+            return None
+
+        

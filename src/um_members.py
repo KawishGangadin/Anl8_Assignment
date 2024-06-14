@@ -12,9 +12,9 @@ def main():
     def initDB():
         dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
         dbInitialization = DB(dbPath)
-        dbInitialization.create_members_table()
-        dbInitialization.create_users_table()
-        dbInitialization.init_superadmin()
+        dbInitialization.createMembersTable()
+        dbInitialization.createUsersTable()
+        dbInitialization.initSuperadmin()
     initDB()
 
     running = True

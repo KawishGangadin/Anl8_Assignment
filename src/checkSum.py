@@ -2,8 +2,7 @@ from datetime import datetime
 import random
 
 class Checksum:
-    @staticmethod
-    def generateMembershipId():
+    def generateMembershipId(db):
         membership_id = ""
         while True:
             current_year = datetime.now().year
@@ -15,6 +14,10 @@ class Checksum:
 
             check_digit = sum(int(digit) for digit in membership_id) % 10
             membership_id += str(check_digit)
+            if db.findMembershipID(membership_id):
+                pass
+            else:
+                break
             break
         return membership_id
     
