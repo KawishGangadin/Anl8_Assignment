@@ -70,9 +70,32 @@ class consultant(userBlueprint):
                 print("Invalid weight!")
                 weight = ""
 
-        address = input("Enter the member's address or press 'Q' to quit: ").strip()
-        if address.upper() == 'Q':
-            return
+        address = ""
+        while not address:
+            address = input("Enter the member's address or press 'Q' to quit: ").strip()
+            if address.upper() == 'Q':
+                return
+            if not Validation.validateAddress(address):
+                print("Invalid address!")
+                address = ""
+
+        city= ""
+        while not city:
+            city = input("Enter the member's city or press 'Q' to quit: ").strip()
+            if city.upper() == 'Q':
+                return
+            if not Validation.validateCity(city):
+                print("Invalid city!")
+                city = ""
+
+        postalCode= ""
+        while not postalCode:
+            postalCode = input("Enter the member's postal code or press 'Q' to quit: ").strip()
+            if postalCode.upper() == 'Q':
+                return
+            if not Validation.validateZipcode(postalCode):
+                print("Invalid postal code!")
+                postalCode = ""
 
         email = ""
         while not email:
@@ -95,7 +118,7 @@ class consultant(userBlueprint):
         registrationDate = date.today().strftime("%Y-%m-%d")
 
         # All input checks passed, now create the member
-        result = db.createMember(firstName, lastName, age, gender, weight, address, email, mobile, registrationDate, membershipId)
+        result = db.createMember(firstName, lastName, age, gender, weight, address, city, postalCode, email, mobile, registrationDate, membershipId)
         if result == "OK":
             loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False)
             print("Member registered successfully.")
@@ -114,7 +137,7 @@ class consultant(userBlueprint):
                 roleType = role.value
             validID = False
             while True:
-                Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
+                Id = input(f"Enter the ID/membership ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
                 if Id.upper() == "Q":
                     return
                 elif Id.isdigit():
@@ -123,7 +146,7 @@ class consultant(userBlueprint):
                             validID = True
                             break
                     else:
-                        if db.findID(Id):
+                        if db.findMembershipID(Id):
                            validID = True
                            break 
                 print("ID not found in the database!" if Id.isdigit() else "ID is invalid!")
@@ -165,34 +188,35 @@ class consultant(userBlueprint):
             print("No members found:")
         else:
             for member in allMembers:
-                print(f"| ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | Email: {member[7]} | Mobile: {member[8]} | Registration Date: {member[9]} | Membership ID: {member[10]} |\n")
+                print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
         input("Press any key to continue...")
         return
     
-    def memberSearch(self, db):
+    def memberSearch(self, db,loggingSys):
         search_key = input("Enter the search key: ")
         result = db.searchMember(search_key)
         if result:
             print("Search Results:")
             print("----------------")
             for row in result:
-                print(f"ID: {row[0]}")
+                print(f"Membership ID: {row[0]}")
                 print(f"First Name: {row[1]}")
                 print(f"Last Name: {row[2]}")
                 print(f"Age: {row[3]}")
                 print(f"Gender: {row[4]}")
                 print(f"Weight: {row[5]}")
                 print(f"Address: {row[6]}")
-                print(f"Email: {row[7]}")
-                print(f"Mobile: {row[8]}")
-                print(f"Registration Date: {row[9]}")
-                print(f"Membership ID: {row[10]}")
+                print(f"City: {row[7]}")
+                print(f"Postal Code: {row[8]}")
+                print(f"Email: {row[9]}")
+                print(f"Mobile: {row[10]}")
+                print(f"Registration Date: {row[11]}")
                 print("----------------")
         else:
             print("No results found.")
         keyPress = input("Press any key to continue...")
     
-    def editMember(self, db):
+    def editMember(self, db,loggingSys):
         self.displayMembers(db)
         while True:
             membershipID = input("Enter the membership ID of the member you would like to edit or press Q to quit...: ")
@@ -220,7 +244,9 @@ class consultant(userBlueprint):
             "age": Validation.validateAge,
             "gender": lambda x: x in ["Male", "Female", "Other"],
             "weight": lambda x: x.replace('.', '', 1).isdigit() and float(x) > 0,
-            "address": lambda x: True,
+            "address": Validation.validateAddress,
+            "city": Validation.validateCity,
+            "postalCode": Validation.validateZipcode,
             "email": Validation.validateEmail,
             "mobile": Validation.validateMobileNumber
         }
@@ -235,8 +261,8 @@ class consultant(userBlueprint):
         result = db.updateMember(membershipID, **updates)
         print("Member updated successfully." if result == "OK" else "Failed to update member.")
 
-    def changePassword(self,user,db):
-        def processChangePW(role):
+    def changePassword(self,user,db,loggingSys):
+        def processChangePW():
             correctPassword = False
             while True:
                 password = input("Input your current password or press Q to quit...")
@@ -259,24 +285,22 @@ class consultant(userBlueprint):
                     time.sleep(0.5)
                     return
                 elif Validation.passwordValidation(newPassword):
-                    db.updatePassword(self.id, newPassword, role)
+                    db.updatePassword(self.id, newPassword)
                     print("Password has been succesfully changed!")
                     time.sleep(0.5)
                     return
                 else:
                     print("Please input a valid password...")
 
-        role = None
         if isinstance(user,superAdministrator):
             print("Unauthorized acess...")
             time.sleep(0.5)
             return
         elif isinstance(user,systemAdministrator):
-            role = roles.ADMIN
-            processChangePW(role)
+            processChangePW()
         elif isinstance(user,consultant):
             role = roles.CONSULTANT
-            processChangePW(role)
+            processChangePW()
         else:
             print("Unauthorized access...")
         
@@ -300,7 +324,7 @@ class systemAdministrator(consultant):
         input("Press any key to continue...")
         return
     
-    def editUser(self, user, db, role):     
+    def editUser(self, user, db, role,loggingSys):     
         def processEdit(role):
             self.displayUsers(db, role)
             validID = False
@@ -369,7 +393,7 @@ class systemAdministrator(consultant):
         print("Press any key to continue...")
         keyPress = input()
     
-    def createBackup(self,user,backUpSystem):
+    def createBackup(self,user,backUpSystem,loggingSys):
         while True:
             keyPress =input("Would you like to create a back up [Y/N] ")
             if keyPress.upper() == "Y":
@@ -382,7 +406,7 @@ class systemAdministrator(consultant):
             else:
                 print("Invalid input...")
     
-    def restoreBackup(self,backUpSystem):
+    def restoreBackup(self,backUpSystem,loggingSys):
         backUpSystem.listBackupNames()
         while True:
             name =input("Enter the file name of the backup to start restoring or press Q to quit...")
@@ -393,7 +417,7 @@ class systemAdministrator(consultant):
                 print("Creating backup....")
                 backUpSystem.restoreBackup(name)
 
-    def resetPassword(self,user,db,role):
+    def resetPassword(self,user,db,role,loggingSys):
         def processReset(role):
             self.displayUsers(db,role)
             validID = False
@@ -416,7 +440,7 @@ class systemAdministrator(consultant):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(password):
-                        db.updatePassword(userID,password,role)
+                        db.updatePassword(userID,password,True)
                         break
                     else:
                         print("Please enter a valid password!!!!")

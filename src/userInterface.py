@@ -33,7 +33,6 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
     def optionMenu(self,user,db,loggingSys,backupSys):
         while True:
             time.sleep(1)
-            print(type(user))
             if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
@@ -53,38 +52,38 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
     def superAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
-            1: lambda : user.displayUsers(db),
-            2: lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
-            3: lambda : user.editUser(user,db,roles.CONSULTANT),
-            4: lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys),
-            5: lambda : user.resetPassword(user,db,roles.CONSULTANT), 
-            6: lambda : user.userCreation(db, roles.ADMIN,loggingSys),
-            7: lambda : user.editUser(user,db,roles.ADMIN),
-            8: lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
-            9: lambda : user.resetPassword(user,db,roles.ADMIN), 
-            10: lambda : user.createBackup(user,backupSys),
-            11: lambda : user.restoreBackup(backupSys),
-            12: lambda : user.displayLogs(loggingSys),
-            13: lambda : user.memberCreation(db,loggingSys),
-            14: lambda : user.editMember(db),
-            15: lambda : user.deletion(user, db, None, loggingSys),
-            16: lambda : user.memberSearch(db),
+            "1": lambda : user.displayUsers(db),
+            "2": lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
+            "3": lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
+            "4": lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys),
+            "5": lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys), 
+            "6": lambda : user.userCreation(db, roles.ADMIN,loggingSys),
+            "7": lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
+            "8": lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
+            "9": lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
+            "10": lambda : user.createBackup(user,backupSys,loggingSys),
+            "11": lambda : user.restoreBackup(backupSys,loggingSys),
+            "12": lambda : user.displayLogs(loggingSys),
+            "13": lambda : user.memberCreation(db,loggingSys),
+            "14": lambda : user.editMember(db,loggingSys),
+            "15": lambda : user.deletion(user, db, None, loggingSys),
+            "16": lambda : user.memberSearch(db,loggingSys),
             'L': lambda : user.displayUsers(db),
             'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
-            'UC': lambda : user.editUser(user,db,roles.CONSULTANT),
+            'UC': lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
             'DC': lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys),
-            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT),
+            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys),
             'AA': lambda : user.userCreation(db, roles.ADMIN,loggingSys),
-            'UA': lambda : user.editUser(user,db,roles.ADMIN),
+            'UA': lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
             'DA': lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
-            'RA': lambda : user.resetPassword(user,db,roles.ADMIN), 
-            'BA': lambda : user.createBackup(user,backupSys),
-            'RB': lambda : user.restoreBackup(backupSys),
-            'SL': lambda : user.displayLogs(loggingSys),
+            'RA': lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
+            'BA': lambda : user.createBackup(user,backupSys,loggingSys),
+            'RB': lambda : user.restoreBackup(backupSys,loggingSys),
+            'SL': lambda : user.displayLogs(loggingSys,loggingSys),
             'AM': lambda : user.memberCreation(db,loggingSys),
-            'UM': lambda : user.editMember(db),
+            'UM': lambda : user.editMember(db,loggingSys),
             'DM': lambda : user.deletion(user, db, None, loggingSys),
-            'SM': lambda : user.memberSearch(db),
+            'SM': lambda : user.memberSearch(db,loggingSys),
             }
         print("""
 Super Admin Menu:
@@ -110,13 +109,6 @@ Super Admin Menu:
         if input_ in ['0', 'Q']:
             print("Exiting by choice...")
             exit()
-        elif input_.isdigit():
-            if int(input_) in methodCall:
-                self.clearScreen()
-                self.displayLogo()
-                methodCall[int(input_)]()
-            else:
-                print("Invalid input given")
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
@@ -138,32 +130,32 @@ Super Admin Menu:
     def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
-            1: lambda : user.changePassword(user,db), 
-            2: lambda : user.displayUsers(db), 
-            3: lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
-            4: lambda : user.editUser(user,db,roles.CONSULTANT),
-            5: lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys), 
-            6: lambda : user.resetPassword(user,db,roles.CONSULTANT), 
-            7: lambda :  user.createBackup(user,backupSys), 
-            8: lambda :  user.displayLogs(loggingSys),
-            9: lambda : user.memberCreation(db,loggingSys), 
-            10: lambda : user.editMember(db), 
-            11: lambda : user.deletion(user, db, None, loggingSys), 
-            12: lambda : user.memberSearch(db),
-            13: lambda : user.restoreBackup(backupSys),
-            'UP': lambda : user.changePassword(user,db), 
+            "1": lambda : user.changePassword(user,db,loggingSys), 
+            "2": lambda : user.displayUsers(db), 
+            "3": lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
+            "4": lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
+            "5": lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys), 
+            "6": lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys), 
+            "7": lambda :  user.createBackup(user,backupSys,loggingSys), 
+            "8": lambda :  user.displayLogs(loggingSys),
+            "9": lambda : user.memberCreation(db,loggingSys), 
+            "10": lambda : user.editMember(db,loggingSys), 
+            "11": lambda : user.deletion(user, db, None, loggingSys), 
+            "12": lambda : user.memberSearch(db,loggingSys),
+            "13": lambda : user.restoreBackup(backupSys,loggingSys),
+            'UP': lambda : user.changePassword(user,db,loggingSys), 
             'LU': lambda : user.displayUsers(db), 
             'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
-            'UC': lambda : user.editUser(user,db,roles.CONSULTANT),
+            'UC': lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
             'DC': lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys), 
-            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT),  
-            'MB': lambda : user.createBackup(user,backupSys),
+            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys),  
+            'MB': lambda : user.createBackup(user,backupSys,loggingSys),
             'SL': lambda : user.displayLogs(loggingSys),
             'AM': lambda : user.memberCreation(db,loggingSys), 
-            'UM': lambda : user.editMember(db), 
+            'UM': lambda : user.editMember(db,loggingSys), 
             'DM': lambda : user.deletion(user, db, None, loggingSys), 
-            'SM': lambda : user.memberSearch(db),
-            'RB': lambda : user.restoreBackup(backupSys)
+            'SM': lambda : user.memberSearch(db,loggingSys),
+            'RB': lambda : user.restoreBackup(backupSys,loggingSys)
         }
 
 
@@ -189,13 +181,6 @@ System Administrator Menu:
         if input_ in ['0', 'Q']:
             print("Exiting by choice...")
             exit()
-        elif input_.isdigit():
-            if int(input_) in methodCall:
-                self.clearScreen()
-                self.displayLogo()
-                methodCall[int(input_)]()
-            else:
-                print("Invalid input given")
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
@@ -213,4 +198,42 @@ System Administrator Menu:
 
 
     def consultant_Menu(self,user,db,loggingSys):
-        print("Consultant Menu")
+        print(f"Welcome {user.userName}")
+        methodCall = {
+            "1": lambda : user.changePassword(user,db,loggingSys), 
+            "2": lambda : user.memberCreation(db,loggingSys), 
+            "3": lambda : user.editMember(db,loggingSys), 
+            "4": lambda : user.memberSearch(db,loggingSys),
+            'UP': lambda : user.changePassword(user,db,loggingSys), 
+            'AM': lambda : user.memberCreation(db,loggingSys), 
+            'UM': lambda : user.editMember(db,loggingSys), 
+            'SM': lambda : user.memberSearch(db,loggingSys),
+        }
+
+
+        print("""
+System Administrator Menu:
+[1] or [UP] - Update their own password
+[2] or [AM] - Add a new member to the system
+[3] or [UM] - Modify or update the information of a member in the system
+[4] or [SM] - Search and retrieve the information of a member
+[0] or [Q] - Quit
+""")
+
+        input_ = input("Press a key:").strip().upper()
+        if input_ in ['0', 'Q']:
+            print("Exiting by choice...")
+            exit()
+        elif isinstance(input_.upper(),str):
+            if input_.upper() in methodCall:
+                self.clearScreen()
+                self.displayLogo()
+                methodCall[input_.upper()]()
+            else:
+                loggingSys.log("User gave an invalid option.",False)
+                print("Invalid input given")
+                time.sleep(1)
+        else:
+            loggingSys.log("User gave an invalid option.",True)
+            print("Invalid input given")
+            time.sleep(1)

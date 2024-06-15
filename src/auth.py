@@ -13,8 +13,6 @@ class loginAuth:
         password = password
         data = self.db.getUserData(username,password)
         if data:
-            print(len(data))
-            print(data)
             dataRole = roles(data[6])
             dataID = data[0]
             if dataRole == roles.CONSULTANT:

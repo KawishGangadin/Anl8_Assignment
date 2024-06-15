@@ -104,15 +104,11 @@ class Validation:
     def validateMobileNumber(mobile_number):
         try:
             mobile_number = int(mobile_number)
-            if 11111111 <= mobile_number <= 99999999:
+            if 99999999 < mobile_number < 1000000000:
                 return True
         except ValueError:
             return False
         return False
-
-    @staticmethod
-    def validateMenuOption(input,optionList):
-        pass
 
     @staticmethod
     def validateMembershipID(membershipID):
@@ -123,3 +119,35 @@ class Validation:
         except ValueError:
             return False
         return False
+    
+    @staticmethod
+    def validateAddress(address):
+        allowed_characters = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,'-")
+        
+        if not isinstance(address, str):
+            return False
+        
+        try:
+            if not all(char in allowed_characters for char in address):
+                return False
+            
+            if address.strip() == '':
+                return False
+            
+        except (AttributeError, TypeError):
+            return False
+        
+        return True
+    
+    @staticmethod
+    def validateCity(city):
+        allowed_cities = [
+            'Amsterdam', 'Rotterdam', 'The Hague', 'Utrecht', 
+            'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 
+            'Breda', 'Nijmegen'
+        ]
+        
+        if not isinstance(city, str):
+            return False
+        
+        return city in allowed_cities

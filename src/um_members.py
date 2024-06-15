@@ -2,10 +2,10 @@ from userInterface import UI
 import os
 from database import DB
 from log import Logger
-from checkSum import Checksum
 from auth import loginAuth
 from inputValidation import Validation
 from backup import backup
+from users import roles
 import time
 
 def main():
@@ -72,10 +72,34 @@ def main():
                     maxTries -= 1
         
         while loggedIn:
+            isTemp = data[7]
+            while isTemp == True:
+                print("You current password is temporary or press Q to exit the system...")
+                while True:
+                    newPassword = input("Enter your new password...")
+                    if newPassword.upper() == "Q":
+                        print("Exiting the system")
+                        exit()
+                    elif Validation.passwordValidation(newPassword):
+                        respone = dataBase.updatePassword(user.id,newPassword)
+                        if respone == "OK":
+                            loggingSys.log(f"Succesfully changed {username}'s password!",False)
+                            print("Password has succefully been changed")
+                            time.sleep(0.5)
+                            isTemp = None
+                            break
+                        else:
+                            loggingSys.log(f"Something went wrong trying to change {username}'s password...",False)
+                            print("Something whent wrong trying to change the password...")
+                            print("Try again later! \n Exiting...")
+                            exit()
+                    else:
+                        print("Please enter a valid password!!!")
             userInterface.clearScreen()
             print("Logged In")
             loggingSys.log("User has succesfully logged into Unique Meal",False)
             time.sleep(1)
+            username, password, newPassword, data = None
             userInterface.optionMenu(user,dataBase,loggingSys,backupSys)
 
 
