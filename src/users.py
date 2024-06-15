@@ -103,7 +103,7 @@ class consultant(userBlueprint):
             print("An error occurred while registering the member.")
             loggingSys.log("Failed to register a member", True)
 
-    def userDeletion(self, user, db, role, loggingSys):
+    def deletion(self, user, db, role, loggingSys):
         def processDeletion(role):
             roleType = ""
             if role == None:
@@ -237,7 +237,35 @@ class consultant(userBlueprint):
 
     def changePassword(self,user,db):
         def processChangePW(role):
-            pass
+            correctPassword = False
+            while True:
+                password = input("Input your current password or press Q to quit...")
+                if password.upper() == "Q":
+                    print("Exiting...")
+                    time.sleep(0.5)
+                    return
+                elif Validation.passwordValidation(password):
+                    if db.getUserData(self.userName,password) != None:
+                        correctPassword = True
+                        break
+                    else:
+                        print("Password does not match")
+                else:
+                    print("Please input a valid password...")
+            while correctPassword:
+                newPassword = input("Please input your new password or press Q to quit...")
+                if newPassword.upper() == "Q":
+                    print("Exiting...")
+                    time.sleep(0.5)
+                    return
+                elif Validation.passwordValidation(newPassword):
+                    db.updatePassword(self.id, newPassword, role)
+                    print("Password has been succesfully changed!")
+                    time.sleep(0.5)
+                    return
+                else:
+                    print("Please input a valid password...")
+
         role = None
         if isinstance(user,superAdministrator):
             print("Unauthorized acess...")
@@ -255,8 +283,6 @@ class consultant(userBlueprint):
     
 
 class systemAdministrator(consultant):
-    def administratorMenu(self):
-        pass
 
     def displayUsers(self,db,role=None):
         allUsers = db.getUsers(role)
