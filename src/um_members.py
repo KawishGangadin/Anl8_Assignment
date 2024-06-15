@@ -99,7 +99,7 @@ def main():
             print("Logged In")
             loggingSys.log("User has succesfully logged into Unique Meal",False)
             time.sleep(1)
-            username, password, newPassword, data = None
+            username, password, newPassword, data = None, None, None, None
             userInterface.optionMenu(user,dataBase,loggingSys,backupSys)
 
 

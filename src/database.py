@@ -263,6 +263,32 @@ class DB:
             if conn:
                 conn.close()
 
+    def deleteUser(self, user_id, role):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "DELETE FROM users WHERE id = ? AND role = ?"
+            cursor.execute(query, (user_id, role.value))
+            conn.commit()
+            if cursor.rowcount == 0:
+                raise ValueError(f"No user found with id {user_id} and role {role.value}")
+            cursor.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print(f"An error occurred while deleting the user: {e}")
+            return "FAIL"
+        except ValueError as ve:
+            print(str(ve))
+           
+
+
+
+
+
+
+
+
     def deleteMember(self, membership_id):
         conn = None
         try:

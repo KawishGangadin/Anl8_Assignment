@@ -18,293 +18,339 @@ class userBlueprint:
 class consultant(userBlueprint):
 
     def memberCreation(self, db, loggingSys):
-        firstName = ""
-        while not firstName:
-            firstName = input("Enter the member's first name or press 'Q' to quit: ").strip()
-            if firstName.upper() == 'Q':
-                return
-            if not Validation.validateName(firstName):
-                print("Invalid firstName!")
-                firstName = ""
+        try:
+            firstName = ""
+            while not firstName:
+                firstName = input("Enter the member's first name or press 'Q' to quit: ").strip()
+                if firstName.upper() == 'Q':
+                    return
+                if not Validation.validateName(firstName):
+                    print("Invalid firstName!")
+                    firstName = ""
 
-        lastName = ""
-        while not lastName:
-            lastName = input("Enter the member's lastName or press 'Q' to quit: ").strip()
-            if lastName.upper() == 'Q':
-                return
-            if not Validation.validateName(lastName):
-                print("Invalid lastName!")
-                lastName = ""
+            lastName = ""
+            while not lastName:
+                lastName = input("Enter the member's lastName or press 'Q' to quit: ").strip()
+                if lastName.upper() == 'Q':
+                    return
+                if not Validation.validateName(lastName):
+                    print("Invalid lastName!")
+                    lastName = ""
 
-        membershipId = Checksum.generateMembershipId(db)
+            membershipId = Checksum.generateMembershipId(db)
 
-        age = ""
-        while not age:
-            age = input("Enter the member's age or press 'Q' to quit: ").strip()
-            if age.upper() == 'Q':
-                return
-            if not Validation.validateAge(age):
-                print("Invalid age!")
-                age = ""
+            age = ""
+            while not age:
+                age = input("Enter the member's age or press 'Q' to quit: ").strip()
+                if age.upper() == 'Q':
+                    return
+                if not Validation.validateAge(age):
+                    print("Invalid age!")
+                    age = ""
 
-        gender = ""
-        while not gender:
-            gender = input("Enter the member's gender (Male/Female/Other) or press 'Q' to quit: ").strip().capitalize()
-            if gender.upper() == 'Q':
-                return
-            if gender not in ['Male', 'Female', 'Other']:
-                print("Invalid gender!")
-                gender = ""
+            gender = ""
+            while not gender:
+                gender = input("Enter the member's gender (Male/Female/Other) or press 'Q' to quit: ").strip().capitalize()
+                if gender.upper() == 'Q':
+                    return
+                if gender not in ['Male', 'Female', 'Other']:
+                    print("Invalid gender!")
+                    gender = ""
 
-        weight = ""
-        while not weight:
-            weight = input("Enter the member's weight or press 'Q' to quit: ").strip()
-            if weight.upper() == 'Q':
-                return
-            try:
-                weight = float(weight)
-                if weight < 0:
-                    print("Weight must be a positive number!")
+            weight = ""
+            while not weight:
+                weight = input("Enter the member's weight or press 'Q' to quit: ").strip()
+                if weight.upper() == 'Q':
+                    return
+                try:
+                    weight = float(weight)
+                    if weight < 0:
+                        print("Weight must be a positive number!")
+                        weight = ""
+                except ValueError:
+                    print("Invalid weight!")
                     weight = ""
-            except ValueError:
-                print("Invalid weight!")
-                weight = ""
 
-        address = ""
-        while not address:
-            address = input("Enter the member's address or press 'Q' to quit: ").strip()
-            if address.upper() == 'Q':
-                return
-            if not Validation.validateAddress(address):
-                print("Invalid address!")
-                address = ""
+            address = ""
+            while not address:
+                address = input("Enter the member's address or press 'Q' to quit: ").strip()
+                if address.upper() == 'Q':
+                    return
+                if not Validation.validateAddress(address):
+                    print("Invalid address!")
+                    address = ""
 
-        city= ""
-        while not city:
-            city = input("Enter the member's city or press 'Q' to quit: ").strip()
-            if city.upper() == 'Q':
-                return
-            if not Validation.validateCity(city):
-                print("Invalid city!")
-                city = ""
+            city = ""
+            while not city:
+                city = input("Enter the member's city or press 'Q' to quit: ").strip()
+                if city.upper() == 'Q':
+                    return
+                if not Validation.validateCity(city):
+                    print("Invalid city!")
+                    city = ""
 
-        postalCode= ""
-        while not postalCode:
-            postalCode = input("Enter the member's postal code or press 'Q' to quit: ").strip()
-            if postalCode.upper() == 'Q':
-                return
-            if not Validation.validateZipcode(postalCode):
-                print("Invalid postal code!")
-                postalCode = ""
+            postalCode = ""
+            while not postalCode:
+                postalCode = input("Enter the member's postal code or press 'Q' to quit: ").strip()
+                if postalCode.upper() == 'Q':
+                    return
+                if not Validation.validateZipcode(postalCode):
+                    print("Invalid postal code!")
+                    postalCode = ""
 
-        email = ""
-        while not email:
-            email = input("Enter the member's email or press 'Q' to quit: ").strip()
-            if email.upper() == 'Q':
-                return
-            if not Validation.validateEmail(email):
-                print("Invalid email address!")
-                email = ""
+            email = ""
+            while not email:
+                email = input("Enter the member's email or press 'Q' to quit: ").strip()
+                if email.upper() == 'Q':
+                    return
+                if not Validation.validateEmail(email):
+                    print("Invalid email address!")
+                    email = ""
 
-        mobile = ""
-        while not mobile:
-            mobile = input("Enter the member's mobile number or press 'Q' to quit: ").strip()
-            if mobile.upper() == 'Q':
-                return
-            if not Validation.validateMobileNumber(mobile):
-                print("Invalid mobile number!")
-                mobile = ""
+            mobile = ""
+            while not mobile:
+                mobile = input("Enter the member's mobile number or press 'Q' to quit: ").strip()
+                if mobile.upper() == 'Q':
+                    return
+                if not Validation.validateMobileNumber(mobile):
+                    print("Invalid mobile number!")
+                    mobile = ""
 
-        registrationDate = date.today().strftime("%Y-%m-%d")
+            registrationDate = date.today().strftime("%Y-%m-%d")
 
-        # All input checks passed, now create the member
-        result = db.createMember(firstName, lastName, age, gender, weight, address, city, postalCode, email, mobile, registrationDate, membershipId)
-        if result == "OK":
-            loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False)
-            print("Member registered successfully.")
-        else:
-            print("An error occurred while registering the member.")
-            loggingSys.log("Failed to register a member", True)
+            # All input checks passed, now create the member
+            result = db.createMember(firstName, lastName, age, gender, weight, address, city, postalCode, email, mobile, registrationDate, membershipId)
+            if result == "OK":
+                loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False)
+                print("Member registered successfully.")
+            else:
+                print("An error occurred while registering the member.")
+                loggingSys.log("Failed to register a member", True)
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during member creation: {str(e)}", True)
 
     def deletion(self, user, db, role, loggingSys):
-        def processDeletion(role):
-            roleType = ""
-            if role == None:
-                self.displayMembers(db)
-                roleType = "member"
-            else:
-                self.displayUsers(db, role)
-                roleType = role.value
-            validID = False
-            while True:
-                Id = input(f"Enter the ID/membership ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
-                if Id.upper() == "Q":
-                    return
-                elif Id.isdigit():
-                    if not role == None:
-                        if db.findUserID(int(Id), role):
-                            validID = True
-                            break
-                    else:
-                        if db.findMembershipID(Id):
-                           validID = True
-                           break 
-                print("ID not found in the database!" if Id.isdigit() else "ID is invalid!")
-                time.sleep(0.5)
-            if validID:
-                if not role == None:
-                    db.deleteUser(Id, role)
-                    print("User deleted")
-                    loggingSys.log("User has been deleted", False)
-                    time.sleep(1)
+        try:
+            def processDeletion(role):
+                roleType = ""
+                if role == None:
+                    self.displayMembers(db)
+                    roleType = "member"
                 else:
-                    db.deleteMember(Id)
-                    print("Member deleted")
-                    loggingSys.log("Member has been deleted", False)
-                    time.sleep(1)
-        if role is None:  # Consultant role
-            if isinstance(user, consultant):
-                processDeletion(role)
+                    self.displayUsers(db, role)
+                    roleType = role.value
+                validID = False
+                while True:
+                    Id = input(f"Enter the ID/membership ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
+                    if Id.upper() == "Q":
+                        return
+                    elif Id.isdigit():
+                        if not role == None:
+                            if db.findUserID(int(Id), role):
+                                validID = True
+                                break
+                        else:
+                            if db.findMembershipID(Id):
+                               validID = True
+                               break 
+                    print("ID not found in the database!" if Id.isdigit() else "ID is invalid!")
+                    time.sleep(0.5)
+                if validID:
+                    if not role == None:
+                        result = db.deleteUser(Id, role)
+                        if result == "OK":
+                            print("User deleted")
+                            loggingSys.log("User has been deleted", False)
+                        else:
+                            print("An error occurred while deleting the user.")
+                            loggingSys.log("Failed to delete user", True)
+                        time.sleep(1)
+                    else:
+                        result = db.deleteMember(Id)
+                        if result == "OK":
+                            print("Member deleted")
+                            loggingSys.log("Member has been deleted", False)
+                        else:
+                            print("An error occurred while deleting the member.")
+                            loggingSys.log("Failed to delete member", True)
+                        time.sleep(1)
+            if role is None:  # Consultant role
+                if isinstance(user, consultant):
+                    processDeletion(role)
+                else:
+                    print("Unauthorized access...")
+            elif isinstance(user, superAdministrator):
+                if role in [None, roles.CONSULTANT, roles.ADMIN]:
+                    processDeletion(role)
+                else:
+                    print("Invalid request....")
+            elif isinstance(user, systemAdministrator):
+                if role in [None, roles.CONSULTANT]:
+                    processDeletion(role)
+                else:
+                    print("Unauthorized request.")
             else:
                 print("Unauthorized access...")
-        elif isinstance(user, superAdministrator):
-            if role in [None, roles.CONSULTANT, roles.ADMIN]:
-                processDeletion(role)
-            else:
-                print("Invalid request....")
-        elif isinstance(user, systemAdministrator):
-            if role in [None, roles.CONSULTANT]:
-                processDeletion(role)
-            else:
-                print("Unauthorized request.")
-        else:
-            print("Unauthorized access...")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during deletion: {str(e)}", True)
 
     def displayMembers(self, db):
-        allMembers = db.getMembers()
-        
-        print(f"========List of Members====================================================================================================")
-        if allMembers == None:
-            print("No members found:")
-        else:
-            for member in allMembers:
-                print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
-        input("Press any key to continue...")
-        return
-    
-    def memberSearch(self, db,loggingSys):
-        search_key = input("Enter the search key: ")
-        result = db.searchMember(search_key)
-        if result:
-            print("Search Results:")
-            print("----------------")
-            for row in result:
-                print(f"Membership ID: {row[0]}")
-                print(f"First Name: {row[1]}")
-                print(f"Last Name: {row[2]}")
-                print(f"Age: {row[3]}")
-                print(f"Gender: {row[4]}")
-                print(f"Weight: {row[5]}")
-                print(f"Address: {row[6]}")
-                print(f"City: {row[7]}")
-                print(f"Postal Code: {row[8]}")
-                print(f"Email: {row[9]}")
-                print(f"Mobile: {row[10]}")
-                print(f"Registration Date: {row[11]}")
-                print("----------------")
-        else:
-            print("No results found.")
-        keyPress = input("Press any key to continue...")
-    
-    def editMember(self, db,loggingSys):
-        self.displayMembers(db)
-        while True:
-            membershipID = input("Enter the membership ID of the member you would like to edit or press Q to quit...: ")
-            if membershipID.upper() == "Q":
-                return
-            if Validation.validateMembershipID(membershipID) and db.findMembershipID(membershipID):
-                break
+        try:
+            allMembers = db.getMembers()
+            
+            print(f"========List of Members====================================================================================================")
+            if allMembers == None:
+                print("No members found:")
             else:
-                print("Invalid membership ID!!!")
-
-        def getValidInput(prompt, validation_func):
-            while True:
-                user_input = input(prompt).strip()
-                if user_input.upper() == "Q":
-                    return "Q"
-                if user_input == "" or validation_func(user_input):
-                    return user_input
-                else:
-                    print("Invalid input!!!")
-
-        updates = {}
-        fields_validations = {
-            "first_name": Validation.validateName,
-            "last_name": Validation.validateName,
-            "age": Validation.validateAge,
-            "gender": lambda x: x in ["Male", "Female", "Other"],
-            "weight": lambda x: x.replace('.', '', 1).isdigit() and float(x) > 0,
-            "address": Validation.validateAddress,
-            "city": Validation.validateCity,
-            "postalCode": Validation.validateZipcode,
-            "email": Validation.validateEmail,
-            "mobile": Validation.validateMobileNumber
-        }
-        for field, validation in fields_validations.items():
-            input_value = getValidInput(f"Enter new {field.replace('_', ' ')} or leave empty to make no changes: ", validation)
-            if input_value == "Q":
-                print("Edit process terminated by user.")
-                return
-            if input_value:
-                updates[field] = int(input_value) if field == "age" else float(input_value) if field == "weight" else input_value
-
-        result = db.updateMember(membershipID, **updates)
-        print("Member updated successfully." if result == "OK" else "Failed to update member.")
-
-    def changePassword(self,user,db,loggingSys):
-        def processChangePW():
-            correctPassword = False
-            while True:
-                password = input("Input your current password or press Q to quit...")
-                if password.upper() == "Q":
-                    print("Exiting...")
-                    time.sleep(0.5)
-                    return
-                elif Validation.passwordValidation(password):
-                    if db.getUserData(self.userName,password) != None:
-                        correctPassword = True
-                        break
-                    else:
-                        print("Password does not match")
-                else:
-                    print("Please input a valid password...")
-            while correctPassword:
-                newPassword = input("Please input your new password or press Q to quit...")
-                if newPassword.upper() == "Q":
-                    print("Exiting...")
-                    time.sleep(0.5)
-                    return
-                elif Validation.passwordValidation(newPassword):
-                    db.updatePassword(self.id, newPassword)
-                    print("Password has been succesfully changed!")
-                    time.sleep(0.5)
-                    return
-                else:
-                    print("Please input a valid password...")
-
-        if isinstance(user,superAdministrator):
-            print("Unauthorized acess...")
-            time.sleep(0.5)
+                for member in allMembers:
+                    print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
+            input("Press any key to continue...")
             return
-        elif isinstance(user,systemAdministrator):
-            processChangePW()
-        elif isinstance(user,consultant):
-            role = roles.CONSULTANT
-            processChangePW()
-        else:
-            print("Unauthorized access...")
         
-    
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during member display: {str(e)}", True)
+
+    def memberSearch(self, db, loggingSys):
+        try:
+            search_key = input("Enter the search key: ")
+            result = db.searchMember(search_key)
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"Membership ID: {row[0]}")
+                    print(f"First Name: {row[1]}")
+                    print(f"Last Name: {row[2]}")
+                    print(f"Age: {row[3]}")
+                    print(f"Gender: {row[4]}")
+                    print(f"Weight: {row[5]}")
+                    print(f"Address: {row[6]}")
+                    print(f"City: {row[7]}")
+                    print(f"Postal Code: {row[8]}")
+                    print(f"Email: {row[9]}")
+                    print(f"Mobile: {row[10]}")
+                    print(f"Registration Date: {row[11]}")
+                    print("----------------")
+            else:
+                print("No results found.")
+            input("Press any key to continue...")
+        
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during member search: {str(e)}", True)
+
+    def editMember(self, db, loggingSys):
+        try:
+            self.displayMembers(db)
+            while True:
+                membershipID = input("Enter the membership ID of the member you would like to edit or press Q to quit: ")
+                if membershipID.upper() == "Q":
+                    return
+                if Validation.validateMembershipID(membershipID) and db.findMembershipID(membershipID):
+                    break
+                else:
+                    print("Invalid membership ID!!!")
+
+            def getValidInput(prompt, validation_func):
+                while True:
+                    user_input = input(prompt).strip()
+                    if user_input.upper() == "Q":
+                        return "Q"
+                    if user_input == "" or validation_func(user_input):
+                        return user_input
+                    else:
+                        print("Invalid input!!!")
+
+            updates = {}
+            fields_validations = {
+                "first_name": Validation.validateName,
+                "last_name": Validation.validateName,
+                "age": Validation.validateAge,
+                "gender": lambda x: x in ["Male", "Female", "Other"],
+                "weight": lambda x: x.replace('.', '', 1).isdigit() and float(x) > 0,
+                "address": Validation.validateAddress,
+                "city": Validation.validateCity,
+                "postalCode": Validation.validateZipcode,
+                "email": Validation.validateEmail,
+                "mobile": Validation.validateMobileNumber
+            }
+            for field, validation in fields_validations.items():
+                input_value = getValidInput(f"Enter new {field.replace('_', ' ')} or leave empty to make no changes: ", validation)
+                if input_value == "Q":
+                    print("Edit process terminated by user.")
+                    return
+                if input_value:
+                    updates[field] = int(input_value) if field == "age" else float(input_value) if field == "weight" else input_value
+
+            result = db.updateMember(membershipID, **updates)
+            if result == "OK":
+                print("Member updated successfully.")
+                loggingSys.log(f"Member with ID '{membershipID}' has been updated.", False)
+            else:
+                print("Failed to update member.")
+                loggingSys.log("Failed to update member.", True)
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during member edit: {str(e)}", True)
+
+    def changePassword(self, user, db, loggingSys):
+        try:
+            def processChangePW():
+                correctPassword = False
+                while True:
+                    password = input("Input your current password or press Q to quit: ")
+                    if password.upper() == "Q":
+                        print("Exiting...")
+                        time.sleep(0.5)
+                        return
+                    elif Validation.passwordValidation(password):
+                        if db.getUserData(self.userName, password) is not None:
+                            correctPassword = True
+                            break
+                        else:
+                            print("Password does not match.")
+                    else:
+                        print("Please input a valid password...")
+
+                while correctPassword:
+                    newPassword = input("Please input your new password or press Q to quit: ")
+                    if newPassword.upper() == "Q":
+                        print("Exiting...")
+                        time.sleep(0.5)
+                        return
+                    elif Validation.passwordValidation(newPassword):
+                        result = db.updatePassword(self.id, newPassword)
+                        if result == "OK":
+                            print("Password has been successfully changed!")
+                            loggingSys.log("Password has been successfully changed.", False)
+                        else:
+                            print("Failed to change password.")
+                            loggingSys.log("Failed to change password.", True)
+                        time.sleep(0.5)
+                        return
+                    else:
+                        print("Please input a valid password...")
+
+            if isinstance(user, superAdministrator):
+                print("Unauthorized access...")
+                time.sleep(0.5)
+                return
+            elif isinstance(user, systemAdministrator):
+                processChangePW()
+            elif isinstance(user, consultant):
+                role = roles.CONSULTANT
+                processChangePW()
+            else:
+                print("Unauthorized access...")
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during password change: {str(e)}", True)
+
 
 class systemAdministrator(consultant):
 
@@ -461,54 +507,63 @@ class systemAdministrator(consultant):
 class superAdministrator(systemAdministrator):
 
     def userCreation(self, db, role, loggingSys):
-        roleType = ""
-        if role in [roles.ADMIN, roles.CONSULTANT]:
+        try:
+            if role not in [roles.ADMIN, roles.CONSULTANT]:
+                print("Invalid role")
+                loggingSys.log("User tried to create a user with an invalid RoleType", True)
+                return
+
             roleType = role.value
-        else:
-            print("Invalid role")
-            loggingSys.log("User tried to create a user with an invalid RoleType", True)
-            return
-        
-        print(f"=========creating a {roleType} =========")
-        
-        availableUsername = False
-        validPassword = False
-        validFL_Name = False
-        while not validFL_Name:
-            firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
-            if firstName.upper() == 'Q':
-                return
-            lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
-            if lastName.upper() == 'Q':
-                return
-            if not Validation.validateName(firstName) or not Validation.validateName(lastName):
-                loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", True)
-                continue
-            else:
-                validFL_Name = True
+            print(f"=========creating a {roleType} =========")
 
-        while not availableUsername:
-            username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
-            if username.upper() == 'Q':
-                return
-            if not Validation.usernameValidation(username):
-                loggingSys.log(f"User tried to create a {roleType} with an invalid username", True)
-                continue
-            if db.findUsername(username):
-                loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
-            else:
-                availableUsername = True
-        
-        while not validPassword:
-            password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
-            if password.upper() == 'Q':
-                return
-            if not Validation.passwordValidation(password):
-                loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", True)
-                continue
-            else:
-                validPassword = True
+            validFL_Name = False
+            availableUsername = False
+            validPassword = False
 
-        creationDate = date.today().strftime("%Y-%m-%d")
-        db.createUser(firstName, lastName, username, password, creationDate, roleType, False)
-        loggingSys.log(f"User has created a {roleType}", False)
+            while not validFL_Name:
+                firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
+                if firstName.upper() == 'Q':
+                    return
+                lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
+                if lastName.upper() == 'Q':
+                    return
+                if not Validation.validateName(firstName) or not Validation.validateName(lastName):
+                    loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", True)
+                    continue
+                else:
+                    validFL_Name = True
+
+            while not availableUsername:
+                username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
+                if username.upper() == 'Q':
+                    return
+                if not Validation.usernameValidation(username):
+                    loggingSys.log(f"User tried to create a {roleType} with an invalid username", True)
+                    continue
+                if db.findUsername(username):
+                    loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
+                else:
+                    availableUsername = True
+
+            while not validPassword:
+                password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
+                if password.upper() == 'Q':
+                    return
+                if not Validation.passwordValidation(password):
+                    loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", True)
+                    continue
+                else:
+                    validPassword = True
+
+            creationDate = date.today().strftime("%Y-%m-%d")
+            result = db.createUser(firstName, lastName, username, password, creationDate, role, False)
+            if result == "OK":
+                print(f"{roleType} created successfully.")
+                loggingSys.log(f"User has created a {roleType}", False)
+            else:
+                print(f"Failed to create {roleType}.")
+                loggingSys.log(f"Failed to create {roleType}", True)
+
+        except Exception as e:
+            loggingSys.log(f"An error occurred during user creation: {str(e)}", True)
+            print(f"An error occurred: {str(e)}")
