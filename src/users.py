@@ -2,6 +2,7 @@ from enum import Enum
 from datetime import date, datetime
 import os
 import time
+from hash import hashUtils
 from inputValidation import Validation
 from checkSum import Checksum
 class roles(Enum):
@@ -211,7 +212,6 @@ class consultant(userBlueprint):
         
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during member display: {str(e)}", True)
 
     def memberSearch(self, db, loggingSys):
         try:
@@ -308,7 +308,8 @@ class consultant(userBlueprint):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(password):
-                        if db.getUserData(self.userName, password) is not None:
+                        hashedPassword = hashUtils.hashPassword(password)
+                        if db.getUserData(self.userName, hashedPassword) is not None:
                             correctPassword = True
                             break
                         else:
@@ -323,7 +324,8 @@ class consultant(userBlueprint):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(newPassword):
-                        result = db.updatePassword(self.id, newPassword)
+                        newHashedPassword = hashUtils.hashPassword(newPassword)
+                        result = db.updatePassword(self.id, newHashedPassword)
                         if result == "OK":
                             print("Password has been successfully changed!")
                             loggingSys.log("Password has been successfully changed.", False)
@@ -354,157 +356,185 @@ class consultant(userBlueprint):
 
 class systemAdministrator(consultant):
 
-    def displayUsers(self,db,role=None):
-        allUsers = db.getUsers(role)
-        title = ""
-        if role == None:
-            title = "user"
-        else:
-            title = f"{role.value}"
-        print(f"========List of {title}s====================================================================================================")
-        if allUsers == None:
-            print("No users found:")
-        else:
-            for user in allUsers:
-                print(f"| ID: {user[0]} | First name: {user[1]} | Last name {user[2]} | Username: {user[3]} | Registration Date: {user[5]} | Role: {user[6]} |\n")
-        input("Press any key to continue...")
-        return
-    
-    def editUser(self, user, db, role,loggingSys):     
-        def processEdit(role):
-            self.displayUsers(db, role)
-            validID = False
-            userID = ""
-            while True:
-                userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
-                if userID.upper() == "Q":
-                    return
-                elif userID.isdigit() and db.findUserID(int(userID), role):
-                    validID = True
-                    break
-                else:
-                    print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
-                time.sleep(0.5)
-            
-            if validID:
+    def displayUsers(self, db, role=None):
+        try:
+            allUsers = db.getUsers(role)
+            title = "user" if role is None else f"{role.value}"
+            print(f"========List of {title}s====================================================================================================")
+            if allUsers is None:
+                print("No users found:")
+            else:
+                for user in allUsers:
+                    print(f"| ID: {user[0]} | First name: {user[1]} | Last name {user[2]} | Username: {user[3]} | Registration Date: {user[5]} | Role: {user[6]} |\n")
+            input("Press any key to continue...")
+        except Exception as e:
+            print(f"An error occurred while displaying users: {str(e)}")
+
+    def editUser(self, user, db, role, loggingSys):
+        try:
+            def processEdit(role):
+                self.displayUsers(db, role)
+                validID = False
+                userID = ""
                 while True:
-                    firstName = input(f"Enter the new first name for user or press 'Q' to quit: ").strip()
-                    if firstName.upper() == 'Q':
+                    userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
+                    if userID.upper() == "Q":
                         return
-                    if not Validation.validateName(firstName):
-                        print("Invalid first name!")
-                    else:
+                    elif userID.isdigit() and db.findUserID(int(userID), role):
+                        validID = True
                         break
-
-                while True:
-                    lastName = input(f"Enter the new last name for user or press 'Q' to quit: ").strip()
-                    if lastName.upper() == 'Q':
-                        return
-                    if not Validation.validateName(lastName):
-                        print("Invalid last name!")
                     else:
-                        break
-
-                while True:
-                    username = input(f"Enter the new username for user or press 'Q' to quit: ").strip()
-                    if username.upper() == 'Q':
-                        return
-                    if not Validation.usernameValidation(username):
-                        print("Invalid username!")
-                    elif db.findUsername(username):
-                        print("Username already exists!")
-                    else:
-                        break
-
-                # Update the user in the database
-                db.updateUser(int(userID), firstName, lastName, username, role)
-                print("User information updated successfully.")
-
-        if isinstance(user, superAdministrator):
-            if role in [roles.ADMIN, roles.CONSULTANT]:
-                processEdit(role)
-            else:
-                print("Invalid request....")
-        elif isinstance(user, systemAdministrator):
-            if role == roles.CONSULTANT:
-                processEdit(role)
-            else:
-                print("Unauthorized request.")
-        else:
-            print("Unauthorized access...")
-
-    def displayLogs(self,loggingSys):
-        print("====================Unique Meal Logs====================\n")
-        loggingSys.printLogs()
-        print("Press any key to continue...")
-        keyPress = input()
-    
-    def createBackup(self,user,backUpSystem,loggingSys):
-        while True:
-            keyPress =input("Would you like to create a back up [Y/N] ")
-            if keyPress.upper() == "Y":
-                print("Creating backup....")
-                backUpSystem.createBackupZip(user)
-                break
-            elif keyPress.upper() == "N":
-                print("Exiting.....")
-                break
-            else:
-                print("Invalid input...")
-    
-    def restoreBackup(self,backUpSystem,loggingSys):
-        backUpSystem.listBackupNames()
-        while True:
-            name =input("Enter the file name of the backup to start restoring or press Q to quit...")
-            if name.upper() == "Q":
-                print("Quitting...")
-                break
-            else:
-                print("Creating backup....")
-                backUpSystem.restoreBackup(name)
-
-    def resetPassword(self,user,db,role,loggingSys):
-        def processReset(role):
-            self.displayUsers(db,role)
-            validID = False
-            userID = ""
-            while True:
-                userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
-                if userID.upper() == "Q":
-                    return
-                elif userID.isdigit() and db.findUserID(int(userID), role):
-                    validID = True
-                    break
-                else:
-                    print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
-                    time.sleep(0.5)
-            if validID:
-                while True:
-                    password = input("Enter the new temporary password for the user or press Q to quit...: ")
-                    if password.upper() == "Q":
-                        print("Exiting...")
+                        print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
                         time.sleep(0.5)
+
+                if validID:
+                    while True:
+                        firstName = input(f"Enter the new first name for user or press 'Q' to quit: ").strip()
+                        if firstName.upper() == 'Q':
+                            return
+                        if not Validation.validateName(firstName):
+                            print("Invalid first name!")
+                        else:
+                            break
+
+                    while True:
+                        lastName = input(f"Enter the new last name for user or press 'Q' to quit: ").strip()
+                        if lastName.upper() == 'Q':
+                            return
+                        if not Validation.validateName(lastName):
+                            print("Invalid last name!")
+                        else:
+                            break
+
+                    while True:
+                        username = input(f"Enter the new username for user or press 'Q' to quit: ").strip()
+                        if username.upper() == 'Q':
+                            return
+                        if not Validation.usernameValidation(username):
+                            print("Invalid username!")
+                        elif db.findUsername(username):
+                            print("Username already exists!")
+                        else:
+                            break
+
+                    # Update the user in the database
+                    result = db.updateUser(int(userID), firstName, lastName, username, role)
+                    if result == "OK":
+                        print("User information updated successfully.")
+                    else:
+                        print("Failed to update user information.")
+
+            if isinstance(user, superAdministrator):
+                if role in [roles.ADMIN, roles.CONSULTANT]:
+                    processEdit(role)
+                else:
+                    print("Invalid request....")
+            elif isinstance(user, systemAdministrator):
+                if role == roles.CONSULTANT:
+                    processEdit(role)
+                else:
+                    print("Unauthorized request.")
+            else:
+                print("Unauthorized access...")
+
+        except Exception as e:
+            print(f"An error occurred while editing user: {str(e)}")
+            loggingSys.log(f"Error occurred during user edit: {str(e)}", True)
+
+    def displayLogs(self, loggingSys):
+        try:
+            print("====================Unique Meal Logs====================\n")
+            loggingSys.printLogs()
+            print("Press any key to continue...")
+            keyPress = input()
+        except Exception as e:
+            print(f"An error occurred while displaying logs: {str(e)}")
+            loggingSys.log(f"Error occurred during display logs: {str(e)}", True)
+
+    def createBackup(self, user, backUpSystem, loggingSys):
+        try:
+            while True:
+                keyPress = input("Would you like to create a back up [Y/N] ")
+                if keyPress.upper() == "Y":
+                    print("Creating backup....")
+                    backUpSystem.createBackupZip(user)
+                    break
+                elif keyPress.upper() == "N":
+                    print("Exiting.....")
+                    break
+                else:
+                    print("Invalid input...")
+
+        except Exception as e:
+            print(f"An error occurred while creating backup: {str(e)}")
+            loggingSys.log(f"Error occurred during backup creation: {str(e)}", True)
+
+    def restoreBackup(self, backUpSystem, loggingSys):
+        try:
+            backUpSystem.listBackupNames()
+            while True:
+                name = input("Enter the file name of the backup to start restoring or press Q to quit...")
+                if name.upper() == "Q":
+                    print("Quitting...")
+                    break
+                else:
+                    print("Restoring backup....")
+                    backUpSystem.restoreBackup(name)
+
+        except Exception as e:
+            print(f"An error occurred while restoring backup: {str(e)}")
+            loggingSys.log(f"Error occurred during backup restoration: {str(e)}", True)
+
+    def resetPassword(self, user, db, role, loggingSys):
+        try:
+            def processReset(role):
+                self.displayUsers(db, role)
+                validID = False
+                userID = ""
+                while True:
+                    userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
+                    if userID.upper() == "Q":
                         return
-                    elif Validation.passwordValidation(password):
-                        db.updatePassword(userID,password,True)
+                    elif userID.isdigit() and db.findUserID(int(userID), role):
+                        validID = True
                         break
                     else:
-                        print("Please enter a valid password!!!!")
-        if isinstance(user, superAdministrator):
-            if role in [roles.ADMIN, roles.CONSULTANT]:
-                processReset(role)
-            else:
-                print("Invalid request....")
-        elif isinstance(user, systemAdministrator):
-            if role == roles.CONSULTANT:
-                processReset(role)
-            else:
-                print("Unauthorized request.")
-        else:
-            print("Unauthorized access...")
+                        print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
+                        time.sleep(0.5)
+                if validID:
+                    while True:
+                        password = input("Enter the new temporary password for the user or press Q to quit...: ")
+                        if password.upper() == "Q":
+                            print("Exiting...")
+                            time.sleep(0.5)
+                            return
+                        elif Validation.passwordValidation(password):
+                            hashedPassword = hashUtils.hashPassword(password)
+                            result = db.updatePassword(userID, hashedPassword, True)
+                            if result == "OK":
+                                print("Password updated successfully.")
+                            else:
+                                print("Failed to update password.")
+                            break
+                        else:
+                            print("Please enter a valid password!!!!")
 
+            if isinstance(user, superAdministrator):
+                if role in [roles.ADMIN, roles.CONSULTANT]:
+                    processReset(role)
+                else:
+                    print("Invalid request....")
+            elif isinstance(user, systemAdministrator):
+                if role == roles.CONSULTANT:
+                    processReset(role)
+                else:
+                    print("Unauthorized request.")
+            else:
+                print("Unauthorized access...")
 
-class superAdministrator(systemAdministrator):
+        except Exception as e:
+            print(f"An error occurred while resetting password: {str(e)}")
+            loggingSys.log(f"Error occurred during password reset: {str(e)}", True)
 
     def userCreation(self, db, role, loggingSys):
         try:
@@ -516,54 +546,61 @@ class superAdministrator(systemAdministrator):
             roleType = role.value
             print(f"=========creating a {roleType} =========")
 
-            validFL_Name = False
-            availableUsername = False
-            validPassword = False
+            def processCreation():
+                validFL_Name = False
+                availableUsername = False
+                validPassword = False
 
-            while not validFL_Name:
-                firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
-                if firstName.upper() == 'Q':
-                    return
-                lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
-                if lastName.upper() == 'Q':
-                    return
-                if not Validation.validateName(firstName) or not Validation.validateName(lastName):
-                    loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", True)
-                    continue
+                while not validFL_Name:
+                    firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
+                    if firstName.upper() == 'Q':
+                        return
+                    lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
+                    if lastName.upper() == 'Q':
+                        return
+                    if not Validation.validateName(firstName) or not Validation.validateName(lastName):
+                        loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", True)
+                        continue
+                    else:
+                        validFL_Name = True
+
+                while not availableUsername:
+                    username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
+                    if username.upper() == 'Q':
+                        return
+                    if not Validation.usernameValidation(username):
+                        loggingSys.log(f"User tried to create a {roleType} with an invalid username", True)
+                        continue
+                    if db.findUsername(username):
+                        loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
+                    else:
+                        availableUsername = True
+
+                while not validPassword:
+                    password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
+                    if password.upper() == 'Q':
+                        return
+                    if not Validation.passwordValidation(password):
+                        loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", True)
+                        continue
+                    else:
+                        hashedPassword = hashUtils.hashPassword(password)
+                        validPassword = True
+
+                creationDate = date.today().strftime("%Y-%m-%d")
+                result = db.createUser(firstName, lastName, username, hashedPassword, creationDate, role, False)
+                if result == "OK":
+                    print(f"{roleType} created successfully.")
+                    loggingSys.log(f"User has created a {roleType}", False)
                 else:
-                    validFL_Name = True
+                    print(f"Failed to create {roleType}.")
+                    loggingSys.log(f"Failed to create {roleType}", True)
 
-            while not availableUsername:
-                username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
-                if username.upper() == 'Q':
-                    return
-                if not Validation.usernameValidation(username):
-                    loggingSys.log(f"User tried to create a {roleType} with an invalid username", True)
-                    continue
-                if db.findUsername(username):
-                    loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
-                else:
-                    availableUsername = True
-
-            while not validPassword:
-                password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
-                if password.upper() == 'Q':
-                    return
-                if not Validation.passwordValidation(password):
-                    loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", True)
-                    continue
-                else:
-                    validPassword = True
-
-            creationDate = date.today().strftime("%Y-%m-%d")
-            result = db.createUser(firstName, lastName, username, password, creationDate, role, False)
-            if result == "OK":
-                print(f"{roleType} created successfully.")
-                loggingSys.log(f"User has created a {roleType}", False)
-            else:
-                print(f"Failed to create {roleType}.")
-                loggingSys.log(f"Failed to create {roleType}", True)
+            processCreation()
 
         except Exception as e:
             loggingSys.log(f"An error occurred during user creation: {str(e)}", True)
             print(f"An error occurred: {str(e)}")
+
+class superAdministrator(systemAdministrator):
+    pass

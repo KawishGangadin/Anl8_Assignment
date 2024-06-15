@@ -2,6 +2,8 @@ from datetime import date
 import sqlite3
 from sqlite3 import Error
 from users import roles
+from hash import hashUtils
+
 
 class DB:
     def __init__(self, databaseFile) -> None:
@@ -70,7 +72,7 @@ class DB:
 
             if not user_exists:
                 query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                parameters = ("Kawish", "Gangadin", "super_admin", "Admin_123?", date.today().strftime("%Y-%m-%d"), "superadmin", False)
+                parameters = ("Kawish", "Gangadin", "super_admin", hashUtils.hashPassword("Admin_123?"), date.today().strftime("%Y-%m-%d"), "superadmin", False)
                 cursor.execute(query, parameters)
                 conn.commit()
 
@@ -280,14 +282,6 @@ class DB:
             return "FAIL"
         except ValueError as ve:
             print(str(ve))
-           
-
-
-
-
-
-
-
 
     def deleteMember(self, membership_id):
         conn = None

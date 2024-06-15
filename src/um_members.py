@@ -6,6 +6,7 @@ from auth import loginAuth
 from inputValidation import Validation
 from backup import backup
 from users import roles
+from hash import hashUtils
 import time
 
 def main():
@@ -57,12 +58,12 @@ def main():
                     loggingSys.log("User tried to log into the system with invalid credentials", "False", f"username: {username}, password: {password}")
                     time.sleep(1)
                     continue
-
-                data = dataBase.getUserData(username,password)
+                hashedPassword = hashUtils.hashPassword(password)
+                data = dataBase.getUserData(username,hashedPassword)
                 if data != None:
                     print("succesfully logged in!")
                     loggedIn = True
-                    user = logIn_System.loginFunc(username,password)
+                    user = logIn_System.loginFunc(username,hashedPassword)
                     loggingSys.log("Multiple usernames and passwords are tried wrong in a row", "True")
                     time.sleep(1)
                     break

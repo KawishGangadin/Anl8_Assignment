@@ -4,7 +4,6 @@ class Validation:
     
     @staticmethod
     def usernameValidation(username):
-        # Regex pattern for username validation
         pattern = r"^(?!_)[a-zA-Z_][a-zA-Z0-9_'\.]{6,11}$"
         
         if not isinstance(username, str):
@@ -20,7 +19,6 @@ class Validation:
         
     @staticmethod
     def passwordValidation(password):
-        # Regex pattern for password validation
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-=\\|(){}\[\]:;'<>,.?/])[a-zA-Z\d~!@#$%&_\-=\\|(){}\[\]:;'<>,.?/]{12,30}$"
         
         if password == "Admin_123?":

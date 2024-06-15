@@ -1,77 +1,11 @@
-1 | 2024-06-15 12:54:05 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-2 | 2024-06-15 12:54:06 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-3 | 2024-06-15 12:56:05 | no username | Member 'Kawish Gangadin' has been registered with membership ID '2482825809' | - | Suspicious: False |Checked: True|
-4 | 2024-06-15 12:59:13 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-5 | 2024-06-15 12:59:14 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-6 | 2024-06-15 12:59:19 | no username | User gave an invalid option. | - | Suspicious: False |Checked: True|
-7 | 2024-06-15 15:48:15 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-8 | 2024-06-15 15:48:16 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-9 | 2024-06-15 15:48:41 | no username | User has created a consultant | - | Suspicious: False |Checked: True|
-10 | 2024-06-15 15:49:26 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-11 | 2024-06-15 15:50:23 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-12 | 2024-06-15 15:51:42 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-13 | 2024-06-15 15:52:42 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-14 | 2024-06-15 15:52:43 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-15 | 2024-06-15 15:54:30 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-16 | 2024-06-15 15:54:31 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-17 | 2024-06-15 15:54:57 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-18 | 2024-06-15 15:55:04 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-19 | 2024-06-15 18:06:58 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-20 | 2024-06-15 18:06:59 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-21 | 2024-06-15 18:07:10 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-22 | 2024-06-15 18:07:12 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-23 | 2024-06-15 18:07:13 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-24 | 2024-06-15 18:07:15 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-25 | 2024-06-15 18:07:15 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-26 | 2024-06-15 18:25:49 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-27 | 2024-06-15 18:25:50 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-28 | 2024-06-15 18:32:02 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-29 | 2024-06-15 18:32:03 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-30 | 2024-06-15 18:53:36 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-31 | 2024-06-15 18:53:37 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-32 | 2024-06-15 18:54:44 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-33 | 2024-06-15 18:54:45 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-34 | 2024-06-15 18:55:02 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-35 | 2024-06-15 18:55:03 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-36 | 2024-06-15 20:24:32 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-37 | 2024-06-15 20:24:33 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-38 | 2024-06-15 20:25:07 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-39 | 2024-06-15 20:25:09 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-40 | 2024-06-15 20:25:36 | no username | User tried to create a consultant with an invalid username | - | Suspicious: True |Checked: True|
-41 | 2024-06-15 20:25:42 | no username | User tried to create a consultant with an invalid username | - | Suspicious: True |Checked: True|
-42 | 2024-06-15 20:29:29 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-43 | 2024-06-15 20:29:30 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-44 | 2024-06-15 20:29:50 | no username | User has created a consultant | - | Suspicious: False |Checked: True|
-45 | 2024-06-15 20:30:42 | no username | Error occurred during deletion: 'DB' object has no attribute 'deleteUser' | - | Suspicious: True |Checked: True|
-46 | 2024-06-15 20:30:49 | no username | Error occurred during deletion: 'DB' object has no attribute 'deleteUser' | - | Suspicious: True |Checked: True|
-47 | 2024-06-15 20:32:21 | no username | User tried to create a admin: feasgsg with an invalid password | - | Suspicious: True |Checked: True|
-48 | 2024-06-15 20:32:25 | no username | User tried to create a admin: feasgsg with an invalid password | - | Suspicious: True |Checked: True|
-49 | 2024-06-15 20:32:29 | no username | User tried to create a admin: feasgsg with an invalid password | - | Suspicious: True |Checked: True|
-50 | 2024-06-15 20:32:35 | no username | User has created a admin | - | Suspicious: False |Checked: True|
-51 | 2024-06-15 20:33:00 | no username | Error occurred during deletion: 'DB' object has no attribute 'deleteUser' | - | Suspicious: True |Checked: True|
-52 | 2024-06-15 20:34:39 | no username | Failed to register a member | - | Suspicious: True |Checked: True|
-53 | 2024-06-15 20:35:04 | no username | Member has been deleted | - | Suspicious: False |Checked: True|
-54 | 2024-06-15 20:39:17 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-55 | 2024-06-15 20:39:18 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-56 | 2024-06-15 20:39:29 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-57 | 2024-06-15 20:39:34 | no username | User tried to create a consultant with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-58 | 2024-06-15 20:39:47 | no username | User tried to create a consultant: Consult with an invalid password | - | Suspicious: True |Checked: True|
-59 | 2024-06-15 20:39:52 | no username | User has created a consultant | - | Suspicious: False |Checked: True|
-60 | 2024-06-15 20:40:33 | no username | Error occurred during deletion: 'DB' object has no attribute 'deleteUser' | - | Suspicious: True |Checked: True|
-61 | 2024-06-15 20:45:52 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True |Checked: True|
-62 | 2024-06-15 20:45:53 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False |Checked: True|
-63 | 2024-06-15 20:45:59 | no username | User has been deleted | - | Suspicious: False |Checked: True|
-64 | 2024-06-15 20:46:22 | no username | User tried to create a admin with either an invalid first name or last name | - | Suspicious: True |Checked: True|
-65 | 2024-06-15 20:46:34 | no username | User has created a admin | - | Suspicious: False |Checked: True|
-66 | 2024-06-15 20:47:49 | no username | User has been deleted | - | Suspicious: False |Checked: True|
-67 | 2024-06-15 20:49:07 | no username | Member 'Kawishga Gangadin' has been registered with membership ID '2430025994' | - | Suspicious: False | Checked: False | 
-68 | 2024-06-15 20:49:36 | no username | Member with ID '2430025994' has been updated. | - | Suspicious: False | Checked: False | 
-69 | 2024-06-15 20:49:51 | no username | Member has been deleted | - | Suspicious: False | Checked: False | 
-70 | 2024-06-15 20:51:28 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-71 | 2024-06-15 20:51:34 | no username | Succesfully changed asdasdasd's password! | - | Suspicious: False | Checked: False | 
-72 | 2024-06-15 20:51:35 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
-73 | 2024-06-15 20:52:32 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-74 | 2024-06-15 20:52:33 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
-75 | 2024-06-15 20:52:50 | no username | Password has been successfully changed. | - | Suspicious: False | Checked: False | 
-76 | 2024-06-15 20:54:54 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-77 | 2024-06-15 20:54:55 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-15 22:17:34 | no username | User tried to log into the system with invalid credentials | username: super_admmin, password: asd | Suspicious: False | Checked: False | 
+2 | 2024-06-15 22:17:46 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+3 | 2024-06-15 22:17:47 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+4 | 2024-06-16 00:01:56 | no username | User tried to log into the system with invalid credentials | username: asfjojasjgeiogjsjogjsiojsiojdiohidiogjdfklgdfjklbdjkljdfklgjdfklgjdfklgjdfklgjdfkljgdfgdf, password: dfklgjdfklgjkdlfjgkldfjgkldfjgkldfjgkldfjgkldfjgkldfjklgjdfklgjdfklgjdfklgjdfklgjdfklgjkldfjgdfkjgkldfjgkdfjgkldfjgkldfjgkldfjgkldfjgkldfjgkldfjgkljdfgkljdfklgjdfklgjdfklgjkdfgjkldfjgkldfjgkldf | Suspicious: False | Checked: False | 
+5 | 2024-06-16 00:32:17 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+6 | 2024-06-16 00:32:18 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+7 | 2024-06-16 00:46:47 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+8 | 2024-06-16 00:46:48 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+9 | 2024-06-16 00:47:03 | no username | User has created a admin | - | Suspicious: False | Checked: False | 
+10 | 2024-06-16 00:47:16 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
+11 | 2024-06-16 00:47:17 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 

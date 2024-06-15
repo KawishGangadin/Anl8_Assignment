@@ -2,16 +2,16 @@ from users import roles
 from users import consultant
 from users import systemAdministrator
 from users import superAdministrator
+from hash import hashUtils
 import sqlite3
 
 class loginAuth:
     def __init__(self,db):
         self.db = db
 
-    def loginFunc(self, username, password):
+    def loginFunc(self, username, hashedPassword):
         username = username
-        password = password
-        data = self.db.getUserData(username,password)
+        data = self.db.getUserData(username,hashedPassword)
         if data:
             dataRole = roles(data[6])
             dataID = data[0]
