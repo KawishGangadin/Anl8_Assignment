@@ -362,7 +362,7 @@ class DB:
             
             if decrypted_role.decode('utf-8') == role.value:
                 delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
-                cursor.execute(delete_query, (user_id, role.value))
+                cursor.execute(delete_query, (user_id, user[6]))
                 conn.commit()
                 
                 if cursor.rowcount == 0:
@@ -482,7 +482,7 @@ class DB:
             hashed_password, salt = cryptoUtils.hashPassword(newPassword)
 
             temp_flag = 1 if temp else 0
-            query = "UPDATE users SET password = ?, temp = ?, salt = ? WHERE id = ?"
+            query = "UPDATE users SET password_hash = ?, temp = ?, salt = ? WHERE id = ?"
             parameters = (hashed_password, temp_flag, salt, userId)
 
             cursor.execute(query, parameters)

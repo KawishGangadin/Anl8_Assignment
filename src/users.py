@@ -387,13 +387,13 @@ class systemAdministrator(consultant):
             allUsers = db.getUsers(role)
             title = "user" if role is None else f"{role.value}"
             print(f"======== List of {title}s ====================================================================================================")
-            
+            privateKey = cryptoUtils.loadPrivateKey()
             if allUsers is None or allUsers == []:
                 print("No users found.")
             else:
                 for user in allUsers:
                     if len(user) >= 7:  # Ensure there are enough elements in the user tuple
-                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {user[3]} | Registration Date: {user[5]} | Role: {user[6]} |\n")
+                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} | Registration Date: {user[5]} | Role: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} |\n")
                     else:
                         print("Incomplete user data found, skipping display.")
             
@@ -547,10 +547,11 @@ class systemAdministrator(consultant):
                             time.sleep(0.5)
                             return
                         elif Validation.passwordValidation(password):
-                            result = db.updatePassword(int(userID), password, True)
+                            result = db.updatePassword(userID, password, True)
                             
                             if result == "OK":
                                 print("Password updated successfully.")
+                                return
                             else:
                                 print("Failed to update password.")
                                 
