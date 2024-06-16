@@ -147,23 +147,9 @@ class consultant(userBlueprint):
 
             registrationDate = date.today().strftime("%Y-%m-%d")
 
-            # Encrypt sensitive data
-            encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, firstName)
-            encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, lastName)
-            encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
-            encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
-            encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
-            encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membershipId)
-            encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
-            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
-            encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
-            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
-            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
-
-            # All input checks passed, now create the member
-            result = db.createMember(encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight,
-                                     encrypted_address, encrypted_city, encrypted_postalCode,
-                                     encrypted_email, encrypted_mobile, registrationDate, encrypted_membershipId)
+            result = db.createMember(firstName, lastName, age, gender, weight,
+                                     address, city, postalCode,
+                                     email, mobile, registrationDate, membershipId)
             if result == "OK":
                 loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False)
                 print("Member registered successfully.")
@@ -219,7 +205,7 @@ class consultant(userBlueprint):
                             print("An error occurred while deleting the member.")
                             loggingSys.log("Failed to delete member", True)
                         time.sleep(1)
-            if role is None:  # Consultant role
+            if role is None:  
                 if isinstance(user, consultant):
                     processDeletion(role)
                 else:
@@ -419,7 +405,7 @@ class systemAdministrator(consultant):
                 print("No users found.")
             else:
                 for user in allUsers:
-                    if len(user) >= 7:  # Ensure there are enough elements in the user tuple
+                    if len(user) >= 7: 
                         print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} | Registration Date: {user[5]} | Role: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[6])).decode('utf-8')} |\n")
                     else:
                         print("Incomplete user data found, skipping display.")
@@ -477,8 +463,6 @@ class systemAdministrator(consultant):
                             print("Username already exists!")
                         else:
                             break
-
-                    # Update the user in the database
                     result = db.updateUser(userID, firstName, lastName, username.lower())
                     if result == "OK":
                         print("User information updated successfully.")

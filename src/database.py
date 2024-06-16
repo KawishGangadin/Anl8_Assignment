@@ -77,7 +77,7 @@ class DB:
             superadmin_exists = False
 
             for user in users:
-                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  # Assuming role is stored as encrypted bytes in user[7]
+                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
                 if decrypted_role == b"superadmin":
                     superadmin_exists = True
                     break
@@ -111,19 +111,13 @@ class DB:
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            
-            # Fetch all members from the database
             cursor.execute("SELECT * FROM members")
             all_members = cursor.fetchall()
             
-            # Initialize a list to store matching members
             matching_members = []
-            
-            # Decrypt and compare each member's fields
             privateKey = cryptoUtils.loadPrivateKey()
             for member in all_members:
                 try:
-                    # Ensure each member field is in bytes format before decryption
                     decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[0])).decode('utf-8')
                     decrypted_first_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[1])).decode('utf-8')
                     decrypted_last_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[2])).decode('utf-8')
@@ -135,9 +129,8 @@ class DB:
                     decrypted_postal_code = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[8])).decode('utf-8')
                     decrypted_email = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[9])).decode('utf-8')
                     decrypted_mobile = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[10])).decode('utf-8')
-                    decrypted_registration_date = member[11]  # Assuming registration_date is not encrypted       
-                    # Print decrypted values for debugging   
-                    # Check if any decrypted field contains the search_key (case insensitive)
+                    decrypted_registration_date = member[11] 
+
                     if (search_key.lower() in decrypted_membership_id.lower() or
                         search_key.lower() in decrypted_first_name.lower() or
                         search_key.lower() in decrypted_last_name.lower() or
@@ -149,8 +142,7 @@ class DB:
                         search_key.lower() in decrypted_postal_code.lower() or
                         search_key.lower() in decrypted_email.lower() or
                         search_key.lower() in decrypted_mobile.lower()):
-                        
-                        # Append decrypted member details to matching_members list
+        
                         decrypted_member = (
                             decrypted_membership_id,
                             decrypted_first_name,
@@ -196,15 +188,13 @@ class DB:
             users = cursor.fetchall()
             cursor.close()
 
-            # Decrypt and find the user
             private_key = cryptoUtils.loadPrivateKey()
             for user in users:
                 decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3]) 
-                decrypted_username = decrypted_username_bytes.decode('utf-8')  # Assuming UTF-8 encoding
+                decrypted_username = decrypted_username_bytes.decode('utf-8') 
                 if decrypted_username == username:
                     return user
 
-            # If user is not found
             print(f"User with username {username} not found.")
             return None
 
@@ -225,15 +215,15 @@ class DB:
             members = cursor.fetchall()
             cursor.close()
 
-            private_key = cryptoUtils.loadPrivateKey()  # Load private key for decryption
+            private_key = cryptoUtils.loadPrivateKey() 
             decrypted_membership_id = None
 
             for member in members:
-                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  # Assuming membership_id is in the 2nd column
+                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
                 if decrypted_membership_id.decode('utf-8') == encrypted_membership_id:
-                    return True  # Found matching membership ID
+                    return True  
 
-            return False  # No matching membership ID found
+            return False  
 
         except sqlite3.Error as e:
             print("An error occurred while searching for membership ID:", e)
@@ -253,16 +243,16 @@ class DB:
             users = cursor.fetchall()
             cursor.close()
 
-            private_key = cryptoUtils.loadPrivateKey()  # Load private key for decryption
+            private_key = cryptoUtils.loadPrivateKey()  
             decrypted_role = None
 
             for user in users:
-                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  # Assuming role is in the 7th column
+                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
                 if decrypted_role.decode('utf-8') == role.value:
                     if user[0] == user_id:
-                        return True  # Found matching user_id and role
+                        return True 
 
-            return False  # No matching user_id and role found
+            return False  
 
         except sqlite3.Error as e:
             print("An error occurred while searching for user ID:", e)
@@ -287,7 +277,7 @@ class DB:
             
             for user in users:
                 decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3])
-                decrypted_username = decrypted_username_bytes.decode('utf-8')  # Assuming UTF-8 encoding
+                decrypted_username = decrypted_username_bytes.decode('utf-8') 
                 
                 if decrypted_username == username:
                     return True
@@ -317,7 +307,7 @@ class DB:
                 private_key = cryptoUtils.loadPrivateKey()
                 userList = []
                 for user in users:
-                    encrypted_role = user[6]  # Assuming role is stored as encrypted bytes in user[6]
+                    encrypted_role = user[6] 
                     decrypted_role_bytes = cryptoUtils.decryptWithPrivateKey(private_key, encrypted_role).decode('utf-8')
                     if decrypted_role_bytes == role.value:
                         userList.append(user)
@@ -360,7 +350,19 @@ class DB:
             INSERT INTO members (membership_id, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
-            parameters = (membership_id, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date)
+            public_key = cryptoUtils.loadPublicKey()
+            encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, first_name)
+            encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, last_name)
+            encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
+            encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
+            encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
+            encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membership_id)
+            encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
+            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
+            encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
+            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
+            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
+            parameters = (encrypted_membershipId, encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight, encrypted_address, encrypted_city, encrypted_postalCode, encrypted_email, encrypted_mobile, registration_date)
             cursor = conn.cursor()
 
             cursor.execute(query, parameters)
@@ -406,8 +408,8 @@ class DB:
             if user is None:
                 raise ValueError(f"No user found with id {user_id}")
             
-            private_key = cryptoUtils.loadPrivateKey()  # Load private key for decryption
-            decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  # Assuming role is in the 7th column
+            private_key = cryptoUtils.loadPrivateKey() 
+            decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
             
             if decrypted_role.decode('utf-8') == role.value:
                 delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
@@ -438,20 +440,17 @@ class DB:
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-
-            # Fetch all members
             query = "SELECT * FROM members"
             cursor.execute(query)
             members = cursor.fetchall()
 
-            # Decrypt and find the member
             private_key = cryptoUtils.loadPrivateKey()
             found_member = False
             for member in members:
-                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  # Assuming membership_id is in the second column
-                if decrypted_membership_id.decode('utf-8') == membership_id:  # Decode bytes to string for comparison
+                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
+                if decrypted_membership_id.decode('utf-8') == membership_id: 
                     query = "DELETE FROM members WHERE membership_id = ?"
-                    cursor.execute(query, (member[0],))  # Pass the original encrypted membership_id to delete
+                    cursor.execute(query, (member[0],))  
                     conn.commit()
                     found_member = True
                     break
@@ -486,8 +485,7 @@ class DB:
             SET first_name = ?, last_name = ?, username = ?
             WHERE id = ? AND username = ?
             """
-            
-            # Encrypt username if needed
+        
             if username:
                 encrypted_username = cryptoUtils.encryptWithPublicKey(publicKey, username)
             else:
@@ -502,7 +500,7 @@ class DB:
             else:
                 result = "No rows updated"
         
-            conn.commit()  # Commit the transaction
+            conn.commit() 
             
             cursor.close()
             return result
@@ -526,24 +524,19 @@ class DB:
             cursor = conn.cursor()
             publicKey = cryptoUtils.loadPublicKey()
             privateKey = cryptoUtils.loadPrivateKey()
-            # Retrieve and decrypt all member records
             cursor.execute("SELECT * FROM members")
             members = cursor.fetchall()
             member_found = False
 
             for member in members:
                 member_dict = {description[0]: member[idx] for idx, description in enumerate(cursor.description)}
-                
-                # Decrypt membership_id
                 decrypted_membership_id_bytes = cryptoUtils.decryptWithPrivateKey(privateKey,member_dict['membership_id'])
-                decrypted_membership_id = decrypted_membership_id_bytes.decode()  # Assuming membership_id needs to be decoded as string
+                decrypted_membership_id = decrypted_membership_id_bytes.decode()  
                 
                 if decrypted_membership_id == membershipID:
                     member_found = True
-                    # Encrypt fields to be updated
-                    encrypted_fields = {key: cryptoUtils.encryptWithPublicKey(publicKey, str(value)) for key, value in fields.items()}  # Ensure value is encoded properly
+                    encrypted_fields = {key: cryptoUtils.encryptWithPublicKey(publicKey, str(value)) for key, value in fields.items()}  
                     
-                    # Build the update query
                     query = "UPDATE members SET"
                     parameters = []
                     
@@ -575,7 +568,6 @@ class DB:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
 
-            # Hash the new password with a new salt
             hashed_password, salt = cryptoUtils.hashPassword(newPassword)
 
             temp_flag = 1 if temp else 0

@@ -101,7 +101,7 @@ class Validation:
     @staticmethod
     def validateMobileNumber(mobile_number):
         try:
-            mobile_number = str(mobile_number)  # Convert to string to handle leading zeros if any
+            mobile_number = str(mobile_number) 
             if mobile_number.startswith('316') and len(mobile_number) == 11:
                 return True
         except (ValueError, AttributeError):

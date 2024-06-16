@@ -13,7 +13,6 @@ class cryptoUtils:
 
     @staticmethod
     def generateKeyPair(keySize=2048):
-        # Generate RSA key pair
         private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=keySize,
@@ -24,7 +23,6 @@ class cryptoUtils:
 
     @staticmethod
     def serializePrivateKey(private_key, password=None):
-        # Serialize private key to PEM format
         encryption_algorithm = (
             serialization.BestAvailableEncryption(password)
             if password else
@@ -39,7 +37,6 @@ class cryptoUtils:
 
     @staticmethod
     def serializePublicKey(public_key):
-        # Serialize public key to PEM format
         pem = public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
@@ -48,19 +45,15 @@ class cryptoUtils:
 
     @staticmethod
     def saveKeys():
-        # Ensure 'keys' folder exists
         os.makedirs(cryptoUtils.keys_folder, exist_ok=True)
 
-        # Generate RSA key pair
         private_key, public_key = cryptoUtils.generateKeyPair()
 
-        # Serialize private key
         private_key_pem = cryptoUtils.serializePrivateKey(private_key)
         private_key_file = os.path.join(cryptoUtils.keys_folder, 'private.pem')
         with open(private_key_file, 'wb') as f:
             f.write(private_key_pem)
 
-        # Serialize public key
         public_key_pem = cryptoUtils.serializePublicKey(public_key)
         public_key_file = os.path.join(cryptoUtils.keys_folder, 'public.pem')
         with open(public_key_file, 'wb') as f:
@@ -70,7 +63,6 @@ class cryptoUtils:
 
     @staticmethod
     def loadPrivateKey():
-        # Load private key from file
         private_key_file = os.path.join(cryptoUtils.keys_folder, 'private.pem')
         with open(private_key_file, 'rb') as f:
             pem_data = f.read()
@@ -83,7 +75,6 @@ class cryptoUtils:
 
     @staticmethod
     def loadPublicKey():
-        # Load public key from file
         public_key_file = os.path.join(cryptoUtils.keys_folder, 'public.pem')
         with open(public_key_file, 'rb') as f:
             pem_data = f.read()
@@ -95,9 +86,8 @@ class cryptoUtils:
 
     @staticmethod
     def encryptWithPublicKey(public_key, message):
-        # Encrypt message with RSA-OAEP using public key
         ciphertext = public_key.encrypt(
-            message.encode('utf-8'),  # Ensure message is encoded as bytes
+            message.encode('utf-8'), 
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -108,7 +98,6 @@ class cryptoUtils:
 
     @staticmethod
     def decryptWithPrivateKey(private_key, ciphertext):
-        # Decrypt ciphertext with RSA-OAEP using private key
         plaintext = private_key.decrypt(
             ciphertext,
             padding.OAEP(

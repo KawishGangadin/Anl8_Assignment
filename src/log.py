@@ -10,8 +10,8 @@ class Logger:
         self.log_file = os.path.join(self.log_dir, 'logs', 'uniquemeal.log')
         self.checkLogFile()
         self.basicConfig()
-        self.public_key = cryptoUtils.loadPublicKey()  # Load the public key correctly
-        self.private_key = cryptoUtils.loadPrivateKey()  # Load the private key correctly
+        self.public_key = cryptoUtils.loadPublicKey() 
+        self.private_key = cryptoUtils.loadPrivateKey() 
 
     def basicConfig(self):
         logging.basicConfig(filename=self.log_file, filemode='a', level=logging.INFO, format='%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -74,7 +74,7 @@ class Logger:
                         file.write(encrypted_log.hex() + "\n")
                     except Exception as e:
                         print(f"Error decrypting log: {e}")
-                        file.write(log)  # Write the original log back if decryption fails
+                        file.write(log)
             print("All logs have now been marked as checked.")
         else:
             print("No logs found.")
