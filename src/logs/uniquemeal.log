@@ -1,11 +1,53 @@
-1 | 2024-06-15 22:17:34 | no username | User tried to log into the system with invalid credentials | username: super_admmin, password: asd | Suspicious: False | Checked: False | 
-2 | 2024-06-15 22:17:46 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-3 | 2024-06-15 22:17:47 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
-4 | 2024-06-16 00:01:56 | no username | User tried to log into the system with invalid credentials | username: asfjojasjgeiogjsjogjsiojsiojdiohidiogjdfklgdfjklbdjkljdfklgjdfklgjdfklgjdfklgjdfkljgdfgdf, password: dfklgjdfklgjkdlfjgkldfjgkldfjgkldfjgkldfjgkldfjgkldfjklgjdfklgjdfklgjdfklgjdfklgjdfklgjkldfjgdfkjgkldfjgkdfjgkldfjgkldfjgkldfjgkldfjgkldfjgkldfjgkljdfgkljdfklgjdfklgjdfklgjkdfgjkldfjgkldfjgkldf | Suspicious: False | Checked: False | 
-5 | 2024-06-16 00:32:17 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-6 | 2024-06-16 00:32:18 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
-7 | 2024-06-16 00:46:47 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-8 | 2024-06-16 00:46:48 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
-9 | 2024-06-16 00:47:03 | no username | User has created a admin | - | Suspicious: False | Checked: False | 
-10 | 2024-06-16 00:47:16 | no username | Multiple usernames and passwords are tried wrong in a row | - | Suspicious: True | Checked: False | 
-11 | 2024-06-16 00:47:17 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+1 | 2024-06-16 03:37:48 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+2 | 2024-06-16 03:37:49 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+3 | 2024-06-16 03:53:24 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+4 | 2024-06-16 03:53:25 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+5 | 2024-06-16 03:53:55 | no username | An error occurred during user creation: 'superAdministrator' object has no attribute 'db' | - | Suspicious: True | Checked: False | 
+6 | 2024-06-16 03:57:33 | no username | An error occurred during user creation: 'superAdministrator' object has no attribute 'db' | - | Suspicious: True | Checked: False | 
+7 | 2024-06-16 03:59:05 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+8 | 2024-06-16 03:59:06 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+9 | 2024-06-16 04:00:38 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+10 | 2024-06-16 04:00:39 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+11 | 2024-06-16 04:00:54 | no username | User has created a consultant | - | Suspicious: False | Checked: False | 
+12 | 2024-06-16 04:01:43 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+13 | 2024-06-16 04:01:44 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+14 | 2024-06-16 04:02:56 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+15 | 2024-06-16 04:02:57 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+16 | 2024-06-16 04:04:19 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+17 | 2024-06-16 04:04:20 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+18 | 2024-06-16 04:05:17 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+19 | 2024-06-16 04:05:18 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+20 | 2024-06-16 04:05:50 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+21 | 2024-06-16 04:05:51 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+22 | 2024-06-16 04:06:51 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+23 | 2024-06-16 04:06:53 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+24 | 2024-06-16 04:07:49 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+25 | 2024-06-16 04:07:50 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+26 | 2024-06-16 04:08:27 | no username | User tried to log into the system with invalid credentials | username: super_admin, password: asd | Suspicious: False | Checked: False | 
+27 | 2024-06-16 04:08:33 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+28 | 2024-06-16 04:08:34 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+29 | 2024-06-16 04:13:10 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+30 | 2024-06-16 04:13:11 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+31 | 2024-06-16 04:13:22 | no username | User tried to create a consultant with an invalid username | - | Suspicious: True | Checked: False | 
+32 | 2024-06-16 04:13:31 | no username | User tried to create a consultant with an invalid username | - | Suspicious: True | Checked: False | 
+33 | 2024-06-16 04:13:42 | no username | User has created a consultant | - | Suspicious: False | Checked: False | 
+34 | 2024-06-16 04:14:28 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+35 | 2024-06-16 04:14:29 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+36 | 2024-06-16 04:15:16 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+37 | 2024-06-16 04:15:17 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+38 | 2024-06-16 04:16:18 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+39 | 2024-06-16 04:16:19 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+40 | 2024-06-16 04:16:33 | no username | Password has been successfully changed. | - | Suspicious: False | Checked: False | 
+41 | 2024-06-16 04:16:47 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+42 | 2024-06-16 04:16:48 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+43 | 2024-06-16 04:17:14 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+44 | 2024-06-16 04:17:15 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+45 | 2024-06-16 04:20:15 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+46 | 2024-06-16 04:20:16 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+47 | 2024-06-16 04:21:57 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+48 | 2024-06-16 04:21:58 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+49 | 2024-06-16 04:22:31 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+50 | 2024-06-16 04:23:32 | no username | User successfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+51 | 2024-06-16 04:23:38 | no username | Succesfully changed Consultant1's password! | - | Suspicious: False | Checked: False | 
+52 | 2024-06-16 04:23:39 | no username | User has succesfully logged into Unique Meal | - | Suspicious: False | Checked: False | 
+53 | 2024-06-16 04:23:54 | no username | Password has been successfully changed. | - | Suspicious: False | Checked: False | 

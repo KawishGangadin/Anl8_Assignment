@@ -2,7 +2,7 @@ from enum import Enum
 from datetime import date, datetime
 import os
 import time
-from hash import hashUtils
+from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 from checkSum import Checksum
 class roles(Enum):
@@ -12,9 +12,10 @@ class roles(Enum):
 
 
 class userBlueprint:
-    def __init__(self, id, userName):
+    def __init__(self, id, userName,db):
         self.id = id
         self.userName = userName
+        self.db = db 
 
 class consultant(userBlueprint):
 
@@ -308,10 +309,20 @@ class consultant(userBlueprint):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(password):
-                        hashedPassword = hashUtils.hashPassword(password)
-                        if db.getUserData(self.userName, hashedPassword) is not None:
-                            correctPassword = True
-                            break
+                        print("Password validated")
+                        print(self.userName)
+                        data = db.getUserData(self.userName)
+                        if data  != None:
+                            print("data is not none")
+                            storedPassword = data[4]  # Assuming hashedPassword is stored in the 5th column
+                            storedSalt = data[8]  # Assuming salt is stored in the 9th column
+                            print(storedSalt)
+                            if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
+                                correctPassword = True
+                                print("Password matches")
+                                break
+                            else:
+                                print("Password does not match.")
                         else:
                             print("Password does not match.")
                     else:
@@ -324,8 +335,7 @@ class consultant(userBlueprint):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(newPassword):
-                        newHashedPassword = hashUtils.hashPassword(newPassword)
-                        result = db.updatePassword(self.id, newHashedPassword)
+                        result = db.updatePassword(self.id, newPassword)
                         if result == "OK":
                             print("Password has been successfully changed!")
                             loggingSys.log("Password has been successfully changed.", False)
@@ -491,8 +501,10 @@ class systemAdministrator(consultant):
                 self.displayUsers(db, role)
                 validID = False
                 userID = ""
+                
                 while True:
                     userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
+                    
                     if userID.upper() == "Q":
                         return
                     elif userID.isdigit() and db.findUserID(int(userID), role):
@@ -501,40 +513,43 @@ class systemAdministrator(consultant):
                     else:
                         print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
                         time.sleep(0.5)
+                
                 if validID:
                     while True:
-                        password = input("Enter the new temporary password for the user or press Q to quit...: ")
+                        password = input("Enter the new temporary password for the user or press Q to quit: ").strip()
+                        
                         if password.upper() == "Q":
                             print("Exiting...")
                             time.sleep(0.5)
                             return
                         elif Validation.passwordValidation(password):
-                            hashedPassword = hashUtils.hashPassword(password)
-                            result = db.updatePassword(userID, hashedPassword, True)
+                            result = db.updatePassword(int(userID), password, True)
+                            
                             if result == "OK":
                                 print("Password updated successfully.")
                             else:
                                 print("Failed to update password.")
-                            break
+                                
                         else:
-                            print("Please enter a valid password!!!!")
-
+                            print("Please enter a valid password!")
+            
             if isinstance(user, superAdministrator):
                 if role in [roles.ADMIN, roles.CONSULTANT]:
                     processReset(role)
                 else:
-                    print("Invalid request....")
+                    print("Invalid request.")
             elif isinstance(user, systemAdministrator):
                 if role == roles.CONSULTANT:
                     processReset(role)
                 else:
                     print("Unauthorized request.")
             else:
-                print("Unauthorized access...")
+                print("Unauthorized access.")
 
         except Exception as e:
             print(f"An error occurred while resetting password: {str(e)}")
             loggingSys.log(f"Error occurred during password reset: {str(e)}", True)
+
 
     def userCreation(self, db, role, loggingSys):
         try:
@@ -578,17 +593,18 @@ class systemAdministrator(consultant):
 
                 while not validPassword:
                     password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
+                    data = self.db.getUserData(username)
                     if password.upper() == 'Q':
                         return
                     if not Validation.passwordValidation(password):
                         loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", True)
                         continue
                     else:
-                        hashedPassword = hashUtils.hashPassword(password)
                         validPassword = True
+                        break
 
                 creationDate = date.today().strftime("%Y-%m-%d")
-                result = db.createUser(firstName, lastName, username, hashedPassword, creationDate, role, False)
+                result = db.createUser(firstName, lastName, username, password, creationDate, role, False)
                 if result == "OK":
                     print(f"{roleType} created successfully.")
                     loggingSys.log(f"User has created a {roleType}", False)

@@ -2,7 +2,7 @@ from datetime import date
 import sqlite3
 from sqlite3 import Error
 from users import roles
-from hash import hashUtils
+from cryptoUtils import cryptoUtils
 
 
 class DB:
@@ -47,7 +47,8 @@ class DB:
             password TEXT NOT NULL,
             registration_date DATE NOT NULL,
             role TEXT CHECK(role IN ('admin', 'consultant', 'superadmin')) NOT NULL,
-            temp BOOLEAN NOT NULL CHECK(temp IN (0, 1))
+            temp BOOLEAN NOT NULL CHECK(temp IN (0, 1)),
+            salt TEXT NOT NULL
         )
         """
         try:
@@ -71,17 +72,29 @@ class DB:
             user_exists = cursor.fetchone()[0] > 0
 
             if not user_exists:
-                query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                parameters = ("Kawish", "Gangadin", "super_admin", hashUtils.hashPassword("Admin_123?"), date.today().strftime("%Y-%m-%d"), "superadmin", False)
+                hashed_password, salt = cryptoUtils.hashPassword("Admin_123?")
+                
+                query = """
+                INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp,salt)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """
+                registration_date = date.today().strftime("%Y-%m-%d")
+                parameters = ("Kawish", "Gangadin", "super_admin", hashed_password, registration_date, "superadmin", 0, salt)
+
                 cursor.execute(query, parameters)
                 conn.commit()
+                print("Superadmin initialized successfully.")
+            else:
+                print("Superadmin already exists.")
 
-            cursor.close()
         except sqlite3.Error as e:
             print("An error occurred while initializing superadmin:", e)
+
         finally:
             if conn:
                 conn.close()
+
+
     
     def searchMember(self, search_key):
         conn = None
@@ -112,14 +125,13 @@ class DB:
             if conn:
                 conn.close()
 
-    def getUserData(self, username, password):
+    def getUserData(self, username):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            query = "SELECT * FROM users WHERE username = ? AND password = ?"
-            cursor.execute(query, (username, password))
-
+            query = "SELECT * FROM users WHERE username = ?"
+            cursor.execute(query, (username,))
             user = cursor.fetchone()
             cursor.close()
             return user
@@ -250,8 +262,9 @@ class DB:
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
-            query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-            parameters = (first_name, last_name, username, password, registration_date, role.value, temp)
+            hashed_password, salt = cryptoUtils.hashPassword(password)
+            query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp, salt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            parameters = (first_name, last_name, username, hashed_password, registration_date, role.value, temp, salt)
             cursor = conn.cursor()
 
             cursor.execute(query, parameters)
@@ -353,9 +366,14 @@ class DB:
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
+
+            # Hash the new password with a new salt
+            hashed_password, salt = cryptoUtils.hashPassword(newPassword)
+
             temp_flag = 1 if temp else 0
-            query = "UPDATE users SET password = ?, temp = ? WHERE id = ?"
-            parameters = (newPassword, temp_flag, userId)
+            query = "UPDATE users SET password = ?, temp = ?, salt = ? WHERE id = ?"
+            parameters = (hashed_password, temp_flag, salt, userId)
+
             cursor.execute(query, parameters)
             conn.commit()
             cursor.close()
@@ -366,3 +384,21 @@ class DB:
         finally:
             if conn:
                 conn.close()
+
+    def getUsernameByID(self, user_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT username FROM users WHERE id = ?"
+            cursor.execute(query, (user_id,))
+            username = cursor.fetchone()
+            cursor.close()
+            return username[0] if username else None
+        except sqlite3.Error as e:
+            print("An error occurred while retrieving username by user ID:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+

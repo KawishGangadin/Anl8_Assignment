@@ -6,7 +6,7 @@ from auth import loginAuth
 from inputValidation import Validation
 from backup import backup
 from users import roles
-from hash import hashUtils
+from cryptoUtils import cryptoUtils
 import time
 
 def main():
@@ -17,7 +17,6 @@ def main():
         dbInitialization.createUsersTable()
         dbInitialization.initSuperadmin()
     initDB()
-
     running = True
     loggedIn = False
     attemptedUsernames = []
@@ -58,17 +57,24 @@ def main():
                     loggingSys.log("User tried to log into the system with invalid credentials", "False", f"username: {username}, password: {password}")
                     time.sleep(1)
                     continue
-                hashedPassword = hashUtils.hashPassword(password)
-                data = dataBase.getUserData(username,hashedPassword)
-                if data != None:
-                    print("succesfully logged in!")
-                    loggedIn = True
-                    user = logIn_System.loginFunc(username,hashedPassword)
-                    loggingSys.log("Multiple usernames and passwords are tried wrong in a row", "True")
-                    time.sleep(1)
-                    break
+                data = dataBase.getUserData(username)
+                
+                if data:
+                    storedPassword = data[4]  # Assuming hashedPassword is stored in the 5th column
+                    storedSalt = data[8]  # Assuming salt is stored in the 9th column
+                    if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
+                        print("Successfully logged in!")
+                        loggedIn = True
+                        user = logIn_System.loginFunc(username, password)
+                        loggingSys.log("User successfully logged into Unique Meal", False)
+                        time.sleep(1)
+                        break
+                    else:
+                        print("Invalid username or password. Please try again.")
+                        time.sleep(1)
+                        maxTries -= 1
                 else:
-                    print("please input valid credentials")
+                    print("Invalid username or password. Please try again.")
                     time.sleep(1)
                     maxTries -= 1
         
@@ -102,7 +108,6 @@ def main():
             time.sleep(1)
             username, password, newPassword, data = None, None, None, None
             userInterface.optionMenu(user,dataBase,loggingSys,backupSys)
-
 
 if __name__ == '__main__':
     main()
