@@ -2,14 +2,18 @@ import os
 import hashlib
 import secrets
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import serialization
+
 class cryptoUtils:
+    keys_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'keys')
 
     @staticmethod
     def generateKeyPair(keySize=2048):
         # Generate RSA key pair
-        from cryptography.hazmat.primitives.asymmetric import rsa
-        from cryptography.hazmat.primitives.asymmetric import padding
-        from cryptography.hazmat.primitives import serialization
         private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=keySize,
@@ -21,7 +25,6 @@ class cryptoUtils:
     @staticmethod
     def serializePrivateKey(private_key, password=None):
         # Serialize private key to PEM format
-        from cryptography.hazmat.primitives import serialization
         encryption_algorithm = (
             serialization.BestAvailableEncryption(password)
             if password else
@@ -37,7 +40,6 @@ class cryptoUtils:
     @staticmethod
     def serializePublicKey(public_key):
         # Serialize public key to PEM format
-        from cryptography.hazmat.primitives import serialization
         pem = public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
@@ -45,32 +47,57 @@ class cryptoUtils:
         return pem
 
     @staticmethod
-    def loadPrivateKey(pem, password=None):
-        # Load private key from PEM format
-        from cryptography.hazmat.primitives import serialization
-        private_key = serialization.load_pem_private_key(
-            pem,
-            password=password,
-            backend=default_backend()
-        )
+    def saveKeys():
+        # Ensure 'keys' folder exists
+        os.makedirs(cryptoUtils.keys_folder, exist_ok=True)
+
+        # Generate RSA key pair
+        private_key, public_key = cryptoUtils.generateKeyPair()
+
+        # Serialize private key
+        private_key_pem = cryptoUtils.serializePrivateKey(private_key)
+        private_key_file = os.path.join(cryptoUtils.keys_folder, 'private.pem')
+        with open(private_key_file, 'wb') as f:
+            f.write(private_key_pem)
+
+        # Serialize public key
+        public_key_pem = cryptoUtils.serializePublicKey(public_key)
+        public_key_file = os.path.join(cryptoUtils.keys_folder, 'public.pem')
+        with open(public_key_file, 'wb') as f:
+            f.write(public_key_pem)
+
+        print(f"Keys saved successfully in the '{cryptoUtils.keys_folder}' folder.")
+
+    @staticmethod
+    def loadPrivateKey():
+        # Load private key from file
+        private_key_file = os.path.join(cryptoUtils.keys_folder, 'private.pem')
+        with open(private_key_file, 'rb') as f:
+            pem_data = f.read()
+            private_key = serialization.load_pem_private_key(
+                pem_data,
+                password=None,
+                backend=default_backend()
+            )
         return private_key
 
     @staticmethod
-    def loadPublicKey(pem):
-        # Load public key from PEM format
-        from cryptography.hazmat.primitives import serialization
-        public_key = serialization.load_pem_public_key(
-            pem,
-            backend=default_backend()
-        )
+    def loadPublicKey():
+        # Load public key from file
+        public_key_file = os.path.join(cryptoUtils.keys_folder, 'public.pem')
+        with open(public_key_file, 'rb') as f:
+            pem_data = f.read()
+            public_key = serialization.load_pem_public_key(
+                pem_data,
+                backend=default_backend()
+            )
         return public_key
 
     @staticmethod
     def encryptWithPublicKey(public_key, message):
         # Encrypt message with RSA-OAEP using public key
-        from cryptography.hazmat.primitives.asymmetric import padding
         ciphertext = public_key.encrypt(
-            message,
+            message.encode('utf-8'),  # Ensure message is encoded as bytes
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -82,7 +109,6 @@ class cryptoUtils:
     @staticmethod
     def decryptWithPrivateKey(private_key, ciphertext):
         # Decrypt ciphertext with RSA-OAEP using private key
-        from cryptography.hazmat.primitives.asymmetric import padding
         plaintext = private_key.decrypt(
             ciphertext,
             padding.OAEP(
@@ -92,11 +118,10 @@ class cryptoUtils:
             )
         )
         return plaintext
-
+    
     @staticmethod
     def hashPassword(password):
-        # Hash password using PBKDF2 with SHA-256 and a random salt
-        salt = secrets.token_bytes(32)  # Generate a random salt
+        salt = secrets.token_bytes(32)
         hashedPassword = hashlib.pbkdf2_hmac(
             'sha256',
             password.encode('utf-8'),
@@ -107,7 +132,6 @@ class cryptoUtils:
 
     @staticmethod
     def verifyPassword(providedPassword, storedPassword, salt):
-        # Verify provided password against stored password using salt
         hashedProvidedPassword = hashlib.pbkdf2_hmac(
             'sha256',
             providedPassword.encode('utf-8'),
@@ -115,3 +139,4 @@ class cryptoUtils:
             100000
         )
         return hashedProvidedPassword == storedPassword
+    

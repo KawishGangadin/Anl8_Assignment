@@ -60,8 +60,8 @@ def main():
                 data = dataBase.getUserData(username)
                 
                 if data:
-                    storedPassword = data[4]  # Assuming hashedPassword is stored in the 5th column
-                    storedSalt = data[8]  # Assuming salt is stored in the 9th column
+                    storedPassword = data[4]
+                    storedSalt = data[8] 
                     if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
                         print("Successfully logged in!")
                         loggedIn = True

@@ -21,6 +21,7 @@ class consultant(userBlueprint):
 
     def memberCreation(self, db, loggingSys):
         try:
+            public_key = cryptoUtils.loadPublicKey()
             firstName = ""
             while not firstName:
                 firstName = input("Enter the member's first name or press 'Q' to quit: ").strip()
@@ -38,8 +39,6 @@ class consultant(userBlueprint):
                 if not Validation.validateName(lastName):
                     print("Invalid lastName!")
                     lastName = ""
-
-            membershipId = Checksum.generateMembershipId(db)
 
             age = ""
             while not age:
@@ -72,6 +71,8 @@ class consultant(userBlueprint):
                 except ValueError:
                     print("Invalid weight!")
                     weight = ""
+
+            membershipId = Checksum.generateMembershipId(db)
 
             address = ""
             while not address:
@@ -120,8 +121,23 @@ class consultant(userBlueprint):
 
             registrationDate = date.today().strftime("%Y-%m-%d")
 
+            # Encrypt sensitive data
+            encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, firstName)
+            encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, lastName)
+            encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
+            encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
+            encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
+            encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membershipId)
+            encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
+            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
+            encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
+            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
+            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
+
             # All input checks passed, now create the member
-            result = db.createMember(firstName, lastName, age, gender, weight, address, city, postalCode, email, mobile, registrationDate, membershipId)
+            result = db.createMember(encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight,
+                                     encrypted_address, encrypted_city, encrypted_postalCode,
+                                     encrypted_email, encrypted_mobile, registrationDate, encrypted_membershipId)
             if result == "OK":
                 loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False)
                 print("Member registered successfully.")
@@ -201,13 +217,13 @@ class consultant(userBlueprint):
     def displayMembers(self, db):
         try:
             allMembers = db.getMembers()
-            
+            private_key = cryptoUtils.loadPrivateKey()
             print(f"========List of Members====================================================================================================")
             if allMembers == None:
                 print("No members found:")
             else:
                 for member in allMembers:
-                    print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
+                    print(f"| Membership ID: {(cryptoUtils.decryptWithPrivateKey(private_key,member[0])).decode('utf-8')} | First name: {(cryptoUtils.decryptWithPrivateKey(private_key,member[1])).decode('utf-8')} | Last name: {(cryptoUtils.decryptWithPrivateKey(private_key,member[2])).decode('utf-8')} | Age: {(cryptoUtils.decryptWithPrivateKey(private_key,member[3])).decode('utf-8')} | Gender: {(cryptoUtils.decryptWithPrivateKey(private_key,member[4])).decode('utf-8')} | Weight: {(cryptoUtils.decryptWithPrivateKey(private_key,member[5])).decode('utf-8')} | Address: {(cryptoUtils.decryptWithPrivateKey(private_key,member[6])).decode('utf-8')} | City: {(cryptoUtils.decryptWithPrivateKey(private_key,member[7])).decode('utf-8')} | Postal Code: {(cryptoUtils.decryptWithPrivateKey(private_key,member[8])).decode('utf-8')} | Email: {(cryptoUtils.decryptWithPrivateKey(private_key,member[9])).decode('utf-8')} | Mobile: {(cryptoUtils.decryptWithPrivateKey(private_key,member[10])).decode('utf-8')} | Registration Date: {member[11]} |\n")
             input("Press any key to continue...")
             return
         
@@ -370,15 +386,23 @@ class systemAdministrator(consultant):
         try:
             allUsers = db.getUsers(role)
             title = "user" if role is None else f"{role.value}"
-            print(f"========List of {title}s====================================================================================================")
-            if allUsers is None:
-                print("No users found:")
+            print(f"======== List of {title}s ====================================================================================================")
+            
+            if allUsers is None or allUsers == []:
+                print("No users found.")
             else:
                 for user in allUsers:
-                    print(f"| ID: {user[0]} | First name: {user[1]} | Last name {user[2]} | Username: {user[3]} | Registration Date: {user[5]} | Role: {user[6]} |\n")
+                    if len(user) >= 7:  # Ensure there are enough elements in the user tuple
+                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {user[3]} | Registration Date: {user[5]} | Role: {user[6]} |\n")
+                    else:
+                        print("Incomplete user data found, skipping display.")
+            
             input("Press any key to continue...")
+        
         except Exception as e:
             print(f"An error occurred while displaying users: {str(e)}")
+
+
 
     def editUser(self, user, db, role, loggingSys):
         try:
@@ -559,6 +583,7 @@ class systemAdministrator(consultant):
                 return
 
             roleType = role.value
+            public_key = cryptoUtils.loadPublicKey()
             print(f"=========creating a {roleType} =========")
 
             def processCreation():
@@ -604,7 +629,9 @@ class systemAdministrator(consultant):
                         break
 
                 creationDate = date.today().strftime("%Y-%m-%d")
-                result = db.createUser(firstName, lastName, username, password, creationDate, role, False)
+                encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,roleType)
+                encryptedUsername = cryptoUtils.encryptWithPublicKey(public_key,username)
+                result = self.db.createUser(firstName, lastName, encryptedUsername, password, creationDate, encryptedRole, False)
                 if result == "OK":
                     print(f"{roleType} created successfully.")
                     loggingSys.log(f"User has created a {roleType}", False)
