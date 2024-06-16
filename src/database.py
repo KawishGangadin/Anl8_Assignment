@@ -331,7 +331,7 @@ class DB:
             conn = sqlite3.connect(self.databaseFile)
             hashed_password, salt = cryptoUtils.hashPassword(password)
             query = "INSERT INTO users (first_name, last_name, username, password_hash, registration_date, role, temp, salt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            parameters = (first_name, last_name, username, hashed_password, registration_date, role.value, temp, salt)
+            parameters = (first_name, last_name, username, hashed_password, registration_date, role, temp, salt)
             cursor = conn.cursor()
 
             cursor.execute(query, parameters)
