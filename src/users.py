@@ -12,6 +12,41 @@ class consultant(userBlueprint):
 
     def memberCreation(self, db, loggingSys):
         try:
+            print("""
+1. Email Validation:
+   - Must be in a valid email format (`username@domain.com`).
+
+2. Age Validation:
+   - Must be an integer between 1 and 100.
+
+3. House Number Validation:
+   - Must be an integer between 1 and 9999.
+
+4. Zip Code Validation:
+   - Must be exactly 6 characters long.
+   - The first four characters must be digits (0-9).
+   - The last two characters must be alphabetic.
+
+5. Name Validation:
+   - Must contain only alphabetic characters, hyphens, apostrophes, or spaces.
+   - Maximum of one hyphen or apostrophe, and two spaces.
+   - Cannot start or end with a hyphen or apostrophe.
+   - Cannot be empty.
+
+6. Mobile Number Validation:
+   - Must be an integer between 1000000000 and 9999999999.
+
+7. Membership ID Validation:
+   - Must be an integer between 1000000000 and 9999999999.
+
+8. Address Validation:
+    - Must contain only alphanumeric characters, spaces, dots, commas, apostrophes, hyphens, or single quotes.
+    - Cannot be empty.
+
+9. City Validation:
+    - Must be one of the following cities: Amsterdam, Rotterdam, The Hague, Utrecht, Eindhoven, Tilburg, Groningen, Almere, Breda, Nijmegen.
+""")
+
             public_key = cryptoUtils.loadPublicKey()
             firstName = ""
             while not firstName:
@@ -103,7 +138,7 @@ class consultant(userBlueprint):
 
             mobile = ""
             while not mobile:
-                mobile = input("Enter the member's mobile number or press 'Q' to quit: ").strip()
+                mobile = input("Enter the member's mobile number +316..... or press 'Q' to quit: ").strip()
                 if mobile.upper() == 'Q':
                     return
                 if not Validation.validateMobileNumber(mobile):
@@ -320,13 +355,11 @@ class consultant(userBlueprint):
                         return
                     elif Validation.passwordValidation(password):
                         print("Password validated")
-                        print(self.userName)
                         data = db.getUserData(self.userName)
                         if data  != None:
                             print("data is not none")
-                            storedPassword = data[4]  # Assuming hashedPassword is stored in the 5th column
-                            storedSalt = data[8]  # Assuming salt is stored in the 9th column
-                            print(storedSalt)
+                            storedPassword = data[4] 
+                            storedSalt = data[8]  
                             if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
                                 correctPassword = True
                                 print("Password matches")
@@ -387,7 +420,7 @@ class systemAdministrator(consultant):
             else:
                 for user in allUsers:
                     if len(user) >= 7:  # Ensure there are enough elements in the user tuple
-                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} | Registration Date: {user[5]} | Role: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} |\n")
+                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} | Registration Date: {user[5]} | Role: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[6])).decode('utf-8')} |\n")
                     else:
                         print("Incomplete user data found, skipping display.")
             
@@ -597,6 +630,23 @@ class systemAdministrator(consultant):
                 validFL_Name = False
                 availableUsername = False
                 validPassword = False
+                print("""
+1. Username Validation:
+   - Must start with a letter or underscore.
+   - Can contain letters, digits, underscores, apostrophes, or dots.
+   - Length must be between 8 and 10 characters.
+   - Special case: "super_admin" is allowed.
+
+2. Password Validation:
+   - Must be between 12 and 30 characters.
+   - Must include at least one lowercase letter, one uppercase letter, one digit, and one special character from `~!@#$%&_\-+=\|(){}[\]:;'<>,.?/`.
+   - Special case: "Admin_123?" is allowed.
+3. Name Validation:
+   - Must contain only alphabetic characters, hyphens, apostrophes, or spaces.
+   - Maximum of one hyphen or apostrophe, and two spaces.
+   - Cannot start or end with a hyphen or apostrophe.
+   - Cannot be empty.
+""")
 
                 while not validFL_Name:
                     firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
@@ -606,6 +656,7 @@ class systemAdministrator(consultant):
                     if lastName.upper() == 'Q':
                         return
                     if not Validation.validateName(firstName) or not Validation.validateName(lastName):
+                        print("Please enter a valid first and lastname!!!")
                         loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", True)
                         continue
                     else:

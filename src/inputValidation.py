@@ -101,12 +101,13 @@ class Validation:
     @staticmethod
     def validateMobileNumber(mobile_number):
         try:
-            mobile_number = int(mobile_number)
-            if 999999999 < mobile_number < 10000000000:
+            mobile_number = str(mobile_number)  # Convert to string to handle leading zeros if any
+            if mobile_number.startswith('316') and len(mobile_number) == 11:
                 return True
-        except ValueError:
-            return False
+        except (ValueError, AttributeError):
+            pass
         return False
+
 
     @staticmethod
     def validateMembershipID(membershipID):

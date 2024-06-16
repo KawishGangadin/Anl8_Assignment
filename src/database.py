@@ -495,11 +495,6 @@ class DB:
             
             parameters = (firstName, lastName, encrypted_username, userId, oldUsername)
 
-            print("Executing query:")
-            print(query)
-            print("Parameters:")
-            print(parameters)
-
             cursor.execute(query, parameters)
             
             if cursor.rowcount > 0:
