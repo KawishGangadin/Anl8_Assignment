@@ -4,7 +4,7 @@ class Validation:
     
     @staticmethod
     def usernameValidation(username):
-        pattern = r"^(?!_)[a-zA-Z_][a-zA-Z0-9_'\.]{6,11}$"
+        pattern = r"^[a-zA-Z_][a-zA-Z0-9_'\.]{7,9}$"
         
         if not isinstance(username, str):
             return False
@@ -19,7 +19,7 @@ class Validation:
         
     @staticmethod
     def passwordValidation(password):
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-=\\|(){}\[\]:;'<>,.?/])[a-zA-Z\d~!@#$%&_\-=\\|(){}\[\]:;'<>,.?/]{12,30}$"
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;'<>,.?/])[a-zA-Z\d~!@#$%&_\-+=`|\\(){}[\]:;'<>,.?/]{12,30}$"
         
         if password == "Admin_123?":
             return True
@@ -102,7 +102,7 @@ class Validation:
     def validateMobileNumber(mobile_number):
         try:
             mobile_number = int(mobile_number)
-            if 99999999 < mobile_number < 1000000000:
+            if 999999999 < mobile_number < 10000000000:
                 return True
         except ValueError:
             return False

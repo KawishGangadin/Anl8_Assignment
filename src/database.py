@@ -111,29 +111,80 @@ class DB:
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            query = """
-            SELECT * FROM members 
-            WHERE 
-                membership_id LIKE ? OR
-                first_name LIKE ? OR
-                last_name LIKE ? OR
-                address LIKE ? OR
-                email LIKE ? OR
-                mobile LIKE ?
-            """
-            search_pattern = '%' + search_key + '%'
-            parameters = (search_pattern, search_pattern, search_pattern, search_pattern, search_pattern, search_pattern)
             
-            cursor.execute(query, parameters)
-            members = cursor.fetchall()
+            # Fetch all members from the database
+            cursor.execute("SELECT * FROM members")
+            all_members = cursor.fetchall()
+            
+            # Initialize a list to store matching members
+            matching_members = []
+            
+            # Decrypt and compare each member's fields
+            privateKey = cryptoUtils.loadPrivateKey()
+            for member in all_members:
+                try:
+                    # Ensure each member field is in bytes format before decryption
+                    decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[0])).decode('utf-8')
+                    decrypted_first_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[1])).decode('utf-8')
+                    decrypted_last_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[2])).decode('utf-8')
+                    decrypted_age = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[3])).decode('utf-8')
+                    decrypted_gender = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[4])).decode('utf-8')
+                    decrypted_weight = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[5])).decode('utf-8')
+                    decrypted_address = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[6])).decode('utf-8')
+                    decrypted_city = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[7])).decode('utf-8')
+                    decrypted_postal_code = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[8])).decode('utf-8')
+                    decrypted_email = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[9])).decode('utf-8')
+                    decrypted_mobile = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[10])).decode('utf-8')
+                    decrypted_registration_date = member[11]  # Assuming registration_date is not encrypted       
+                    # Print decrypted values for debugging   
+                    # Check if any decrypted field contains the search_key (case insensitive)
+                    if (search_key.lower() in decrypted_membership_id.lower() or
+                        search_key.lower() in decrypted_first_name.lower() or
+                        search_key.lower() in decrypted_last_name.lower() or
+                        search_key.lower() in decrypted_age.lower() or
+                        search_key.lower() in decrypted_gender.lower() or
+                        search_key.lower() in decrypted_weight.lower() or
+                        search_key.lower() in decrypted_address.lower() or
+                        search_key.lower() in decrypted_city.lower() or
+                        search_key.lower() in decrypted_postal_code.lower() or
+                        search_key.lower() in decrypted_email.lower() or
+                        search_key.lower() in decrypted_mobile.lower()):
+                        
+                        # Append decrypted member details to matching_members list
+                        decrypted_member = (
+                            decrypted_membership_id,
+                            decrypted_first_name,
+                            decrypted_last_name,
+                            decrypted_age,
+                            decrypted_gender,
+                            decrypted_weight,
+                            decrypted_address,
+                            decrypted_city,
+                            decrypted_postal_code,
+                            decrypted_email,
+                            decrypted_mobile,
+                            decrypted_registration_date,
+                        )
+                        matching_members.append(decrypted_member)
+                
+                except Exception as e:
+                    print(f"Error decrypting member data: {str(e)}")
+            
             cursor.close()
-            return members
+            return matching_members
+        
         except sqlite3.Error as e:
             print("An error occurred while searching members:", e)
             return None
+        
+        except Exception as e:
+            print("An error occurred:", e)
+            return None
+        
         finally:
             if conn:
                 conn.close()
+
 
     def getUserData(self, username):
         conn = None
@@ -422,10 +473,11 @@ class DB:
                 conn.close()
 
 
-    def updateUser(self, userId, firstName, lastName, username, role):
+    def updateUser(self, userId, firstName, lastName, username):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
+            privateKey = cryptoUtils.loadPrivateKey()
             oldUsername = self.getUsernameByID(userId)
             publicKey = cryptoUtils.loadPublicKey()
             cursor = conn.cursor()
@@ -434,19 +486,40 @@ class DB:
             SET first_name = ?, last_name = ?, username = ?
             WHERE id = ? AND username = ?
             """
-            parameters = (firstName, lastName, cryptoUtils.encryptWithPublicKey(publicKey,username), userId, oldUsername)
+            
+            # Encrypt username if needed
+            if username:
+                encrypted_username = cryptoUtils.encryptWithPublicKey(publicKey, username)
+            else:
+                encrypted_username = None
+            
+            parameters = (firstName, lastName, encrypted_username, userId, oldUsername)
+
+            print("Executing query:")
+            print(query)
+            print("Parameters:")
+            print(parameters)
+
             cursor.execute(query, parameters)
             
             if cursor.rowcount > 0:
                 result = "OK"
             else:
-             result = "No rows updated"
+                result = "No rows updated"
         
+            conn.commit()  # Commit the transaction
+            
             cursor.close()
             return result
+
         except sqlite3.Error as e:
+            print("SQLite error:", e)
+            return None
+
+        except Exception as e:
             print("An error occurred while updating the user:", e)
             return None
+
         finally:
             if conn:
                 conn.close()
@@ -456,23 +529,47 @@ class DB:
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            query = "UPDATE members SET"
-            parameters = []
+            publicKey = cryptoUtils.loadPublicKey()
+            privateKey = cryptoUtils.loadPrivateKey()
+            # Retrieve and decrypt all member records
+            cursor.execute("SELECT * FROM members")
+            members = cursor.fetchall()
+            member_found = False
 
-            for field, value in fields.items():
-                query += f" {field} = ?,"
-                parameters.append(value)
-
-            query = query.rstrip(",") + " WHERE membership_id = ?"
-            parameters.append(membershipID)
-
-            cursor.execute(query, parameters)
-            conn.commit()
+            for member in members:
+                member_dict = {description[0]: member[idx] for idx, description in enumerate(cursor.description)}
+                
+                # Decrypt membership_id
+                decrypted_membership_id_bytes = cryptoUtils.decryptWithPrivateKey(privateKey,member_dict['membership_id'])
+                decrypted_membership_id = decrypted_membership_id_bytes.decode()  # Assuming membership_id needs to be decoded as string
+                
+                if decrypted_membership_id == membershipID:
+                    member_found = True
+                    # Encrypt fields to be updated
+                    encrypted_fields = {key: cryptoUtils.encryptWithPublicKey(publicKey, str(value)) for key, value in fields.items()}  # Ensure value is encoded properly
+                    
+                    # Build the update query
+                    query = "UPDATE members SET"
+                    parameters = []
+                    
+                    for field, value in encrypted_fields.items():
+                        query += f" {field} = ?,"
+                        parameters.append(value)
+                    
+                    query = query.rstrip(",") + " WHERE membership_id = ?"
+                    parameters.append(member_dict['membership_id'])
+                    
+                    cursor.execute(query, parameters)
+                    conn.commit()
+                    break
+            
             cursor.close()
-            return "OK"
+            return "OK" if member_found else "Member not found"
+
         except sqlite3.Error as e:
             print("An error occurred while updating the member:", e)
             return None
+
         finally:
             if conn:
                 conn.close()

@@ -234,6 +234,7 @@ class consultant(userBlueprint):
         try:
             search_key = input("Enter the search key: ")
             result = db.searchMember(search_key)
+            
             if result:
                 print("Search Results:")
                 print("----------------")
@@ -253,11 +254,13 @@ class consultant(userBlueprint):
                     print("----------------")
             else:
                 print("No results found.")
+            
             input("Press any key to continue...")
-        
+
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during member search: {str(e)}", True)
+
 
     def editMember(self, db, loggingSys):
         try:
@@ -452,7 +455,7 @@ class systemAdministrator(consultant):
                             break
 
                     # Update the user in the database
-                    result = db.updateUser(int(userID), firstName, lastName, username.lower(), role)
+                    result = db.updateUser(userID, firstName, lastName, username.lower())
                     if result == "OK":
                         print("User information updated successfully.")
                     else:
@@ -474,6 +477,8 @@ class systemAdministrator(consultant):
         except Exception as e:
             print(f"An error occurred while editing user: {str(e)}")
             loggingSys.log(f"Error occurred during user edit: {str(e)}", True)
+
+
 
     def displayLogs(self, loggingSys):
         try:
@@ -627,6 +632,7 @@ class systemAdministrator(consultant):
                         print("Username already exists...")
                         loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
                     else:
+                        print("Username is available!")
                         availableUsername = True
 
                 while not validPassword:
