@@ -5,17 +5,8 @@ import time
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 from checkSum import Checksum
-class roles(Enum):
-    CONSULTANT = 'consultant'
-    ADMIN = 'admin'
-    SUPERADMIN = 'superadmin'
-
-
-class userBlueprint:
-    def __init__(self, id, userName,db):
-        self.id = id
-        self.userName = userName
-        self.db = db 
+from roles import roles
+from userBlueprint import userBlueprint
 
 class consultant(userBlueprint):
 
