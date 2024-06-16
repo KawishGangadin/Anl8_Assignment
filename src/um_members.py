@@ -51,13 +51,13 @@ def main():
                 password = input("Enter your password: \n")
                 attemptedPasswords.append(password.lower())
 
-                if not Validation.usernameValidation(username) or not Validation.passwordValidation(password):
+                if not Validation.usernameValidation(username.lower()) or not Validation.passwordValidation(password):
                     maxTries -= 1
                     print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
                     loggingSys.log("User tried to log into the system with invalid credentials", "False", f"username: {username}, password: {password}")
                     time.sleep(1)
                     continue
-                data = dataBase.getUserData(username)
+                data = dataBase.getUserData(username.lower())
                 
                 if data:
                     storedPassword = data[4]
@@ -65,7 +65,7 @@ def main():
                     if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
                         print("Successfully logged in!")
                         loggedIn = True
-                        user = logIn_System.loginFunc(username, password)
+                        user = logIn_System.loginFunc(username.lower(), password)
                         loggingSys.log("User successfully logged into Unique Meal", False)
                         time.sleep(1)
                         break

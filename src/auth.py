@@ -12,16 +12,16 @@ class loginAuth:
     def loginFunc(self, encrypted_username, password):
         data = self.db.getUserData(encrypted_username)
         if data:
-            storedPassword = data[4]  # Assuming hashedPassword is stored in the 5th column
-            storedSalt = data[8]  # Assuming salt is stored in the 9th column
+            storedPassword = data[4] 
+            storedSalt = data[8]  
             if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
                 private_key = cryptoUtils.loadPrivateKey()
-                decrypted_username = cryptoUtils.decryptWithPrivateKey(private_key, data[3])  # Assuming encrypted username is in the 4th column
+                decrypted_username = cryptoUtils.decryptWithPrivateKey(private_key, data[3]) 
                 decrypted_username = decrypted_username.decode('utf-8')
                 decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, data[6])
-                decrypted_role=decrypted_role.decode('utf-8')  # Assuming encrypted role is in the 7th column
+                decrypted_role=decrypted_role.decode('utf-8')
 
-                user_id = data[0]  # Assuming user_id is in the 1st column
+                user_id = data[0]  
 
                 roleType = roles(decrypted_role)
 

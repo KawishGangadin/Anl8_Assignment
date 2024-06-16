@@ -444,15 +444,15 @@ class systemAdministrator(consultant):
                         username = input(f"Enter the new username for user or press 'Q' to quit: ").strip()
                         if username.upper() == 'Q':
                             return
-                        if not Validation.usernameValidation(username):
+                        if not Validation.usernameValidation(username.lower()):
                             print("Invalid username!")
-                        elif db.findUsername(username):
+                        elif db.findUsername(username.lower()):
                             print("Username already exists!")
                         else:
                             break
 
                     # Update the user in the database
-                    result = db.updateUser(int(userID), firstName, lastName, username, role)
+                    result = db.updateUser(int(userID), firstName, lastName, username.lower(), role)
                     if result == "OK":
                         print("User information updated successfully.")
                     else:
@@ -620,9 +620,11 @@ class systemAdministrator(consultant):
                     if username.upper() == 'Q':
                         return
                     if not Validation.usernameValidation(username):
+                        print("Please insert a valid username...")
                         loggingSys.log(f"User tried to create a {roleType} with an invalid username", True)
                         continue
-                    if db.findUsername(username):
+                    if db.findUsername(username.lower()):
+                        print("Username already exists...")
                         loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
                     else:
                         availableUsername = True
@@ -641,7 +643,7 @@ class systemAdministrator(consultant):
 
                 creationDate = date.today().strftime("%Y-%m-%d")
                 encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,roleType)
-                encryptedUsername = cryptoUtils.encryptWithPublicKey(public_key,username)
+                encryptedUsername = cryptoUtils.encryptWithPublicKey(public_key,username.lower())
                 result = self.db.createUser(firstName, lastName, encryptedUsername, password, creationDate, encryptedRole, False)
                 if result == "OK":
                     print(f"{roleType} created successfully.")
