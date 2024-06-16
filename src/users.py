@@ -485,6 +485,16 @@ class systemAdministrator(consultant):
             print(f"An error occurred while displaying logs: {str(e)}")
             loggingSys.log(f"Error occurred during display logs: {str(e)}", True)
 
+    def alertLogs(self, loggingSys):
+        try:
+            if loggingSys.hasUncheckedSuspiciousLogs():
+                print("There are new suspicious activities that havent been checked \nGo check the logs as soon as possible!!!")
+            else:
+                print("No new suspicious activities logged...")
+        except Exception as e:
+            print(f"An error occurred while sending log alert: {str(e)}")
+            loggingSys.log(f"Error occurred during log alert: {str(e)}", True)
+
     def createBackup(self, user, backUpSystem, loggingSys):
         try:
             while True:

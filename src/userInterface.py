@@ -79,7 +79,7 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
             'RA': lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
             'BA': lambda : user.createBackup(user,backupSys,loggingSys),
             'RB': lambda : user.restoreBackup(backupSys,loggingSys),
-            'SL': lambda : user.displayLogs(loggingSys,loggingSys),
+            'SL': lambda : user.displayLogs(loggingSys),
             'AM': lambda : user.memberCreation(db,loggingSys),
             'UM': lambda : user.editMember(db,loggingSys),
             'DM': lambda : user.deletion(user, db, None, loggingSys),
@@ -105,6 +105,7 @@ Super Admin Menu:
 [16] or [SM] - Search and retrieve a member’s information
 [0] or [Q] - Quit
 """)
+        user.alertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
             print("Exiting by choice...")
@@ -176,7 +177,7 @@ System Administrator Menu:
 [13] or [RB] - Restore a backup of the system
 [0] or [Q] - Quit
 """)
-
+        user.alertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
             print("Exiting by choice...")

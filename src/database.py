@@ -150,7 +150,6 @@ class DB:
             for user in users:
                 decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3]) 
                 decrypted_username = decrypted_username_bytes.decode('utf-8')  # Assuming UTF-8 encoding
-                print(f"Decrypted username: {decrypted_username}")
                 if decrypted_username == username:
                     return user
 
@@ -164,7 +163,6 @@ class DB:
         finally:
             if conn:
                 conn.close()
-
 
     def findMembershipID(self, encrypted_membership_id):
         conn = None
@@ -428,17 +426,24 @@ class DB:
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
+            oldUsername = self.getUsernameByID(userId)
+            publicKey = cryptoUtils.loadPublicKey()
             cursor = conn.cursor()
             query = """
             UPDATE users
             SET first_name = ?, last_name = ?, username = ?
-            WHERE id = ? AND role = ?
+            WHERE id = ? AND username = ?
             """
-            parameters = (firstName, lastName, username, userId, role.value)
+            parameters = (firstName, lastName, cryptoUtils.encryptWithPublicKey(publicKey,username), userId, oldUsername)
             cursor.execute(query, parameters)
-            conn.commit()
+            
+            if cursor.rowcount > 0:
+                result = "OK"
+            else:
+             result = "No rows updated"
+        
             cursor.close()
-            return "OK"
+            return result
         except sqlite3.Error as e:
             print("An error occurred while updating the user:", e)
             return None
@@ -512,7 +517,3 @@ class DB:
         finally:
             if conn:
                 conn.close()
-dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
-dataBase = DB(dbPath)
-list = dataBase.getUsers(None)
-print(list)
