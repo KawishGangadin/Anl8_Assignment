@@ -74,7 +74,6 @@ class backup:
     def restoreBackup(self, backupName):
         # Shutdown logging to release any file locks
         logging.shutdown()
-
         backupFilePath = os.path.join(self.backupFolder, backupName)
 
         if not os.path.exists(backupFilePath):
@@ -109,6 +108,7 @@ class backup:
             self.move_file(backupDbPath, os.path.join(self.backupDir, dbFile))
             
             print("Restoration complete.")
+            time.sleep(1)
             
         except Exception as e:
             print(f"Error during restoration: {e}")

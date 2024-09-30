@@ -537,6 +537,7 @@ class systemAdministrator(consultant):
                 else:
                     print("Restoring backup....")
                     backUpSystem.restoreBackup(name)
+                    break
 
         except Exception as e:
             print(f"An error occurred while restoring backup: {str(e)}")
