@@ -30,24 +30,56 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
     def clearScreen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def optionMenu(self,user,db,loggingSys,backupSys):
-        while True:
+    def optionMenu(self, user, db, loggingSys, backupSys):
+        while user is not None:  # Loop while the user is logged in
             time.sleep(1)
             if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.superAdministrator_Menu(user,db,loggingSys,backupSys)
-            elif isinstance(user,systemAdministrator):
+                if not db.findUserID(user.id, roles.SUPERADMIN):
+                    print("You will now be logged out of the system...")
+                    user = None
+                    break  # Exit the loop to log out
+                else:
+                    time.sleep(2)
+                    print(user)
+                # Only return None if the user logs out
+                result = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
+                if result is True:
+                    user = None
+                    break
+            elif isinstance(user, systemAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.systemAdministrator_Menu(user,db,loggingSys,backupSys)
-            elif isinstance(user,consultant):
+                if not db.findUserID(user.id, roles.ADMIN):
+                    print("You will now be logged out of the system...")
+                    user = None
+                    break  # Exit the loop to log out
+                else:
+                    time.sleep(2)
+                    print(user)
+                result = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
+                if result is True:
+                    user = None
+                    break
+            elif isinstance(user, consultant):
                 self.clearScreen()
                 self.displayLogo()
-                self.consultant_Menu(user,db,loggingSys)
+                if not db.findUserID(user.id, roles.CONSULTANT):
+                    print("You will now be logged out of the system...")
+                    user = None
+                    break  # Exit the loop to log out
+                else:
+                    time.sleep(2)
+                    print(user)
+                result = self.consultant_Menu(user, db, loggingSys)
+                if result is True:
+                    user = None
+                    break
             else:
                 print("Unauthorized access to menu!")
-                loggingSys.log("User tried to access options without proper access.",True)
+                loggingSys.log("User tried to access options without proper access.", True)
+                break  # Exit the loop for unauthorized access
 
     def superAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
@@ -108,8 +140,8 @@ Super Admin Menu:
         user.alertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
-            print("Exiting by choice...")
-            exit()
+            print("Logging out...")
+            return True
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
@@ -180,8 +212,8 @@ System Administrator Menu:
         user.alertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
-            print("Exiting by choice...")
-            exit()
+            print("Logging out...")
+            return None
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
@@ -213,18 +245,17 @@ System Administrator Menu:
 
 
         print("""
-System Administrator Menu:
+Consultant Menu:
 [1] or [UP] - Update their own password
 [2] or [AM] - Add a new member to the system
 [3] or [UM] - Modify or update the information of a member in the system
 [4] or [SM] - Search and retrieve the information of a member
 [0] or [Q] - Quit
 """)
-
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
-            print("Exiting by choice...")
-            exit()
+            print("Logging out...")
+            return None
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
@@ -238,3 +269,4 @@ System Administrator Menu:
             loggingSys.log("User gave an invalid option.",True)
             print("Invalid input given")
             time.sleep(1)
+            

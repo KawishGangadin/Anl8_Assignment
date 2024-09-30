@@ -79,6 +79,9 @@ def main():
                     maxTries -= 1
         
         while loggedIn:
+            if not data:
+                loggedIn = False
+                break
             isTemp = data[7]
             while isTemp == True:
                 print("You current password is temporary or press Q to exit the system...")
