@@ -79,19 +79,24 @@ def main():
                     maxTries -= 1
         
         while loggedIn:
+            # make sure to go back to login screen if user logs out
             if not data:
                 loggedIn = False
                 break
+
             isTemp = data[7]
+
             while isTemp == True:
                 print("You current password is temporary or press Q to exit the system...")
                 while True:
                     newPassword = input("Enter your new password...")
+
                     if newPassword.upper() == "Q":
                         print("Exiting the system")
                         exit()
                     elif Validation.passwordValidation(newPassword):
                         respone = dataBase.updatePassword(user.id,newPassword)
+                        
                         if respone == "OK":
                             loggingSys.log(f"Succesfully changed {username}'s password!",False)
                             print("Password has succefully been changed")

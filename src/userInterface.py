@@ -39,13 +39,11 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
                 if not db.findUserID(user.id, roles.SUPERADMIN):
                     print("You will now be logged out of the system...")
                     user = None
-                    break  # Exit the loop to log out
-                else:
                     time.sleep(2)
-                    print(user)
+                    break  # Exit the loop to log out
                 # Only return None if the user logs out
-                result = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
-                if result is True:
+                logoutResult = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
+                if logoutResult is True:
                     user = None
                     break
             elif isinstance(user, systemAdministrator):
@@ -54,28 +52,28 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
                 if not db.findUserID(user.id, roles.ADMIN):
                     print("You will now be logged out of the system...")
                     user = None
-                    break  # Exit the loop to log out
-                else:
                     time.sleep(2)
-                    print(user)
-                result = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
-                if result is True:
+                    break  # Exit the loop to log out
+                logoutResult = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
+                if logoutResult is True:
                     user = None
                     break
+
             elif isinstance(user, consultant):
                 self.clearScreen()
                 self.displayLogo()
+
                 if not db.findUserID(user.id, roles.CONSULTANT):
                     print("You will now be logged out of the system...")
                     user = None
-                    break  # Exit the loop to log out
-                else:
                     time.sleep(2)
-                    print(user)
-                result = self.consultant_Menu(user, db, loggingSys)
-                if result is True:
+                    break  # Exit the loop to log out
+
+                logoutResult = self.consultant_Menu(user, db, loggingSys)
+                if logoutResult is True:
                     user = None
                     break
+
             else:
                 print("Unauthorized access to menu!")
                 loggingSys.log("User tried to access options without proper access.", True)
@@ -141,6 +139,7 @@ Super Admin Menu:
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
             print("Logging out...")
+            time.sleep(2)
             return True
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
@@ -155,6 +154,8 @@ Super Admin Menu:
             loggingSys.log("User gave an invalid option.",True)
             print("Invalid input given")
             time.sleep(1)
+
+        return False
 
     
     
@@ -213,6 +214,7 @@ System Administrator Menu:
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
             print("Logging out...")
+            time.sleep(2)
             return None
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
@@ -227,6 +229,8 @@ System Administrator Menu:
             loggingSys.log("User gave an invalid option.",True)
             print("Invalid input given")
             time.sleep(1)
+        
+        return False
 
 
 
@@ -255,6 +259,7 @@ Consultant Menu:
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
             print("Logging out...")
+            time.sleep(2)
             return None
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
@@ -269,4 +274,6 @@ Consultant Menu:
             loggingSys.log("User gave an invalid option.",True)
             print("Invalid input given")
             time.sleep(1)
+        
+        return False
             
