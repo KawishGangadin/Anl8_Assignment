@@ -151,14 +151,14 @@ class consultant(userBlueprint):
                                      address, city, postalCode,
                                      email, mobile, registrationDate, membershipId)
             if result == "OK":
-                loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False)
+                loggingSys.log("Member registered.", False, f"Member with membership ID '{membershipId}' has been registered.", self.userName)
                 print("Member registered successfully.")
             else:
                 print("An error occurred while registering the member.")
-                loggingSys.log("Failed to register a member", True)
+                loggingSys.log("Unsuccesful member registration", False, "An error occurred while registering the member.", self.userName)
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during member creation: {str(e)}", True)
+            loggingSys.log("Unsuccesful member registration", False, "An error occurred while registering the member.", self.userName)
 
     def deletion(self, user, db, role, loggingSys):
         try:
@@ -188,13 +188,16 @@ class consultant(userBlueprint):
                     time.sleep(0.5)
                 if validID:
                     if not role == None:
+                        deletedUsername = db.getUsernameByID(Id)
                         result = db.deleteUser(Id, role)
                         if result == "OK":
                             print("User deleted")
-                            loggingSys.log("User has been deleted", False)
+                            loggingSys.log("User deleted", False, f"User  '{deletedUsername}' has been deleted.", self.userName)
+                            deletedUsername = None
                         else:
                             print("An error occurred while deleting the user.")
-                            loggingSys.log("Failed to delete user", True)
+                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {deletedUsername}.", self.userName)
+                            deletedUsername = None
                         time.sleep(1)
                     else:
                         result = db.deleteMember(Id)
@@ -621,12 +624,10 @@ class systemAdministrator(consultant):
    - Must start with a letter or underscore.
    - Can contain letters, digits, underscores, apostrophes, or dots.
    - Length must be between 8 and 10 characters.
-   - Special case: "super_admin" is allowed.
 
 2. Password Validation:
    - Must be between 12 and 30 characters.
    - Must include at least one lowercase letter, one uppercase letter, one digit, and one special character from `~!@#$%&_\-+=\|(){}[\]:;'<>,.?/`.
-   - Special case: "Admin_123?" is allowed.
 3. Name Validation:
    - Must contain only alphabetic characters, hyphens, apostrophes, or spaces.
    - Maximum of one hyphen or apostrophe, and two spaces.

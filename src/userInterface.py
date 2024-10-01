@@ -3,6 +3,7 @@ from users import consultant
 from users import systemAdministrator
 from users import superAdministrator
 from roles import roles
+from cryptoUtils import cryptoUtils
 import os
 import time
 
@@ -12,18 +13,13 @@ class UI:
 
     def displayLogo(self):
         ascii_art = """
-$$\   $$\           $$\                                     $$\      $$\                     $$\ 
-$$ |  $$ |          \__|                                    $$$\    $$$ |                    $$ |
-$$ |  $$ |$$$$$$$\  $$\  $$$$$$\  $$\   $$\  $$$$$$\        $$$$\  $$$$ | $$$$$$\   $$$$$$\  $$ |
-$$ |  $$ |$$  __$$\ $$ |$$  __$$\ $$ |  $$ |$$  __$$\       $$\$$\$$ $$ |$$  __$$\  \____$$\ $$ |
-$$ |  $$ |$$ |  $$ |$$ |$$ /  $$ |$$ |  $$ |$$$$$$$$ |      $$ \$$$  $$ |$$$$$$$$ | $$$$$$$ |$$ |
-$$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   ____|$$  __$$ |$$ |
-\$$$$$$  |$$ |  $$ |$$ |\$$$$$$$ |\$$$$$$  |\$$$$$$$\       $$ | \_/ $$ |\$$$$$$$\ \$$$$$$$ |$$ |
-\______/ \__|  \__|\__| \____$$ | \______/  \_______|      \__|     \__| \_______| \_______|\__|
-                            $$ |                                                               
-                            $$ |                                                               
-                            \__|
-==================================================================================================
+ _   _       _                    __  __            _ 
+| | | |_ __ (_) __ _ _   _  ___  |  \/  | ___  __ _| |
+| | | | '_ \| |/ _` | | | |/ _ \ | |\/| |/ _ \/ _` | |
+| |_| | | | | | (_| | |_| |  __/ | |  | |  __/ (_| | |
+ \___/|_| |_|_|\__, |\__,_|\___| |_|  |_|\___|\__,_|_|
+                  |_|                                 
+=======================================================
             """
         print(ascii_art)
     
@@ -32,12 +28,14 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
 
     def optionMenu(self, user, db, loggingSys, backupSys):
         while user is not None:  # Loop while the user is logged in
+            private_key = cryptoUtils.loadPrivateKey()
             time.sleep(1)
             if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
                 if not db.findUserID(user.id, roles.SUPERADMIN):
                     print("You will now be logged out of the system...")
+                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break  # Exit the loop to log out
@@ -51,6 +49,7 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
                 self.displayLogo()
                 if not db.findUserID(user.id, roles.ADMIN):
                     print("You will now be logged out of the system...")
+                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break  # Exit the loop to log out
@@ -65,6 +64,7 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
 
                 if not db.findUserID(user.id, roles.CONSULTANT):
                     print("You will now be logged out of the system...")
+                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break  # Exit the loop to log out
@@ -155,11 +155,7 @@ Super Admin Menu:
             print("Invalid input given")
             time.sleep(1)
 
-        return False
-
-    
-    
-    
+        return False 
     
     def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
@@ -232,8 +228,6 @@ System Administrator Menu:
         
         return False
 
-
-
     def consultant_Menu(self,user,db,loggingSys):
         print(f"Welcome {user.userName}")
         methodCall = {
@@ -276,4 +270,3 @@ Consultant Menu:
             time.sleep(1)
         
         return False
-            
