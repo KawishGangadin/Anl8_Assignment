@@ -108,7 +108,7 @@ class backup:
             self.move_file(backupDbPath, os.path.join(self.backupDir, dbFile))
             
             print("Restoration complete.")
-            time.sleep(1)
+            time.sleep(2)
             
         except Exception as e:
             print(f"Error during restoration: {e}")

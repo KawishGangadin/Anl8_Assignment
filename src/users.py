@@ -340,10 +340,8 @@ class consultant(userBlueprint):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(password):
-                        print("Password validated")
                         data = db.getUserData(self.userName)
                         if data  != None:
-                            print("data is not none")
                             storedPassword = data[4] 
                             storedSalt = data[8]  
                             if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
@@ -535,9 +533,12 @@ class systemAdministrator(consultant):
                     print("Quitting...")
                     break
                 else:
-                    print("Restoring backup....")
-                    backUpSystem.restoreBackup(name)
-                    break
+                    if name == "":
+                        print("Please enter a valid file name!")
+                    else:
+                        print("Restoring backup....")
+                        backUpSystem.restoreBackup(name)
+                        break
 
         except Exception as e:
             print(f"An error occurred while restoring backup: {str(e)}")

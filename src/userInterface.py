@@ -215,7 +215,7 @@ System Administrator Menu:
         if input_ in ['0', 'Q']:
             print("Logging out...")
             time.sleep(2)
-            return None
+            return True
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()
@@ -260,7 +260,7 @@ Consultant Menu:
         if input_ in ['0', 'Q']:
             print("Logging out...")
             time.sleep(2)
-            return None
+            return True
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
                 self.clearScreen()

@@ -1,12 +1,16 @@
 import re
 
 class Validation:
+
+    @staticmethod
+    def checkNullByte(input):
+        return '\x00' not in input
     
     @staticmethod
     def usernameValidation(username):
-        pattern = r"^[a-zA-Z_][a-zA-Z0-9_'\.]{7,9}$"
+        pattern = r"^[a-zA-Z_][a-zA-Z0-9_.']{7,9}$"
         
-        if not isinstance(username, str):
+        if not isinstance(username, str) or not Validation.checkNullByte(username):
             return False
         
         try:
@@ -19,12 +23,12 @@ class Validation:
         
     @staticmethod
     def passwordValidation(password):
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;'<>,.?/])[a-zA-Z\d~!@#$%&_\-+=`|\\(){}[\]:;'<>,.?/]{12,30}$"
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_+=`|\\(){}[\]:;'<>,.?/-])[a-zA-Z0-9~!@#$%&_+=`|\\(){}[\]:;'<>,.?/-]{12,30}$"
         
         if password == "Admin_123?":
             return True
         
-        if not isinstance(password, str):
+        if not isinstance(password, str) or not Validation.checkNullByte(password):
             return False
         
         try:
@@ -39,6 +43,8 @@ class Validation:
     @staticmethod
     def validateEmail(email):
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not Validation.checkNullByte(email):
+            return False
         return re.match(pattern, email) is not None
     
     @staticmethod
@@ -64,15 +70,12 @@ class Validation:
     
     @staticmethod
     def validateZipcode(zip_code):
-        try:
-            if len(zip_code) == 6 and zip_code[:4].isdigit() and zip_code[4:].isalpha():
-                for char in zip_code[:4]:
-                    if char not in "1234567890":
-                        return False
-                return True
-        except (ValueError, IndexError):
-            pass
+        if not Validation.checkNullByte:
+            return False
+        if len(zip_code) == 6 and zip_code[:4].isdigit() and zip_code[4:].isalpha():
+            return True
         return False
+
     
     @staticmethod
     def validateName(name):
@@ -100,17 +103,25 @@ class Validation:
     
     @staticmethod
     def validateMobileNumber(mobile_number):
-        try:
-            mobile_number = str(mobile_number) 
-            if mobile_number.startswith('316') and len(mobile_number) == 11:
-                return True
-        except (ValueError, AttributeError):
-            pass
+        # Ensure input is treated as a string
+        mobile_number = str(mobile_number)
+
+        # Check for null byte and digits only
+        if not Validation.checkNullByte(mobile_number) or not mobile_number.isdigit():
+            return False
+
+        # Validate length
+        if len(mobile_number) == 8:
+            return True
+
         return False
 
 
     @staticmethod
     def validateMembershipID(membershipID):
+        if not Validation.checkNullByte(str(membershipID)):
+            return False
+
         try:
             membershipID = int(membershipID)
             if 999999999 < membershipID < 10000000000:
@@ -123,7 +134,7 @@ class Validation:
     def validateAddress(address):
         allowed_characters = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,'-")
         
-        if not isinstance(address, str):
+        if not isinstance(address, str) or not Validation.checkNullByte(address):
             return False
         
         try:
@@ -140,13 +151,18 @@ class Validation:
     
     @staticmethod
     def validateCity(city):
-        allowed_cities = [
+        allowed_cities = {
             'Amsterdam', 'Rotterdam', 'The Hague', 'Utrecht', 
             'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 
             'Breda', 'Nijmegen'
-        ]
-        
-        if not isinstance(city, str):
+        }
+
+        # Check if the input is a string, and if it contains null bytes
+        if not isinstance(city, str) or not Validation.checkNullByte(city):
             return False
-        
+
+        # Clean up the input by stripping spaces and making it case-insensitive
+        city = city.strip().title()
+
+        # Check if the city is in the allowed set
         return city in allowed_cities
