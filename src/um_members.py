@@ -35,12 +35,12 @@ def main():
             if maxTries <= 0:
                 if len(set(attemptedPasswords)) > 1 and len(set(attemptedUsernames)) > 1:
                     print("Multiple usernames and passwords are tried wrong in a row")
-                    loggingSys.log("Multiple usernames and passwords are tried wrong in a row", "True")
+                    loggingSys.log("Unsuccesful login attempt", True, "Multiple usernames and passwords are tried wrong in a row")
                     print("Exiting...")
                     exit()
                 else:
                     print("A user tried to log into the system too many times with the wrong credentials")
-                    loggingSys.log("A user tried to log into the system too many times with the wrong credentials", "True")
+                    loggingSys.log("Unsuccesful login attempt", True,"A user tried to log into the system too many times with the wrong credentials")
                     print("Exiting...")
                     exit()
             while maxTries > 0:
@@ -54,7 +54,7 @@ def main():
                 if not Validation.usernameValidation(username.lower(), username, loggingSys) or not Validation.passwordValidation(password, username, loggingSys):
                     maxTries -= 1
                     print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
-                    loggingSys.log("User tried to log into the system with invalid credentials", "False", f"username: {username}, password: {password}")
+                    loggingSys.log("Unsuccesful Login attempt", "False", f"username: '{username}' is used for a login attempt with a wrong password")
                     time.sleep(1)
                     continue
                 data = dataBase.getUserData(username.lower())
@@ -98,13 +98,13 @@ def main():
                         respone = dataBase.updatePassword(user.id,newPassword)
                         
                         if respone == "OK":
-                            loggingSys.log(f"Succesfully changed {username}'s password!",False, username=username)
+                            loggingSys.log(f"Successfully changed {username}'s password!",False)
                             print("Password has succefully been changed")
                             time.sleep(0.5)
                             isTemp = None
                             break
                         else:
-                            loggingSys.log(f"Something went wrong trying to change {username}'s password...",False, username=username)
+                            loggingSys.log(f"Something went wrong trying to change {username}'s password...",False)
                             print("Something went wrong trying to change the password...")
                             print("Try again later! \n Exiting...")
                             exit()
