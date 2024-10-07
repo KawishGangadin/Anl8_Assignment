@@ -51,7 +51,7 @@ def main():
                 password = input("Enter your password: \n")
                 attemptedPasswords.append(password.lower())
 
-                if not Validation.usernameValidation(username.lower()) or not Validation.passwordValidation(password):
+                if not Validation.usernameValidation(username.lower(), username, loggingSys) or not Validation.passwordValidation(password, username, loggingSys):
                     maxTries -= 1
                     print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
                     loggingSys.log("User tried to log into the system with invalid credentials", "False", f"username: {username}, password: {password}")
@@ -66,7 +66,7 @@ def main():
                         print("Successfully logged in!")
                         loggedIn = True
                         user = logIn_System.loginFunc(username.lower(), password)
-                        loggingSys.log("User successfully logged into Unique Meal", False)
+                        loggingSys.log("User successfully logged into Unique Meal", False, username=username.lower())
                         time.sleep(1)
                         break
                     else:
@@ -94,25 +94,24 @@ def main():
                     if newPassword.upper() == "Q":
                         print("Exiting the system")
                         exit()
-                    elif Validation.passwordValidation(newPassword):
+                    elif Validation.passwordValidation(newPassword, username, loggingSys):
                         respone = dataBase.updatePassword(user.id,newPassword)
                         
                         if respone == "OK":
-                            loggingSys.log(f"Succesfully changed {username}'s password!",False)
+                            loggingSys.log(f"Succesfully changed {username}'s password!",False, username=username)
                             print("Password has succefully been changed")
                             time.sleep(0.5)
                             isTemp = None
                             break
                         else:
-                            loggingSys.log(f"Something went wrong trying to change {username}'s password...",False)
-                            print("Something whent wrong trying to change the password...")
+                            loggingSys.log(f"Something went wrong trying to change {username}'s password...",False, username=username)
+                            print("Something went wrong trying to change the password...")
                             print("Try again later! \n Exiting...")
                             exit()
                     else:
                         print("Please enter a valid password!!!")
             userInterface.clearScreen()
             print("Logged In")
-            loggingSys.log("User has succesfully logged into Unique Meal",False)
             time.sleep(1)
             username, password, newPassword, data = None, None, None, None
             userInterface.optionMenu(user,dataBase,loggingSys,backupSys)

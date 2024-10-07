@@ -33,5 +33,7 @@ class loginAuth:
                     return superAdministrator(user_id, decrypted_username, self.db)  # Assuming superAdministrator constructor takes user_id and username
                 else:
                     raise ValueError("Unknown role detected.")
+        else:
+            print("User not found.")
 
         return None

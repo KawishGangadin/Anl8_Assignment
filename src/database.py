@@ -195,7 +195,7 @@ class DB:
                 if decrypted_username == username:
                     return user
 
-            print(f"User with username {username} not found.")
+            # print(f"User with username {username} not found.")
             return None
 
         except sqlite3.Error as e:

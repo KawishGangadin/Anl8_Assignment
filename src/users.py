@@ -53,7 +53,7 @@ class consultant(userBlueprint):
                 firstName = input("Enter the member's first name or press 'Q' to quit: ").strip()
                 if firstName.upper() == 'Q':
                     return
-                if not Validation.validateName(firstName):
+                if not Validation.validateName(firstName, self.userName, loggingSys):
                     print("Invalid firstName!")
                     firstName = ""
 
@@ -62,7 +62,7 @@ class consultant(userBlueprint):
                 lastName = input("Enter the member's lastName or press 'Q' to quit: ").strip()
                 if lastName.upper() == 'Q':
                     return
-                if not Validation.validateName(lastName):
+                if not Validation.validateName(lastName, self.userName, loggingSys):
                     print("Invalid lastName!")
                     lastName = ""
 
@@ -71,7 +71,7 @@ class consultant(userBlueprint):
                 age = input("Enter the member's age or press 'Q' to quit: ").strip()
                 if age.upper() == 'Q':
                     return
-                if not Validation.validateAge(age):
+                if not Validation.validateAge(age, self.userName, loggingSys):
                     print("Invalid age!")
                     age = ""
 
@@ -105,7 +105,7 @@ class consultant(userBlueprint):
                 address = input("Enter the member's address or press 'Q' to quit: ").strip()
                 if address.upper() == 'Q':
                     return
-                if not Validation.validateAddress(address):
+                if not Validation.validateAddress(address, self.userName, loggingSys):
                     print("Invalid address!")
                     address = ""
 
@@ -114,7 +114,7 @@ class consultant(userBlueprint):
                 city = input("Enter the member's city or press 'Q' to quit: ").strip()
                 if city.upper() == 'Q':
                     return
-                if not Validation.validateCity(city):
+                if not Validation.validateCity(city, self.userName, loggingSys):
                     print("Invalid city!")
                     city = ""
 
@@ -123,7 +123,7 @@ class consultant(userBlueprint):
                 postalCode = input("Enter the member's postal code or press 'Q' to quit: ").strip()
                 if postalCode.upper() == 'Q':
                     return
-                if not Validation.validateZipcode(postalCode):
+                if not Validation.validateZipcode(postalCode, self.userName, loggingSys):
                     print("Invalid postal code!")
                     postalCode = ""
 
@@ -132,7 +132,7 @@ class consultant(userBlueprint):
                 email = input("Enter the member's email or press 'Q' to quit: ").strip()
                 if email.upper() == 'Q':
                     return
-                if not Validation.validateEmail(email):
+                if not Validation.validateEmail(email, self.userName, loggingSys):
                     print("Invalid email address!")
                     email = ""
 
@@ -141,7 +141,7 @@ class consultant(userBlueprint):
                 mobile = input("Enter the member's mobile number +316..... or press 'Q' to quit: ").strip()
                 if mobile.upper() == 'Q':
                     return
-                if not Validation.validateMobileNumber(mobile):
+                if not Validation.validateMobileNumber(mobile, self.userName, loggingSys):
                     print("Invalid mobile number!")
                     mobile = ""
 
@@ -151,14 +151,14 @@ class consultant(userBlueprint):
                                      address, city, postalCode,
                                      email, mobile, registrationDate, membershipId)
             if result == "OK":
-                loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False)
+                loggingSys.log(f"Member '{firstName} {lastName}' has been registered with membership ID '{membershipId}'", False, username=self.userName)
                 print("Member registered successfully.")
             else:
                 print("An error occurred while registering the member.")
-                loggingSys.log("Failed to register a member", True)
+                loggingSys.log("Failed to register a member", True, username=self.userName)
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during member creation: {str(e)}", True)
+            loggingSys.log(f"Error occurred during member creation: {str(e)}", True, username=self.userName)
 
     def deletion(self, user, db, role, loggingSys):
         try:
@@ -191,7 +191,7 @@ class consultant(userBlueprint):
                         result = db.deleteUser(Id, role)
                         if result == "OK":
                             print("User deleted")
-                            loggingSys.log("User has been deleted", False)
+                            loggingSys.log("User has been deleted", False, username=self.userName)
                         else:
                             print("An error occurred while deleting the user.")
                             loggingSys.log("Failed to delete user", True)
@@ -200,10 +200,10 @@ class consultant(userBlueprint):
                         result = db.deleteMember(Id)
                         if result == "OK":
                             print("Member deleted")
-                            loggingSys.log("Member has been deleted", False)
+                            loggingSys.log("Member has been deleted", False, username=self.userName)
                         else:
                             print("An error occurred while deleting the member.")
-                            loggingSys.log("Failed to delete member", True)
+                            loggingSys.log("Failed to delete member", True, username=self.userName)
                         time.sleep(1)
             if role is None:  
                 if isinstance(user, consultant):
@@ -224,7 +224,7 @@ class consultant(userBlueprint):
                 print("Unauthorized access...")
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during deletion: {str(e)}", True)
+            loggingSys.log(f"Error occurred during deletion: {str(e)}", True, username=self.userName)
 
     def displayMembers(self, db):
         try:
@@ -271,7 +271,7 @@ class consultant(userBlueprint):
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during member search: {str(e)}", True)
+            loggingSys.log(f"Error occurred during member search: {str(e)}", True, username=self.userName)
 
 
     def editMember(self, db, loggingSys):
@@ -281,7 +281,7 @@ class consultant(userBlueprint):
                 membershipID = input("Enter the membership ID of the member you would like to edit or press Q to quit: ")
                 if membershipID.upper() == "Q":
                     return
-                if Validation.validateMembershipID(membershipID) and db.findMembershipID(membershipID):
+                if Validation.validateMembershipID(membershipID, self.userName, loggingSys) and db.findMembershipID(membershipID):
                     break
                 else:
                     print("Invalid membership ID!!!")
@@ -298,16 +298,16 @@ class consultant(userBlueprint):
 
             updates = {}
             fields_validations = {
-                "first_name": Validation.validateName,
-                "last_name": Validation.validateName,
-                "age": Validation.validateAge,
+                "first_name": lambda value: Validation.validateName(value, loggingSys, self.userName),
+                "last_name": lambda value: Validation.validateName(value, loggingSys, self.userName),
+                "age": lambda value: Validation.validateAge(value, loggingSys, self.userName),
                 "gender": lambda x: x in ["Male", "Female", "Other"],
-                "weight": lambda x: x.replace('.', '', 1).isdigit() and float(x) > 0,
-                "address": Validation.validateAddress,
-                "city": Validation.validateCity,
-                "postalCode": Validation.validateZipcode,
-                "email": Validation.validateEmail,
-                "mobile": Validation.validateMobileNumber
+                "weight": lambda value: value.replace('.', '', 1).isdigit() and float(value) > 0,
+                "address": lambda value: Validation.validateAddress(value, loggingSys, self.userName),
+                "city": lambda value: Validation.validateCity(value, loggingSys, self.userName),
+                "postalCode": lambda value: Validation.validateZipcode(value, loggingSys, self.userName),
+                "email": lambda value: Validation.validateEmail(value, loggingSys, self.userName),
+                "mobile": lambda value: Validation.validateMobileNumber(value, loggingSys, self.userName)
             }
             for field, validation in fields_validations.items():
                 input_value = getValidInput(f"Enter new {field.replace('_', ' ')} or leave empty to make no changes: ", validation)
@@ -320,14 +320,14 @@ class consultant(userBlueprint):
             result = db.updateMember(membershipID, **updates)
             if result == "OK":
                 print("Member updated successfully.")
-                loggingSys.log(f"Member with ID '{membershipID}' has been updated.", False)
+                loggingSys.log(f"Member with ID '{membershipID}' has been updated.", False, username=self.userName)
             else:
                 print("Failed to update member.")
-                loggingSys.log("Failed to update member.", True)
+                loggingSys.log("Failed to update member.", True, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during member edit: {str(e)}", True)
+            loggingSys.log(f"Error occurred during member edit: {str(e)}", True, username=self.userName)
 
     def changePassword(self, user, db, loggingSys):
         try:
@@ -339,7 +339,7 @@ class consultant(userBlueprint):
                         print("Exiting...")
                         time.sleep(0.5)
                         return
-                    elif Validation.passwordValidation(password):
+                    elif Validation.passwordValidation(password, self.userName, loggingSys):
                         data = db.getUserData(self.userName)
                         if data  != None:
                             storedPassword = data[4] 
@@ -351,7 +351,7 @@ class consultant(userBlueprint):
                             else:
                                 print("Password does not match.")
                         else:
-                            print("Password does not match.")
+                            print("Something went wrong, user not found.")
                     else:
                         print("Please input a valid password...")
 
@@ -361,14 +361,14 @@ class consultant(userBlueprint):
                         print("Exiting...")
                         time.sleep(0.5)
                         return
-                    elif Validation.passwordValidation(newPassword):
+                    elif Validation.passwordValidation(newPassword, self.userName, loggingSys):
                         result = db.updatePassword(self.id, newPassword)
                         if result == "OK":
                             print("Password has been successfully changed!")
-                            loggingSys.log("Password has been successfully changed.", False)
+                            loggingSys.log("Password has been successfully changed.", False, username=self.userName)
                         else:
                             print("Failed to change password.")
-                            loggingSys.log("Failed to change password.", True)
+                            loggingSys.log("Failed to change password.", True, username=self.userName)
                         time.sleep(0.5)
                         return
                     else:
@@ -388,7 +388,7 @@ class consultant(userBlueprint):
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during password change: {str(e)}", True)
+            loggingSys.log(f"Error occurred during password change: {str(e)}", True, username=self.userName)
 
 
 class systemAdministrator(consultant):
@@ -437,7 +437,7 @@ class systemAdministrator(consultant):
                         firstName = input(f"Enter the new first name for user or press 'Q' to quit: ").strip()
                         if firstName.upper() == 'Q':
                             return
-                        if not Validation.validateName(firstName):
+                        if not Validation.validateName(firstName, self.userName, loggingSys):
                             print("Invalid first name!")
                         else:
                             break
@@ -446,7 +446,7 @@ class systemAdministrator(consultant):
                         lastName = input(f"Enter the new last name for user or press 'Q' to quit: ").strip()
                         if lastName.upper() == 'Q':
                             return
-                        if not Validation.validateName(lastName):
+                        if not Validation.validateName(lastName, self.userName, loggingSys):
                             print("Invalid last name!")
                         else:
                             break
@@ -455,7 +455,7 @@ class systemAdministrator(consultant):
                         username = input(f"Enter the new username for user or press 'Q' to quit: ").strip()
                         if username.upper() == 'Q':
                             return
-                        if not Validation.usernameValidation(username.lower()):
+                        if not Validation.usernameValidation(username.lower(), self.userName, loggingSys):
                             print("Invalid username!")
                         elif db.findUsername(username.lower()):
                             print("Username already exists!")
@@ -482,7 +482,7 @@ class systemAdministrator(consultant):
 
         except Exception as e:
             print(f"An error occurred while editing user: {str(e)}")
-            loggingSys.log(f"Error occurred during user edit: {str(e)}", True)
+            loggingSys.log(f"Error occurred during user edit: {str(e)}", True, username=self.userName)
 
 
 
@@ -494,7 +494,7 @@ class systemAdministrator(consultant):
             keyPress = input()
         except Exception as e:
             print(f"An error occurred while displaying logs: {str(e)}")
-            loggingSys.log(f"Error occurred during display logs: {str(e)}", True)
+            loggingSys.log(f"Error occurred during display logs: {str(e)}", True, username=self.userName)
 
     def alertLogs(self, loggingSys):
         try:
@@ -504,7 +504,7 @@ class systemAdministrator(consultant):
                 print("No new suspicious activities logged...")
         except Exception as e:
             print(f"An error occurred while sending log alert: {str(e)}")
-            loggingSys.log(f"Error occurred during log alert: {str(e)}", True)
+            loggingSys.log(f"Error occurred during log alert: {str(e)}", True, username=self.userName)
 
     def createBackup(self, user, backUpSystem, loggingSys):
         try:
@@ -522,7 +522,7 @@ class systemAdministrator(consultant):
 
         except Exception as e:
             print(f"An error occurred while creating backup: {str(e)}")
-            loggingSys.log(f"Error occurred during backup creation: {str(e)}", True)
+            loggingSys.log(f"Error occurred during backup creation: {str(e)}", True, username=self.userName)
 
     def restoreBackup(self, backUpSystem, loggingSys):
         try:
@@ -542,7 +542,7 @@ class systemAdministrator(consultant):
 
         except Exception as e:
             print(f"An error occurred while restoring backup: {str(e)}")
-            loggingSys.log(f"Error occurred during backup restoration: {str(e)}", True)
+            loggingSys.log(f"Error occurred during backup restoration: {str(e)}", True, username=self.userName)
 
     def resetPassword(self, user, db, role, loggingSys):
         try:
@@ -571,7 +571,7 @@ class systemAdministrator(consultant):
                             print("Exiting...")
                             time.sleep(0.5)
                             return
-                        elif Validation.passwordValidation(password):
+                        elif Validation.passwordValidation(password, self.userName, loggingSys):
                             result = db.updatePassword(userID, password, True)
                             
                             if result == "OK":
@@ -598,14 +598,14 @@ class systemAdministrator(consultant):
 
         except Exception as e:
             print(f"An error occurred while resetting password: {str(e)}")
-            loggingSys.log(f"Error occurred during password reset: {str(e)}", True)
+            loggingSys.log(f"Error occurred during password reset: {str(e)}", True, username=self.userName)
 
 
     def userCreation(self, db, role, loggingSys):
         try:
             if role not in [roles.ADMIN, roles.CONSULTANT]:
                 print("Invalid role")
-                loggingSys.log("User tried to create a user with an invalid RoleType", True)
+                loggingSys.log("User tried to create a user with an invalid RoleType", True, username=self.userName)
                 return
 
             roleType = role.value
@@ -641,9 +641,9 @@ class systemAdministrator(consultant):
                     lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
                     if lastName.upper() == 'Q':
                         return
-                    if not Validation.validateName(firstName) or not Validation.validateName(lastName):
+                    if not Validation.validateName(firstName, self.userName, loggingSys) or not Validation.validateName(lastName, self.userName, loggingSysv):
                         print("Please enter a valid first and lastname!!!")
-                        loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", True)
+                        loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
                         continue
                     else:
                         validFL_Name = True
@@ -652,13 +652,13 @@ class systemAdministrator(consultant):
                     username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
                     if username.upper() == 'Q':
                         return
-                    if not Validation.usernameValidation(username):
+                    if not Validation.usernameValidation(username, self.userName, loggingSys):
                         print("Please insert a valid username...")
-                        loggingSys.log(f"User tried to create a {roleType} with an invalid username", True)
+                        loggingSys.log(f"User tried to create a {roleType} with an invalid username", False, username=self.userName)
                         continue
                     if db.findUsername(username.lower()):
                         print("Username already exists...")
-                        loggingSys.log(f"User tried to create a {roleType} with an existing username", False)
+                        loggingSys.log(f"User tried to create a {roleType} with an existing username", False, username=self.userName)
                     else:
                         print("Username is available!")
                         availableUsername = True
@@ -668,8 +668,8 @@ class systemAdministrator(consultant):
                     data = self.db.getUserData(username)
                     if password.upper() == 'Q':
                         return
-                    if not Validation.passwordValidation(password):
-                        loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", True)
+                    if not Validation.passwordValidation(password, self.userName, loggingSys):
+                        loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", False, username=self.userName)
                         continue
                     else:
                         validPassword = True
@@ -681,15 +681,15 @@ class systemAdministrator(consultant):
                 result = self.db.createUser(firstName, lastName, encryptedUsername, password, creationDate, encryptedRole, False)
                 if result == "OK":
                     print(f"{roleType} created successfully.")
-                    loggingSys.log(f"User has created a {roleType}", False)
+                    loggingSys.log(f"User has created a {roleType}", False, username=self.userName)
                 else:
                     print(f"Failed to create {roleType}.")
-                    loggingSys.log(f"Failed to create {roleType}", True)
+                    loggingSys.log(f"Failed to create {roleType}", True, username=self.userName)
 
             processCreation()
 
         except Exception as e:
-            loggingSys.log(f"An error occurred during user creation: {str(e)}", True)
+            loggingSys.log(f"An error occurred during user creation: {str(e)}", True, username=self.userName)
             print(f"An error occurred: {str(e)}")
 
 class superAdministrator(systemAdministrator):

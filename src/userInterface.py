@@ -76,8 +76,8 @@ $$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   __
 
             else:
                 print("Unauthorized access to menu!")
-                loggingSys.log("User tried to access options without proper access.", True)
-                break  # Exit the loop for unauthorized access
+                loggingSys.log("User tried to access options with invalid role.", True, username=user.userName)
+                break  # exit
 
     def superAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
@@ -147,20 +147,18 @@ Super Admin Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False)
+                loggingSys.log("User gave an invalid option.",False, username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
-            loggingSys.log("User gave an invalid option.",True)
+            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
             print("Invalid input given")
             time.sleep(1)
 
         return False
 
-    
-    
-    
-    
+
+
     def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
@@ -222,11 +220,11 @@ System Administrator Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False)
+                loggingSys.log("User gave an invalid option.",False, username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
-            loggingSys.log("User gave an invalid option.",True)
+            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
             print("Invalid input given")
             time.sleep(1)
         
@@ -267,11 +265,11 @@ Consultant Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False)
+                loggingSys.log("User gave an invalid option.",False, username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
-            loggingSys.log("User gave an invalid option.",True)
+            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
             print("Invalid input given")
             time.sleep(1)
         
