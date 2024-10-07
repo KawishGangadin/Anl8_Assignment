@@ -1,24 +1,39 @@
-from database import DB
 from users import roles
 from users import consultant
 from users import systemAdministrator
 from users import superAdministrator
+from cryptoUtils import cryptoUtils
 import sqlite3
 
 class loginAuth:
-    def __init__(self,db):
+    def __init__(self, db):
         self.db = db
 
-    def loginFunc(self, username, password):
-        username = username
-        password = password
-        data = self.db.getUserData(username,password)
+    def loginFunc(self, encrypted_username, password):
+        data = self.db.getUserData(encrypted_username)
         if data:
-            dataRole = roles(data[6])
-            dataID = data[0]
-            if dataRole == roles.CONSULTANT:
-                return consultant(dataID,username)
-            elif dataRole == roles.ADMIN:
-                return systemAdministrator(dataID,username)
-            elif dataRole == roles.SUPERADMIN:
-                return superAdministrator(dataID,username)
+            storedPassword = data[4] 
+            storedSalt = data[8]  
+            if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
+                private_key = cryptoUtils.loadPrivateKey()
+                decrypted_username = cryptoUtils.decryptWithPrivateKey(private_key, data[3]) 
+                decrypted_username = decrypted_username.decode('utf-8')
+                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, data[6])
+                decrypted_role=decrypted_role.decode('utf-8')
+
+                user_id = data[0]  
+
+                roleType = roles(decrypted_role)
+
+                if roleType == roles.CONSULTANT:
+                    return consultant(user_id, decrypted_username, self.db) 
+                elif roleType == roles.ADMIN:
+                    return systemAdministrator(user_id, decrypted_username, self.db) 
+                elif roleType == roles.SUPERADMIN:
+                    return superAdministrator(user_id, decrypted_username, self.db) 
+                else:
+                    raise ValueError("Unknown role detected.")
+        else:
+            print("User not found.")
+
+        return None

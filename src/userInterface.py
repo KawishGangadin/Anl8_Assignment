@@ -2,108 +2,119 @@ from users import roles
 from users import consultant
 from users import systemAdministrator
 from users import superAdministrator
+from roles import roles
+from cryptoUtils import cryptoUtils
+import os
 import time
 
 class UI:
     def __init__(self) -> None:
         pass
-    
-    def func1(self):
-        print("Welcome to function 1")
-
-    def func2(self):
-        print("Welcome to function 2")
-
-    def func3(self):
-        print("Welcome to function 3")
-
-    def func4(self):
-        print("Welcome to function 4")
-
-    def func5(self):
-        print("Welcome to function 5")
-
-    def func6(self):
-        print("Welcome to function 6")
-
-    def func7(self):
-        print("Welcome to function 7")
-
-    def func8(self):
-        print("Welcome to function 8")
-
-    def func9(self):
-        print("Welcome to function 9")
-
-    def func10(self):
-        print("Welcome to function 10")
-
-    def func11(self):
-        print("Welcome to function 11")
-
-    def func12(self):
-        print("Welcome to function 12")
-
-    def func13(self):
-        print("Welcome to function 13")
-
-    def func14(self):
-        print("Welcome to function 14")
-
-    def func15(self):
-        print("Welcome to function 15")
-
-    def func16(self):
-        print("Welcome to function 16")
 
     def displayLogo(self):
         ascii_art = """
-$$\   $$\           $$\                                     $$\      $$\                     $$\ 
-$$ |  $$ |          \__|                                    $$$\    $$$ |                    $$ |
-$$ |  $$ |$$$$$$$\  $$\  $$$$$$\  $$\   $$\  $$$$$$\        $$$$\  $$$$ | $$$$$$\   $$$$$$\  $$ |
-$$ |  $$ |$$  __$$\ $$ |$$  __$$\ $$ |  $$ |$$  __$$\       $$\$$\$$ $$ |$$  __$$\  \____$$\ $$ |
-$$ |  $$ |$$ |  $$ |$$ |$$ /  $$ |$$ |  $$ |$$$$$$$$ |      $$ \$$$  $$ |$$$$$$$$ | $$$$$$$ |$$ |
-$$ |  $$ |$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$   ____|      $$ |\$  /$$ |$$   ____|$$  __$$ |$$ |
-\$$$$$$  |$$ |  $$ |$$ |\$$$$$$$ |\$$$$$$  |\$$$$$$$\       $$ | \_/ $$ |\$$$$$$$\ \$$$$$$$ |$$ |
-\______/ \__|  \__|\__| \____$$ | \______/  \_______|      \__|     \__| \_______| \_______|\__|
-                            $$ |                                                               
-                            $$ |                                                               
-                            \__|
-==================================================================================================
+ _   _       _                    __  __            _ 
+| | | |_ __ (_) __ _ _   _  ___  |  \/  | ___  __ _| |
+| | | | '_ \| |/ _` | | | |/ _ \ | |\/| |/ _ \/ _` | |
+| |_| | | | | | (_| | |_| |  __/ | |  | |  __/ (_| | |
+ \___/|_| |_|_|\__, |\__,_|\___| |_|  |_|\___|\__,_|_|
+                  |_|                                 
+=======================================================
             """
         print(ascii_art)
     
     def clearScreen(self):
-        print("\033c", end="")
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-    def optionMenu(self,user,db):
-        while True:
+    def optionMenu(self, user, db, loggingSys, backupSys):
+        while user is not None:  # Loop while the user is logged in
+            private_key = cryptoUtils.loadPrivateKey()
             time.sleep(1)
-            print(type(user))
-            if isinstance(user, systemAdministrator):
+            if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
-                self.superAdministrator_Menu(user,db)
+                if not db.findUserID(user.id, roles.SUPERADMIN):
+                    print("You will now be logged out of the system...")
+                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
+                    user = None
+                    time.sleep(2)
+                    break  # Exit the loop to log out
+                # Only return None if the user logs out
+                logoutResult = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
+                if logoutResult is True:
+                    user = None
+                    break
+            elif isinstance(user, systemAdministrator):
+                self.clearScreen()
+                self.displayLogo()
+                if not db.findUserID(user.id, roles.ADMIN):
+                    print("You will now be logged out of the system...")
+                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
+                    user = None
+                    time.sleep(2)
+                    break  # Exit the loop to log out
+                logoutResult = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
+                if logoutResult is True:
+                    user = None
+                    break
+
+            elif isinstance(user, consultant):
+                self.clearScreen()
+                self.displayLogo()
+
+                if not db.findUserID(user.id, roles.CONSULTANT):
+                    print("You will now be logged out of the system...")
+                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
+                    user = None
+                    time.sleep(2)
+                    break  # Exit the loop to log out
+
+                logoutResult = self.consultant_Menu(user, db, loggingSys)
+                if logoutResult is True:
+                    user = None
+                    break
+
             else:
-                print("not welcome")
+                print("Unauthorized access to menu!")
+                loggingSys.log("User tried to access options with invalid role.", True, username=user.userName)
+                break  # exit
 
-    def superAdministrator_Menu(self,user,db):
+    def superAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
-        optionsNum = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
-        optionsStr = ["l", "ac", "uc", "dc", "rc", "aa", "ua", "da", "ra", "ba", "rb", "sl", "am", "um", "dm", "sm", "q"]
-        methodCallNum = {
-            1: self.func1, 2: self.func2, 3: self.func3, 4: self.func4,
-            5: self.func5, 6: self.func6, 7: self.func7, 8: self.func8,
-            9: self.func9, 10: self.func10, 11: self.func11, 12: self.func12,
-            13: self.func13, 14: self.func14, 15: self.func15, 16: self.func16,
-        }
-
-        methodCallStr = {
-            'l': self.func1, 'ac': self.func2, 'uc': self.func3, 'dc': self.func4,
-            'rc': self.func5, 'aa': self.func6, 'ua': self.func7, 'da': self.func8,
-            'ra': self.func9, 'ba': self.func10, 'rb': self.func11, 'sl': self.func12,
-            'am': self.func13, 'um': self.func14, 'dm': self.func15, 'sm': self.func16,
-        }
+        methodCall = {
+            "1": lambda : user.displayUsers(db),
+            "2": lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
+            "3": lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
+            "4": lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys),
+            "5": lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys), 
+            "6": lambda : user.userCreation(db, roles.ADMIN,loggingSys),
+            "7": lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
+            "8": lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
+            "9": lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
+            "10": lambda : user.createBackup(user,backupSys,loggingSys),
+            "11": lambda : user.restoreBackup(backupSys,loggingSys),
+            "12": lambda : user.displayLogs(loggingSys),
+            "13": lambda : user.memberCreation(db,loggingSys),
+            "14": lambda : user.editMember(db,loggingSys),
+            "15": lambda : user.deletion(user, db, None, loggingSys),
+            "16": lambda : user.memberSearch(db,loggingSys),
+            'L': lambda : user.displayUsers(db),
+            'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
+            'UC': lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
+            'DC': lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys),
+            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys),
+            'AA': lambda : user.userCreation(db, roles.ADMIN,loggingSys),
+            'UA': lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
+            'DA': lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
+            'RA': lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
+            'BA': lambda : user.createBackup(user,backupSys,loggingSys),
+            'RB': lambda : user.restoreBackup(backupSys,loggingSys),
+            'SL': lambda : user.displayLogs(loggingSys),
+            'AM': lambda : user.memberCreation(db,loggingSys),
+            'UM': lambda : user.editMember(db,loggingSys),
+            'DM': lambda : user.deletion(user, db, None, loggingSys),
+            'SM': lambda : user.memberSearch(db,loggingSys),
+            }
         print("""
 Super Admin Menu:
 [1] or [L] - Get list of users and their roles
@@ -124,23 +135,142 @@ Super Admin Menu:
 [16] or [SM] - Search and retrieve a member’s information
 [0] or [Q] - Quit
 """)
+        user.alertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
-            print("Exiting by choice...")
-            exit()
-        elif input_.isdigit():
-            if int(input_) in optionsNum:
-                methodCallNum[int(input_)]()
+            print("Logging out...")
+            time.sleep(2)
+            return True
+        elif isinstance(input_.upper(),str):
+            if input_.upper() in methodCall:
+                self.clearScreen()
+                self.displayLogo()
+                methodCall[input_.upper()]()
             else:
+                loggingSys.log("User gave an invalid option.",False, username=user.userName)
                 print("Invalid input given")
-        elif isinstance(input_.lower(),str):
-            if input_.lower() in optionsStr:
-                methodCallStr[input_.lower()]()
-            else:
-                print("Invalid input given")
-                print("Exiting not by choice...")
-                exit()
+                time.sleep(1)
         else:
-            print("Exiting...")
+            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
             print("Invalid input given")
-            exit()
+            time.sleep(1)
+
+        return False 
+    
+        return False
+
+
+
+    def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
+        print(f"Welcome {user.userName}")
+        methodCall = {
+            "1": lambda : user.changePassword(user,db,loggingSys), 
+            "2": lambda : user.displayUsers(db), 
+            "3": lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
+            "4": lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
+            "5": lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys), 
+            "6": lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys), 
+            "7": lambda :  user.createBackup(user,backupSys,loggingSys), 
+            "8": lambda :  user.displayLogs(loggingSys),
+            "9": lambda : user.memberCreation(db,loggingSys), 
+            "10": lambda : user.editMember(db,loggingSys), 
+            "11": lambda : user.deletion(user, db, None, loggingSys), 
+            "12": lambda : user.memberSearch(db,loggingSys),
+            "13": lambda : user.restoreBackup(backupSys,loggingSys),
+            'UP': lambda : user.changePassword(user,db,loggingSys), 
+            'LU': lambda : user.displayUsers(db), 
+            'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
+            'UC': lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
+            'DC': lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys), 
+            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys),  
+            'MB': lambda : user.createBackup(user,backupSys,loggingSys),
+            'SL': lambda : user.displayLogs(loggingSys),
+            'AM': lambda : user.memberCreation(db,loggingSys), 
+            'UM': lambda : user.editMember(db,loggingSys), 
+            'DM': lambda : user.deletion(user, db, None, loggingSys), 
+            'SM': lambda : user.memberSearch(db,loggingSys),
+            'RB': lambda : user.restoreBackup(backupSys,loggingSys)
+        }
+
+
+        print("""
+System Administrator Menu:
+[1] or [UP] - Update their own password
+[2] or [LU] - Check the list of users and their roles
+[3] or [AC] - Define and add a new consultant to the system
+[4] or [UC] - Modify or update an existing consultant’s account and profile
+[5] or [DC] - Delete an existing consultant’s account
+[6] or [RC] - Reset an existing consultant’s password (a temporary password)
+[7] or [MB] - Make a backup of the system (members and users’ information, logs)
+[8] or [SL] - See the logs file(s) of the system
+[9] or [AM] - Add a new member to the system
+[10] or [UM] - Modify or update the information of a member in the system
+[11] or [DM] - Delete a member's record from the database (note that a consultant cannot delete a record but can only modify or update a member’s information)
+[12] or [SM] - Search and retrieve the information of a member
+[13] or [RB] - Restore a backup of the system
+[0] or [Q] - Quit
+""")
+        user.alertLogs(loggingSys)
+        input_ = input("Press a key:").strip().upper()
+        if input_ in ['0', 'Q']:
+            print("Logging out...")
+            time.sleep(2)
+            return True
+        elif isinstance(input_.upper(),str):
+            if input_.upper() in methodCall:
+                self.clearScreen()
+                self.displayLogo()
+                methodCall[input_.upper()]()
+            else:
+                loggingSys.log("User gave an invalid option.",False, username=user.userName)
+                print("Invalid input given")
+                time.sleep(1)
+        else:
+            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
+            print("Invalid input given")
+            time.sleep(1)
+        
+        return False
+
+    def consultant_Menu(self,user,db,loggingSys):
+        print(f"Welcome {user.userName}")
+        methodCall = {
+            "1": lambda : user.changePassword(user,db,loggingSys), 
+            "2": lambda : user.memberCreation(db,loggingSys), 
+            "3": lambda : user.editMember(db,loggingSys), 
+            "4": lambda : user.memberSearch(db,loggingSys),
+            'UP': lambda : user.changePassword(user,db,loggingSys), 
+            'AM': lambda : user.memberCreation(db,loggingSys), 
+            'UM': lambda : user.editMember(db,loggingSys), 
+            'SM': lambda : user.memberSearch(db,loggingSys),
+        }
+
+
+        print("""
+Consultant Menu:
+[1] or [UP] - Update their own password
+[2] or [AM] - Add a new member to the system
+[3] or [UM] - Modify or update the information of a member in the system
+[4] or [SM] - Search and retrieve the information of a member
+[0] or [Q] - Quit
+""")
+        input_ = input("Press a key:").strip().upper()
+        if input_ in ['0', 'Q']:
+            print("Logging out...")
+            time.sleep(2)
+            return True
+        elif isinstance(input_.upper(),str):
+            if input_.upper() in methodCall:
+                self.clearScreen()
+                self.displayLogo()
+                methodCall[input_.upper()]()
+            else:
+                loggingSys.log("User gave an invalid option.",False, username=user.userName)
+                print("Invalid input given")
+                time.sleep(1)
+        else:
+            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
+            print("Invalid input given")
+            time.sleep(1)
+        
+        return False
