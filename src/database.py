@@ -62,7 +62,61 @@ class DB:
         finally:
             if conn:
                 conn.close()
+    
+    def createMember(self, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date, membership_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            query = """
+            INSERT INTO members (membership_id, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            public_key = cryptoUtils.loadPublicKey()
+            encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, first_name)
+            encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, last_name)
+            encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
+            encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
+            encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
+            encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membership_id)
+            encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
+            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
+            encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
+            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
+            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
+            parameters = (encrypted_membershipId, encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight, encrypted_address, encrypted_city, encrypted_postalCode, encrypted_email, encrypted_mobile, registration_date)
+            cursor = conn.cursor()
 
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while creating the member:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            hashed_password, salt = cryptoUtils.hashPassword(password)
+            query = "INSERT INTO users (first_name, last_name, username, password_hash, registration_date, role, temp, salt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            parameters = (first_name, last_name, username, hashed_password, registration_date, role, temp, salt)
+            cursor = conn.cursor()
+
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while creating the user:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+    
     def initSuperadmin(self):
         conn = None
         try:
@@ -105,7 +159,90 @@ class DB:
             if conn:
                 conn.close()
 
-    
+    def findMembershipID(self, encrypted_membership_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM members"
+            cursor.execute(query)
+            members = cursor.fetchall()
+            cursor.close()
+
+            private_key = cryptoUtils.loadPrivateKey() 
+            decrypted_membership_id = None
+
+            for member in members:
+                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
+                if decrypted_membership_id.decode('utf-8') == encrypted_membership_id:
+                    return True  
+
+            return False  
+
+        except sqlite3.Error as e:
+            print("An error occurred while searching for membership ID:", e)
+            return False
+        finally:
+            if conn:
+                conn.close()
+
+    def findUserID(self, user_id, role):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM users"
+            cursor.execute(query)
+            users = cursor.fetchall()
+            cursor.close()
+
+            private_key = cryptoUtils.loadPrivateKey()  
+            decrypted_role = None
+
+            for user in users:
+                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
+                if decrypted_role.decode('utf-8') == role.value:
+                    if user[0] == user_id:
+                        return True 
+
+            return False  
+
+        except sqlite3.Error as e:
+            print("An error occurred while searching for user ID:", e)
+            return False
+        finally:
+            if conn:
+                conn.close()
+
+    def findUsername(self, username):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM users"
+            cursor.execute(query)
+            
+            users = cursor.fetchall()
+            cursor.close()
+            
+            private_key = cryptoUtils.loadPrivateKey()
+            
+            for user in users:
+                decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3])
+                decrypted_username = decrypted_username_bytes.decode('utf-8') 
+                
+                if decrypted_username == username:
+                    return True
+            
+            return False
+        
+        except sqlite3.Error as e:
+            print("An error occurred while searching for username:", e)
+            return False
+        finally:
+            if conn:
+                conn.close()
+
     def searchMember(self, search_key):
         conn = None
         try:
@@ -177,7 +314,6 @@ class DB:
             if conn:
                 conn.close()
 
-
     def getUserData(self, username):
         conn = None
         try:
@@ -204,93 +340,6 @@ class DB:
         finally:
             if conn:
                 conn.close()
-
-    def findMembershipID(self, encrypted_membership_id):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM members"
-            cursor.execute(query)
-            members = cursor.fetchall()
-            cursor.close()
-
-            private_key = cryptoUtils.loadPrivateKey() 
-            decrypted_membership_id = None
-
-            for member in members:
-                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
-                if decrypted_membership_id.decode('utf-8') == encrypted_membership_id:
-                    return True  
-
-            return False  
-
-        except sqlite3.Error as e:
-            print("An error occurred while searching for membership ID:", e)
-            return False
-        finally:
-            if conn:
-                conn.close()
-
-    
-    def findUserID(self, user_id, role):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM users"
-            cursor.execute(query)
-            users = cursor.fetchall()
-            cursor.close()
-
-            private_key = cryptoUtils.loadPrivateKey()  
-            decrypted_role = None
-
-            for user in users:
-                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
-                if decrypted_role.decode('utf-8') == role.value:
-                    if user[0] == user_id:
-                        return True 
-
-            return False  
-
-        except sqlite3.Error as e:
-            print("An error occurred while searching for user ID:", e)
-            return False
-        finally:
-            if conn:
-                conn.close()
-
-    
-    def findUsername(self, username):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM users"
-            cursor.execute(query)
-            
-            users = cursor.fetchall()
-            cursor.close()
-            
-            private_key = cryptoUtils.loadPrivateKey()
-            
-            for user in users:
-                decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3])
-                decrypted_username = decrypted_username_bytes.decode('utf-8') 
-                
-                if decrypted_username == username:
-                    return True
-            
-            return False
-        
-        except sqlite3.Error as e:
-            print("An error occurred while searching for username:", e)
-            return False
-        finally:
-            if conn:
-                conn.close()
-
 
     def getUsers(self, role=None):
         conn = None
@@ -324,7 +373,23 @@ class DB:
             if conn:
                 conn.close()
 
-    
+    def getUsernameByID(self, user_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT username FROM users WHERE id = ?"
+            cursor.execute(query, (user_id,))
+            username = cursor.fetchone()
+            cursor.close()
+            return username[0] if username else None
+        except sqlite3.Error as e:
+            print("An error occurred while retrieving username by user ID:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+
     def getMembers(self):
         conn = None
         try:
@@ -341,136 +406,6 @@ class DB:
         finally:
             if conn:
                 conn.close()
-
-    def createMember(self, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date, membership_id):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            query = """
-            INSERT INTO members (membership_id, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
-            public_key = cryptoUtils.loadPublicKey()
-            encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, first_name)
-            encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, last_name)
-            encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
-            encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
-            encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
-            encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membership_id)
-            encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
-            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
-            encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
-            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
-            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
-            parameters = (encrypted_membershipId, encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight, encrypted_address, encrypted_city, encrypted_postalCode, encrypted_email, encrypted_mobile, registration_date)
-            cursor = conn.cursor()
-
-            cursor.execute(query, parameters)
-            conn.commit()
-            cursor.close()
-            return "OK"
-        except sqlite3.Error as e:
-            print("An error occurred while creating the member:", e)
-            return None
-        finally:
-            if conn:
-                conn.close()
-
-    def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            hashed_password, salt = cryptoUtils.hashPassword(password)
-            query = "INSERT INTO users (first_name, last_name, username, password_hash, registration_date, role, temp, salt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            parameters = (first_name, last_name, username, hashed_password, registration_date, role, temp, salt)
-            cursor = conn.cursor()
-
-            cursor.execute(query, parameters)
-            conn.commit()
-            cursor.close()
-            return "OK"
-        except sqlite3.Error as e:
-            print("An error occurred while creating the user:", e)
-            return None
-        finally:
-            if conn:
-                conn.close()
-
-    def deleteUser(self, user_id, role):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM users WHERE id = ?"
-            cursor.execute(query, (user_id,))
-            user = cursor.fetchone()
-            
-            if user is None:
-                raise ValueError(f"No user found with id {user_id}")
-            
-            private_key = cryptoUtils.loadPrivateKey() 
-            decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
-            
-            if decrypted_role.decode('utf-8') == role.value:
-                delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
-                cursor.execute(delete_query, (user_id, user[6]))
-                conn.commit()
-                
-                if cursor.rowcount == 0:
-                    raise ValueError(f"No user found with id {user_id} and role {role.value}")
-                
-                cursor.close()
-                return "OK"
-            else:
-                raise ValueError(f"Role mismatch for user with id {user_id}")
-        
-        except sqlite3.Error as e:
-            print(f"An error occurred while deleting the user: {e}")
-            return "FAIL"
-        except ValueError as ve:
-            print(str(ve))
-            return "FAIL"
-        finally:
-            if conn:
-                conn.close()
-
-
-    def deleteMember(self, membership_id):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM members"
-            cursor.execute(query)
-            members = cursor.fetchall()
-
-            private_key = cryptoUtils.loadPrivateKey()
-            found_member = False
-            for member in members:
-                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
-                if decrypted_membership_id.decode('utf-8') == membership_id: 
-                    query = "DELETE FROM members WHERE membership_id = ?"
-                    cursor.execute(query, (member[0],))  
-                    conn.commit()
-                    found_member = True
-                    break
-
-            cursor.close()
-
-            if found_member:
-                return "OK"
-            else:
-                print(f"No member found with membership ID {membership_id}.")
-                return "NOT FOUND"
-
-        except sqlite3.Error as e:
-            print("An error occurred while deleting the member:", e)
-            return "FAIL"
-
-        finally:
-            if conn:
-                conn.close()
-
 
     def updateUser(self, userId, firstName, lastName, username):
         conn = None
@@ -585,19 +520,76 @@ class DB:
             if conn:
                 conn.close()
 
-    def getUsernameByID(self, user_id):
+    def deleteUser(self, user_id, role):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            query = "SELECT username FROM users WHERE id = ?"
+            query = "SELECT * FROM users WHERE id = ?"
             cursor.execute(query, (user_id,))
-            username = cursor.fetchone()
-            cursor.close()
-            return username[0] if username else None
+            user = cursor.fetchone()
+            
+            if user is None:
+                raise ValueError(f"No user found with id {user_id}")
+            
+            private_key = cryptoUtils.loadPrivateKey() 
+            decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
+            
+            if decrypted_role.decode('utf-8') == role.value:
+                delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
+                cursor.execute(delete_query, (user_id, user[6]))
+                conn.commit()
+                
+                if cursor.rowcount == 0:
+                    raise ValueError(f"No user found with id {user_id} and role {role.value}")
+                
+                cursor.close()
+                return "OK"
+            else:
+                raise ValueError(f"Role mismatch for user with id {user_id}")
+        
         except sqlite3.Error as e:
-            print("An error occurred while retrieving username by user ID:", e)
-            return None
+            print(f"An error occurred while deleting the user: {e}")
+            return "FAIL"
+        except ValueError as ve:
+            print(str(ve))
+            return "FAIL"
+        finally:
+            if conn:
+                conn.close()
+
+    def deleteMember(self, membership_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM members"
+            cursor.execute(query)
+            members = cursor.fetchall()
+
+            private_key = cryptoUtils.loadPrivateKey()
+            found_member = False
+            for member in members:
+                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
+                if decrypted_membership_id.decode('utf-8') == membership_id: 
+                    query = "DELETE FROM members WHERE membership_id = ?"
+                    cursor.execute(query, (member[0],))  
+                    conn.commit()
+                    found_member = True
+                    break
+
+            cursor.close()
+
+            if found_member:
+                return "OK"
+            else:
+                print(f"No member found with membership ID {membership_id}.")
+                return "NOT FOUND"
+
+        except sqlite3.Error as e:
+            print("An error occurred while deleting the member:", e)
+            return "FAIL"
+
         finally:
             if conn:
                 conn.close()

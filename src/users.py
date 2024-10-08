@@ -642,7 +642,7 @@ class systemAdministrator(consultant):
                     lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
                     if lastName.upper() == 'Q':
                         return
-                    if not Validation.validateName(firstName, self.userName, loggingSys) or not Validation.validateName(lastName, self.userName, loggingSysv):
+                    if not Validation.validateName(firstName, self.userName, loggingSys) or not Validation.validateName(lastName, self.userName, loggingSys):
                         print("Please enter a valid first and lastname!!!")
                         loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
                         continue
