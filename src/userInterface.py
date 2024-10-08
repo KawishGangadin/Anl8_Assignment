@@ -33,6 +33,7 @@ class UI:
             if isinstance(user, superAdministrator):
                 self.clearScreen()
                 self.displayLogo()
+
                 if not db.findUserID(user.id, roles.SUPERADMIN):
                     print("You will now be logged out of the system...")
                     loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
@@ -40,19 +41,23 @@ class UI:
                     time.sleep(2)
                     break  # Exit the loop to log out
                 # Only return None if the user logs out
+
                 logoutResult = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
                     user = None
                     break
+
             elif isinstance(user, systemAdministrator):
                 self.clearScreen()
                 self.displayLogo()
+
                 if not db.findUserID(user.id, roles.ADMIN):
                     print("You will now be logged out of the system...")
                     loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
                     user = None
                     time.sleep(2)
-                    break  # Exit the loop to log out
+                    break 
+                 # Exit the loop to log out
                 logoutResult = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
                     user = None
@@ -156,10 +161,6 @@ Super Admin Menu:
             time.sleep(1)
 
         return False 
-    
-        return False
-
-
 
     def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")

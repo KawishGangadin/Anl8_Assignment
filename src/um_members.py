@@ -33,16 +33,19 @@ def main():
         maxTries = 3
         while not loggedIn:
             if maxTries <= 0:
+
                 if len(set(attemptedPasswords)) > 1 and len(set(attemptedUsernames)) > 1:
                     print("Multiple usernames and passwords are tried wrong in a row")
                     loggingSys.log("Unsuccesful login attempt", True, "Multiple usernames and passwords are tried wrong in a row")
                     print("Exiting...")
                     exit()
+
                 else:
                     print("A user tried to log into the system too many times with the wrong credentials")
                     loggingSys.log("Unsuccesful login attempt", True,"A user tried to log into the system too many times with the wrong credentials")
                     print("Exiting...")
                     exit()
+
             while maxTries > 0:
                 userInterface.clearScreen()
                 userInterface.displayLogo()
@@ -62,6 +65,7 @@ def main():
                 if data:
                     storedPassword = data[4]
                     storedSalt = data[8] 
+
                     if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
                         print("Successfully logged in!")
                         loggedIn = True
@@ -69,10 +73,12 @@ def main():
                         loggingSys.log("User successfully logged into Unique Meal", False, username=username.lower())
                         time.sleep(1)
                         break
+
                     else:
                         print("Invalid username or password. Please try again.")
                         time.sleep(1)
                         maxTries -= 1
+
                 else:
                     print("Invalid username or password. Please try again.")
                     time.sleep(1)
@@ -94,6 +100,7 @@ def main():
                     if newPassword.upper() == "Q":
                         print("Exiting the system")
                         exit()
+
                     elif Validation.passwordValidation(newPassword, username, loggingSys):
                         respone = dataBase.updatePassword(user.id,newPassword)
                         
@@ -103,13 +110,16 @@ def main():
                             time.sleep(0.5)
                             isTemp = None
                             break
+
                         else:
                             loggingSys.log(f"Something went wrong trying to change {username}'s password...",False)
                             print("Something went wrong trying to change the password...")
                             print("Try again later! \n Exiting...")
                             exit()
+
                     else:
                         print("Please enter a valid password!!!")
+                        
             userInterface.clearScreen()
             print("Logged In")
             time.sleep(1)
