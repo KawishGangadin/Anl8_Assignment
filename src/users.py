@@ -232,16 +232,16 @@ class consultant(userBlueprint):
 
             updates = {}
             fields_validations = {
-                "first_name": lambda value: Validation.validateName(value, loggingSys, self.userName),
-                "last_name": lambda value: Validation.validateName(value, loggingSys, self.userName),
-                "age": lambda value: Validation.validateAge(value, loggingSys, self.userName),
+                "first_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
+                "last_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
+                "age": lambda value: Validation.validateAge(value,self.userName,loggingSys),
                 "gender": lambda x: x in ["Male", "Female", "Other"],
                 "weight": lambda value: value.replace('.', '', 1).isdigit() and float(value) > 0,
-                "address": lambda value: Validation.validateAddress(value, loggingSys, self.userName),
-                "city": lambda value: Validation.validateCity(value, loggingSys, self.userName),
-                "postalCode": lambda value: Validation.validateZipcode(value, loggingSys, self.userName),
-                "email": lambda value: Validation.validateEmail(value, loggingSys, self.userName),
-                "mobile": lambda value: Validation.validateMobileNumber(value, loggingSys, self.userName)
+                "address": lambda value: Validation.validateAddress(value,self.userName,loggingSys),
+                "city": lambda value: Validation.validateCity(value,self.userName,loggingSys),
+                "postalCode": lambda value: Validation.validateZipcode(value,self.userName,loggingSys),
+                "email": lambda value: Validation.validateEmail(value,self.userName,loggingSys),
+                "mobile": lambda value: Validation.validateMobileNumber(value,self.userName,loggingSys)
             }
             for field, validation in fields_validations.items():
                 input_value = getValidInput(f"Enter new {field.replace('_', ' ')} or leave empty to make no changes: ", validation)

@@ -4,9 +4,10 @@ class Validation:
 
     @staticmethod
     def checkNullByte(input):
-        if '\x00' in input:
-            return False
-        return True
+        pattern = r'^[\x20-\x7E]+$' 
+        if re.match(pattern, input):
+            return True
+        return False
     
     @staticmethod
     def checkSqlInjection(input):
