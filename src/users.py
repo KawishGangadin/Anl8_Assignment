@@ -676,7 +676,7 @@ class systemAdministrator(consultant):
                     print("Quitting...")
                     break
                 else:
-                    if name == "":
+                    if not Validation.validateBackup(name,self.userName, loggingSys):
                         print("Please enter a valid file name!")
                     else:
                         print("Restoring backup....")

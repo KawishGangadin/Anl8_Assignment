@@ -52,7 +52,7 @@ def main():
                 username = input("Enter your username: \n")
                 attemptedUsernames.append(username.lower())
                 password = input("Enter your password: \n")
-                attemptedPasswords.append(password.lower())
+                attemptedPasswords.append(password)
 
                 if not Validation.usernameValidation(username.lower(), "", loggingSys) or not Validation.passwordValidation(password,"", loggingSys):
                     maxTries -= 1
