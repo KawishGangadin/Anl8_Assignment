@@ -352,15 +352,16 @@ class consultant(userBlueprint):
                     time.sleep(0.5)
                 if validID:
                     if not role == None:
+                        privateKey = cryptoUtils.loadPrivateKey()
                         deletedUsername = db.getUsernameByID(Id)
                         result = db.deleteUser(Id, role)
                         if result == "OK":
                             print("User deleted")
-                            loggingSys.log("User deleted", False, f"User  '{deletedUsername}' has been deleted.", self.userName)
+                            loggingSys.log("User deleted", False, f"User  '{cryptoUtils.decryptWithPrivateKey(privateKey,deletedUsername)}' has been deleted.", self.userName)
                             deletedUsername = None
                         else:
                             print("An error occurred while deleting the user.")
-                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {deletedUsername}.", self.userName)
+                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {cryptoUtils.decryptWithPrivateKey(privateKey,deletedUsername)}.", self.userName)
                             deletedUsername = None
                         time.sleep(1)
                     else:
@@ -370,7 +371,7 @@ class consultant(userBlueprint):
                             loggingSys.log("Member has been deleted", False, username=self.userName)
                         else:
                             print("An error occurred while deleting the member.")
-                            loggingSys.log("Failed to delete member", True, username=self.userName)
+                            loggingSys.log(f"Failed to delete member with id {Id}", True, username=self.userName)
                         time.sleep(1)
             if role is None:  
                 if isinstance(user, consultant):
@@ -429,20 +430,20 @@ class systemAdministrator(consultant):
                 availableUsername = False
                 validPassword = False
                 print("""
-1. Username Validation:
-   - Must start with a letter or underscore.
-   - Can contain letters, digits, underscores, apostrophes, or dots.
-   - Length must be between 8 and 10 characters.
+    1. Username Validation:
+    - Must start with a letter or underscore.
+    - Can contain letters, digits, underscores, apostrophes, or dots.
+    - Length must be between 8 and 10 characters.
 
-2. Password Validation:
-   - Must be between 12 and 30 characters.
-   - Must include at least one lowercase letter, one uppercase letter, one digit, and one special character from `~!@#$%&_\-+=\|(){}[\]:;'<>,.?/`.
-3. Name Validation:
-   - Must contain only alphabetic characters, hyphens, apostrophes, or spaces.
-   - Maximum of one hyphen or apostrophe, and two spaces.
-   - Cannot start or end with a hyphen or apostrophe.
-   - Cannot be empty.
-""")
+    2. Password Validation:
+    - Must be between 12 and 30 characters.
+    - Must include at least one lowercase letter, one uppercase letter, one digit, and one special character from `~!@#$%&_\-+=\|(){}[\]:;'<>,.?/`.
+    3. Name Validation:
+    - Must contain only alphabetic characters, hyphens, apostrophes, or spaces.
+    - Maximum of one hyphen or apostrophe, and two spaces.
+    - Cannot start or end with a hyphen or apostrophe.
+    - Cannot be empty.
+    """)
 
                 while not validFL_Name:
                     firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
@@ -479,7 +480,7 @@ class systemAdministrator(consultant):
                     if password.upper() == 'Q':
                         return
                     if not Validation.passwordValidation(password, self.userName, loggingSys):
-                        loggingSys.log(f"User tried to create a {roleType}: {username} with an invalid password", False, username=self.userName)
+                        loggingSys.log(f"User tried to create a {roleType}: with an invalid password", False, username=self.userName)
                         continue
                     else:
                         validPassword = True
@@ -495,12 +496,11 @@ class systemAdministrator(consultant):
                 else:
                     print(f"Failed to create {roleType}.")
                     loggingSys.log(f"Failed to create {roleType}", True, username=self.userName)
-
-            processCreation()
-
         except Exception as e:
-            loggingSys.log(f"An error occurred during user creation: {str(e)}", True, username=self.userName)
-            print(f"An error occurred: {str(e)}")
+            print(f"An error occurred while creating user: {str(e)}")
+            loggingSys.log(f"Error occurred during user creation: {str(e)}", True, username=self.userName)
+
+        processCreation()
 
     def displayUsers(self, db, role=None):
         try:

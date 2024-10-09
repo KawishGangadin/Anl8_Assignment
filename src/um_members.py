@@ -54,13 +54,18 @@ def main():
                 password = input("Enter your password: \n")
                 attemptedPasswords.append(password.lower())
 
-                if not Validation.usernameValidation(username.lower(), username, loggingSys) or not Validation.passwordValidation(password, username, loggingSys):
+                if not Validation.usernameValidation(username.lower(), "", loggingSys) or not Validation.passwordValidation(password,"", loggingSys):
                     maxTries -= 1
                     print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
-                    loggingSys.log("Unsuccesful Login attempt", "False", f"username: '{username}' is used for a login attempt with a wrong password")
+                    if len(username) < 10:
+                        loggingSys.log("Unsuccessful Login attempt", "False", f"username: '{username}' is used for a login attempt with a wrong password")
+                    else:
+                        loggingSys.log("Unsuccessful Login attempt", "False", "A login attempt was made with a unsupported username")
+
                     time.sleep(1)
                     continue
-                data = dataBase.getUserData(username.lower())
+                else:
+                    data = dataBase.getUserData(username.lower())
                 
                 if data:
                     storedPassword = data[4]

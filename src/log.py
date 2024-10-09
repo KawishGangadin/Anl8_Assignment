@@ -51,6 +51,7 @@ class Logger:
                 for log in logs:
                     try:
                         decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip())).decode()
+                        print("-"* len(decrypted_log))
                         print(decrypted_log)
                     except Exception as e:
                         print(f"Error decrypting log: {e}")
