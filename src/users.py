@@ -95,9 +95,13 @@ class consultant(userBlueprint):
                     if weight < 0:
                         print("Weight must be a positive number!")
                         weight = ""
+                    elif weight > 700:
+                        print("Weight is impossible!")
+                        weight = ""
                 except ValueError:
                     print("Invalid weight!")
                     weight = ""
+            weight = round(weight, 1)
 
             membershipId = Checksum.generateMembershipId(db)
 

@@ -127,7 +127,7 @@ class Validation:
             loggingSys.log(f"Invalid name format (non-string), null-byte or sql detected in name.", True, username=username)
             return False
 
-        if re.match(pattern, name):
+        if re.match(pattern, name) and len(name) <= 35:
             return True
         else:
             loggingSys.log(f"Invalid name format (did not match pattern).", False, username=username)
@@ -179,7 +179,7 @@ class Validation:
             loggingSys.log(f"Invalid street name format null byte or sql detected in address.", True, username=username)
             return False
 
-        if re.match(pattern, address):
+        if re.match(pattern, address) and len(address) <= 35:
             return True
         else:
             loggingSys.log(f"Invalid street name format (did not match pattern)", False, username=username)
@@ -223,3 +223,51 @@ class Validation:
                 loggingSys.log(f'Regex error while validating username:', False, username=username)
         
         return False
+    
+    @staticmethod
+    def validateGender(gender):
+        if gender.lower in ["male","female","other"]:
+            return True
+        return False
+
+    @staticmethod
+    def validateWeight(weight):
+        try:
+            weight = float(weight)
+            if 10 < weight < 700:
+                return True
+        except ValueError:
+            return False
+        return False
+    
+    @staticmethod
+    def validateMultipleInputs(**kwargs):
+        validation_mapping = {
+            'username': Validation.usernameValidation,
+            'password': Validation.passwordValidation,
+            'email': Validation.validateEmail,
+            'age': Validation.validateAge,
+            'housenumber': Validation.validateHousenumber,
+            'postalCode': Validation.validateZipcode,
+            'first_name': Validation.validateName,
+            'last_name': Validation.validateName,
+            'mobile': Validation.validateMobileNumber,
+            'membershipID': Validation.validateMembershipID,
+            'address': Validation.validateAddress,
+            'city': Validation.validateCity,
+            'backup': Validation.validateBackup,
+            'gender': Validation.validateGender,
+            'weight': Validation.validateWeight
+        }
+
+        for key, value in kwargs.items():
+            if key in validation_mapping:
+                validation_func = validation_mapping[key]
+                result = validation_func(value)
+                
+                if not result:
+                    return False
+            else:
+                return False
+
+        return True

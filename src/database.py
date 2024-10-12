@@ -3,7 +3,9 @@ import sqlite3
 from sqlite3 import Error
 from roles import roles
 from cryptoUtils import cryptoUtils
+from inputValidation import Validation
 import os
+import time
 
 
 class DB:
@@ -66,30 +68,34 @@ class DB:
     def createMember(self, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date, membership_id):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            query = """
-            INSERT INTO members (membership_id, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
-            public_key = cryptoUtils.loadPublicKey()
-            encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, first_name)
-            encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, last_name)
-            encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
-            encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
-            encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
-            encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membership_id)
-            encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
-            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
-            encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
-            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
-            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
-            parameters = (encrypted_membershipId, encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight, encrypted_address, encrypted_city, encrypted_postalCode, encrypted_email, encrypted_mobile, registration_date)
-            cursor = conn.cursor()
+            validationData = { "first_name": first_name, "last_name": last_name, "age": age, "address": address, "city": city, "postalCode": postalCode, "email": email, "mobile": mobile, "membershipID": membership_id }
+            if Validation.validateMultipleInputs( **validationData):
+                conn = sqlite3.connect(self.databaseFile)
+                query = """
+                INSERT INTO members (membership_id, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """
+                public_key = cryptoUtils.loadPublicKey()
+                encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, first_name)
+                encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, last_name)
+                encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
+                encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
+                encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
+                encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membership_id)
+                encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
+                encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
+                encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
+                encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
+                encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, str("316"+mobile))
+                parameters = (encrypted_membershipId, encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight, encrypted_address, encrypted_city, encrypted_postalCode, encrypted_email, encrypted_mobile, registration_date)
+                cursor = conn.cursor()
 
-            cursor.execute(query, parameters)
-            conn.commit()
-            cursor.close()
-            return "OK"
+                cursor.execute(query, parameters)
+                conn.commit()
+                cursor.close()
+                return "OK"
+            else:
+                return "FAIL"
         except sqlite3.Error as e:
             print("An error occurred while creating the member:", e)
             return None
@@ -454,40 +460,44 @@ class DB:
 
     def updateMember(self, membershipID, **fields):
         conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            publicKey = cryptoUtils.loadPublicKey()
-            privateKey = cryptoUtils.loadPrivateKey()
-            cursor.execute("SELECT * FROM members")
-            members = cursor.fetchall()
-            member_found = False
 
-            for member in members:
-                member_dict = {description[0]: member[idx] for idx, description in enumerate(cursor.description)}
-                decrypted_membership_id_bytes = cryptoUtils.decryptWithPrivateKey(privateKey,member_dict['membership_id'])
-                decrypted_membership_id = decrypted_membership_id_bytes.decode()  
+        try:
+            if Validation.validateMultipleInputs(**fields):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                publicKey = cryptoUtils.loadPublicKey()
+                privateKey = cryptoUtils.loadPrivateKey()
+                cursor.execute("SELECT * FROM members")
+                members = cursor.fetchall()
+                member_found = False
+
+                for member in members:
+                    member_dict = {description[0]: member[idx] for idx, description in enumerate(cursor.description)}
+                    decrypted_membership_id_bytes = cryptoUtils.decryptWithPrivateKey(privateKey,member_dict['membership_id'])
+                    decrypted_membership_id = decrypted_membership_id_bytes.decode()  
+                    
+                    if decrypted_membership_id == membershipID:
+                        member_found = True
+                        encrypted_fields = {key: cryptoUtils.encryptWithPublicKey(publicKey, str(value)) for key, value in fields.items()}  
+                        
+                        query = "UPDATE members SET"
+                        parameters = []
+                        
+                        for field, value in encrypted_fields.items():
+                            query += f" {field} = ?,"
+                            parameters.append(value)
+                        
+                        query = query.rstrip(",") + " WHERE membership_id = ?"
+                        parameters.append(member_dict['membership_id'])
+                        
+                        cursor.execute(query, parameters)
+                        conn.commit()
+                        break
                 
-                if decrypted_membership_id == membershipID:
-                    member_found = True
-                    encrypted_fields = {key: cryptoUtils.encryptWithPublicKey(publicKey, str(value)) for key, value in fields.items()}  
-                    
-                    query = "UPDATE members SET"
-                    parameters = []
-                    
-                    for field, value in encrypted_fields.items():
-                        query += f" {field} = ?,"
-                        parameters.append(value)
-                    
-                    query = query.rstrip(",") + " WHERE membership_id = ?"
-                    parameters.append(member_dict['membership_id'])
-                    
-                    cursor.execute(query, parameters)
-                    conn.commit()
-                    break
-            
-            cursor.close()
-            return "OK" if member_found else "Member not found"
+                cursor.close()
+                return "OK" if member_found else "Member not found"
+            else:
+                return "FAIL"
 
         except sqlite3.Error as e:
             print("An error occurred while updating the member:", e)
