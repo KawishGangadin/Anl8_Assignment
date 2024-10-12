@@ -462,6 +462,8 @@ class DB:
         conn = None
 
         try:
+            if(len(fields) == 0):
+                return "OK"
             if Validation.validateMultipleInputs(**fields):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
