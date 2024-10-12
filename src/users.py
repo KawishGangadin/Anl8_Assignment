@@ -426,7 +426,6 @@ class systemAdministrator(consultant):
                 return
 
             roleType = role.value
-            public_key = cryptoUtils.loadPublicKey()
             print(f"=========creating a {roleType} =========")
 
             def processCreation():
@@ -491,9 +490,7 @@ class systemAdministrator(consultant):
                         break
 
                 creationDate = date.today().strftime("%Y-%m-%d")
-                encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,roleType)
-                encryptedUsername = cryptoUtils.encryptWithPublicKey(public_key,username.lower())
-                result = self.db.createUser(firstName, lastName, encryptedUsername, password, creationDate, encryptedRole, False)
+                result = self.db.createUser(firstName, lastName, username, password, creationDate, role, False)
                 if result == "OK":
                     print(f"{roleType} created successfully.")
                     loggingSys.log(f"User has created a {roleType}", False, username=self.userName)

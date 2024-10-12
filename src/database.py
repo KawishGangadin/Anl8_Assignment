@@ -106,16 +106,23 @@ class DB:
     def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            hashed_password, salt = cryptoUtils.hashPassword(password)
-            query = "INSERT INTO users (first_name, last_name, username, password_hash, registration_date, role, temp, salt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            parameters = (first_name, last_name, username, hashed_password, registration_date, role, temp, salt)
-            cursor = conn.cursor()
+            public_key = cryptoUtils.loadPublicKey()
+            validationData = { "first_name": first_name, "last_name": last_name, "username": username, "password": password }
+            if Validation.validateMultipleInputs( **validationData) and role in [roles.ADMIN, roles.CONSULTANT] and temp in [False,True] :
+                conn = sqlite3.connect(self.databaseFile)
+                hashed_password, salt = cryptoUtils.hashPassword(password)
+                encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,role.value)
+                encryptedUsername = cryptoUtils.encryptWithPublicKey(public_key,username.lower())
+                query = "INSERT INTO users (first_name, last_name, username, password_hash, registration_date, role, temp, salt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                parameters = (first_name, last_name, encryptedUsername, hashed_password, registration_date, encryptedRole, temp, salt)
+                cursor = conn.cursor()
 
-            cursor.execute(query, parameters)
-            conn.commit()
-            cursor.close()
-            return "OK"
+                cursor.execute(query, parameters)
+                conn.commit()
+                cursor.close()
+                return "OK"
+            else:
+                return "FAIL"
         except sqlite3.Error as e:
             print("An error occurred while creating the user:", e)
             return None
@@ -165,25 +172,27 @@ class DB:
             if conn:
                 conn.close()
 
-    def findMembershipID(self, encrypted_membership_id):
+    def findMembershipID(self, membership_id):
         conn = None
+        private_key = cryptoUtils.loadPrivateKey() 
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM members"
-            cursor.execute(query)
-            members = cursor.fetchall()
-            cursor.close()
+            if Validation.validateMembershipID(membership_id):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM members"
+                cursor.execute(query)
+                members = cursor.fetchall()
+                cursor.close()
 
-            private_key = cryptoUtils.loadPrivateKey() 
-            decrypted_membership_id = None
+                decrypted_membership_id = None
 
-            for member in members:
-                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
-                if decrypted_membership_id.decode('utf-8') == encrypted_membership_id:
-                    return True  
+                for member in members:
+                    decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
+                    if decrypted_membership_id.decode('utf-8') == membership_id:
+                        return True  
 
-            return False  
+                return False  
+            return False
 
         except sqlite3.Error as e:
             print("An error occurred while searching for membership ID:", e)
@@ -512,19 +521,22 @@ class DB:
     def updatePassword(self, userId, newPassword, temp=False):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
+            if Validation.passwordValidation(newPassword):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
 
-            hashed_password, salt = cryptoUtils.hashPassword(newPassword)
+                hashed_password, salt = cryptoUtils.hashPassword(newPassword)
 
-            temp_flag = 1 if temp else 0
-            query = "UPDATE users SET password_hash = ?, temp = ?, salt = ? WHERE id = ?"
-            parameters = (hashed_password, temp_flag, salt, userId)
+                temp_flag = 1 if temp else 0
+                query = "UPDATE users SET password_hash = ?, temp = ?, salt = ? WHERE id = ?"
+                parameters = (hashed_password, temp_flag, salt, userId)
 
-            cursor.execute(query, parameters)
-            conn.commit()
-            cursor.close()
-            return "OK"
+                cursor.execute(query, parameters)
+                conn.commit()
+                cursor.close()
+                return "OK"
+            else:
+                return "FAIL"
         except sqlite3.Error as e:
             print("An error occurred while updating the password:", e)
             return None
