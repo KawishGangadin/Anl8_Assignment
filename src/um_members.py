@@ -6,9 +6,11 @@ from auth import loginAuth
 from inputValidation import Validation
 from backup import backup
 from users import roles
+from dependencies import Dependencies
 from cryptoUtils import cryptoUtils
 import time
 
+Dependencies.dependenciesInstaller()
 def main():
     def initDB():
         dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
