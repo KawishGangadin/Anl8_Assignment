@@ -490,16 +490,15 @@ class DB:
         conn = None
         try:
             validationData = { "first_name": firstName, "last_name": lastName, "username": username }
-            if Validation.validateMultipleInputs(**validationData) and str(userId).isdigit():
+            if Validation.validateMultipleInputs(**validationData):
                 conn = sqlite3.connect(self.databaseFile)
                 privateKey = cryptoUtils.loadPrivateKey()
-                oldUsername = self.getUsernameByID(userId)
                 publicKey = cryptoUtils.loadPublicKey()
                 cursor = conn.cursor()
                 query = """
                 UPDATE users
                 SET first_name = ?, last_name = ?, username = ?
-                WHERE id = ? AND username = ?
+                WHERE id = ?
                 """
             
                 if username:
@@ -507,7 +506,7 @@ class DB:
                 else:
                     encrypted_username = None
                 
-                parameters = (firstName, lastName, encrypted_username, userId, oldUsername)
+                parameters = (firstName, lastName, encrypted_username, userId)
 
                 cursor.execute(query, parameters)
                 

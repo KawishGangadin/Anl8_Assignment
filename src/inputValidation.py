@@ -229,7 +229,7 @@ class Validation:
     
     @staticmethod
     def validateGender(gender,username='', loggingSys=None):
-        if gender.lower in ["male","female","other"]:
+        if gender.lower() in ["male","female","other"]:
             return True
         return False
 

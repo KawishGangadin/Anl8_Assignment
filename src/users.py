@@ -234,8 +234,8 @@ class consultant(userBlueprint):
                 "first_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
                 "last_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
                 "age": lambda value: Validation.validateAge(value,self.userName,loggingSys),
-                "gender": lambda value: validation.validateGender(value,self.userName,loggingSys),
-                "weight": lambda value: validation.validateWeight(value,self.userName,loggingSys),
+                "gender": lambda value: Validation.validateGender(value,self.userName,loggingSys),
+                "weight": lambda value: Validation.validateWeight(value,self.userName,loggingSys),
                 "address": lambda value: Validation.validateAddress(value,self.userName,loggingSys),
                 "city": lambda value: Validation.validateCity(value,self.userName,loggingSys),
                 "postalCode": lambda value: Validation.validateZipcode(value,self.userName,loggingSys),
@@ -449,7 +449,7 @@ class systemAdministrator(consultant):
                     if firstName.upper() == 'Q':
                         return
                     if not Validation.validateName(firstName, self.userName, loggingSys):
-                        print("Please enter a valid first and lastname!!!")
+                        print("Please enter a valid firstname!!!")
                         loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
                         continue
                     else:
@@ -460,7 +460,7 @@ class systemAdministrator(consultant):
                     if lastName.upper() == 'Q':
                         return
                     if not Validation.validateName(lastName, self.userName, loggingSys):
-                        print("Please enter a valid first and lastname!!!")
+                        print("Please enter a valid lastname!!!")
                         loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
                         continue
                     else:
