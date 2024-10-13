@@ -204,21 +204,22 @@ class DB:
     def findUserID(self, user_id, role):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM users"
-            cursor.execute(query)
-            users = cursor.fetchall()
-            cursor.close()
+            if str(user_id).isdigit():
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM users"
+                cursor.execute(query)
+                users = cursor.fetchall()
+                cursor.close()
 
-            private_key = cryptoUtils.loadPrivateKey()  
-            decrypted_role = None
+                private_key = cryptoUtils.loadPrivateKey()  
+                decrypted_role = None
 
-            for user in users:
-                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
-                if decrypted_role.decode('utf-8') == role.value:
-                    if user[0] == user_id:
-                        return True 
+                for user in users:
+                    decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
+                    if decrypted_role.decode('utf-8') == role.value:
+                        if user[0] == user_id:
+                            return True 
 
             return False  
 
@@ -232,23 +233,23 @@ class DB:
     def findUsername(self, username):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM users"
-            cursor.execute(query)
-            
-            users = cursor.fetchall()
-            cursor.close()
-            
-            private_key = cryptoUtils.loadPrivateKey()
-            
-            for user in users:
-                decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3])
-                decrypted_username = decrypted_username_bytes.decode('utf-8') 
+            if Validation.usernameValidation(username):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM users"
+                cursor.execute(query)
                 
-                if decrypted_username == username:
-                    return True
-            
+                users = cursor.fetchall()
+                cursor.close()
+                
+                private_key = cryptoUtils.loadPrivateKey()
+                
+                for user in users:
+                    decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3])
+                    decrypted_username = decrypted_username_bytes.decode('utf-8') 
+                    
+                    if decrypted_username == username:
+                        return True
             return False
         
         except sqlite3.Error as e:
@@ -332,21 +333,22 @@ class DB:
     def getUserData(self, username):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM users"
-            cursor.execute(query)
-            users = cursor.fetchall()
-            cursor.close()
+            if Validation.usernameValidation(username):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM users"
+                cursor.execute(query)
+                users = cursor.fetchall()
+                cursor.close()
 
-            private_key = cryptoUtils.loadPrivateKey()
-            for user in users:
-                decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3]) 
-                decrypted_username = decrypted_username_bytes.decode('utf-8') 
-                if decrypted_username == username:
-                    return user
+                private_key = cryptoUtils.loadPrivateKey()
+                for user in users:
+                    decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3]) 
+                    decrypted_username = decrypted_username_bytes.decode('utf-8') 
+                    if decrypted_username == username:
+                        return user
 
-            # print(f"User with username {username} not found.")
+                # print(f"User with username {username} not found.")
             return None
 
         except sqlite3.Error as e:
@@ -391,13 +393,15 @@ class DB:
     def getUsernameByID(self, user_id):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT username FROM users WHERE id = ?"
-            cursor.execute(query, (user_id,))
-            username = cursor.fetchone()
-            cursor.close()
-            return username[0] if username else None
+            if(str(user_id).isdigit()):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT username FROM users WHERE id = ?"
+                cursor.execute(query, (user_id,))
+                username = cursor.fetchone()
+                cursor.close()
+                return username[0] if username else None
+            return None
         except sqlite3.Error as e:
             print("An error occurred while retrieving username by user ID:", e)
             return None
@@ -425,35 +429,38 @@ class DB:
     def updateUser(self, userId, firstName, lastName, username):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            privateKey = cryptoUtils.loadPrivateKey()
-            oldUsername = self.getUsernameByID(userId)
-            publicKey = cryptoUtils.loadPublicKey()
-            cursor = conn.cursor()
-            query = """
-            UPDATE users
-            SET first_name = ?, last_name = ?, username = ?
-            WHERE id = ? AND username = ?
-            """
-        
-            if username:
-                encrypted_username = cryptoUtils.encryptWithPublicKey(publicKey, username)
-            else:
-                encrypted_username = None
+            validationData = { "first_name": firstName, "last_name": lastName, "username": username }
+            if Validation.validateMultipleInputs(**validationData) and str(userId).isdigit():
+                conn = sqlite3.connect(self.databaseFile)
+                privateKey = cryptoUtils.loadPrivateKey()
+                oldUsername = self.getUsernameByID(userId)
+                publicKey = cryptoUtils.loadPublicKey()
+                cursor = conn.cursor()
+                query = """
+                UPDATE users
+                SET first_name = ?, last_name = ?, username = ?
+                WHERE id = ? AND username = ?
+                """
             
-            parameters = (firstName, lastName, encrypted_username, userId, oldUsername)
+                if username:
+                    encrypted_username = cryptoUtils.encryptWithPublicKey(publicKey, username)
+                else:
+                    encrypted_username = None
+                
+                parameters = (firstName, lastName, encrypted_username, userId, oldUsername)
 
-            cursor.execute(query, parameters)
+                cursor.execute(query, parameters)
+                
+                if cursor.rowcount > 0:
+                    result = "OK"
+                else:
+                    result = "FAIL"
             
-            if cursor.rowcount > 0:
-                result = "OK"
-            else:
-                result = "No rows updated"
-        
-            conn.commit() 
-            
-            cursor.close()
-            return result
+                conn.commit() 
+                
+                cursor.close()
+                return result
+            return "FAIL"
 
         except sqlite3.Error as e:
             print("SQLite error:", e)
@@ -547,30 +554,32 @@ class DB:
     def deleteUser(self, user_id, role):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM users WHERE id = ?"
-            cursor.execute(query, (user_id,))
-            user = cursor.fetchone()
-            
-            if user is None:
-                raise ValueError(f"No user found with id {user_id}")
-            
-            private_key = cryptoUtils.loadPrivateKey() 
-            decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
-            
-            if decrypted_role.decode('utf-8') == role.value:
-                delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
-                cursor.execute(delete_query, (user_id, user[6]))
-                conn.commit()
+            if str(user_id).isdigit() and role.value in [roles.ADMIN.value, roles.CONSULTANT.value]:
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM users WHERE id = ?"
+                cursor.execute(query, (user_id,))
+                user = cursor.fetchone()
                 
-                if cursor.rowcount == 0:
-                    raise ValueError(f"No user found with id {user_id} and role {role.value}")
+                if user is None:
+                    raise ValueError(f"No user found with id {user_id}")
                 
-                cursor.close()
-                return "OK"
-            else:
-                raise ValueError(f"Role mismatch for user with id {user_id}")
+                private_key = cryptoUtils.loadPrivateKey() 
+                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
+                
+                if decrypted_role.decode('utf-8') == role.value:
+                    delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
+                    cursor.execute(delete_query, (user_id, user[6]))
+                    conn.commit()
+                    
+                    if cursor.rowcount == 0:
+                        raise ValueError(f"No user found with id {user_id} and role {role.value}")
+                    
+                    cursor.close()
+                    return "OK"
+                else:
+                    raise ValueError(f"Role mismatch for user with id {user_id}")
+            return "FAIL"
         
         except sqlite3.Error as e:
             print(f"An error occurred while deleting the user: {e}")
@@ -585,30 +594,32 @@ class DB:
     def deleteMember(self, membership_id):
         conn = None
         try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            query = "SELECT * FROM members"
-            cursor.execute(query)
-            members = cursor.fetchall()
+            if Validation.validateMembershipID(membership_id):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM members"
+                cursor.execute(query)
+                members = cursor.fetchall()
 
-            private_key = cryptoUtils.loadPrivateKey()
-            found_member = False
-            for member in members:
-                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
-                if decrypted_membership_id.decode('utf-8') == membership_id: 
-                    query = "DELETE FROM members WHERE membership_id = ?"
-                    cursor.execute(query, (member[0],))  
-                    conn.commit()
-                    found_member = True
-                    break
+                private_key = cryptoUtils.loadPrivateKey()
+                found_member = False
+                for member in members:
+                    decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
+                    if decrypted_membership_id.decode('utf-8') == membership_id: 
+                        query = "DELETE FROM members WHERE membership_id = ?"
+                        cursor.execute(query, (member[0],))  
+                        conn.commit()
+                        found_member = True
+                        break
 
-            cursor.close()
+                cursor.close()
 
-            if found_member:
-                return "OK"
-            else:
-                print(f"No member found with membership ID {membership_id}.")
-                return "NOT FOUND"
+                if found_member:
+                    return "OK"
+                else:
+                    print(f"No member found with membership ID {membership_id}.")
+                    return "NOT FOUND"
+            return "FAIL"
 
         except sqlite3.Error as e:
             print("An error occurred while deleting the member:", e)

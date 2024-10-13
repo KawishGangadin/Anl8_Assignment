@@ -1,6 +1,7 @@
 import os
 import zipfile
 import logging
+from log import Logger
 import time
 from users import systemAdministrator, superAdministrator
 
@@ -64,7 +65,7 @@ class backup:
         
         return numBackups + 1
     
-    def restoreBackup(self, backupName):
+    def restoreBackup(self, backupName, username =''):
         logging.shutdown()
         backupFilePath = os.path.join(self.backupFolder, backupName)
 
@@ -93,8 +94,10 @@ class backup:
                 os.remove(os.path.join(self.backupDir, dbFile))
                 print(f"Removed existing '{os.path.join(self.backupDir, dbFile)}'")
             self.move_file(backupDbPath, os.path.join(self.backupDir, dbFile))
-            
             print("Restoration complete.")
+            logging.basicConfig(filename=os.path.join(self.logsFolder, logFile), filemode='a', level=logging.INFO, format=self.log_format, datefmt='%Y-%m-%d %H:%M:%S')
+            logSys = Logger()
+            logSys.log("Backup restored", False,additional_info= f"Backup: {backupName} has been restored", username=username)
             time.sleep(2)
             
         except Exception as e:
