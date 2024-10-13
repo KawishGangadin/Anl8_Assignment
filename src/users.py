@@ -487,6 +487,7 @@ class systemAdministrator(consultant):
                     if password.upper() == 'Q':
                         return
                     if not Validation.passwordValidation(password, self.userName, loggingSys):
+                        print("Please enter a valid password!!!")
                         loggingSys.log(f"User tried to create a {roleType}: with an invalid password", False, username=self.userName)
                         continue
                     else:
