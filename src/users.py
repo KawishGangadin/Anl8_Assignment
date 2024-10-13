@@ -169,7 +169,7 @@ class consultant(userBlueprint):
                 print("No members found:")
             else:
                 for member in allMembers:
-                    print(f"| Membership ID: {(cryptoUtils.decryptWithPrivateKey(private_key,member[0])).decode('utf-8')} | First name: {(cryptoUtils.decryptWithPrivateKey(private_key,member[1])).decode('utf-8')} | Last name: {(cryptoUtils.decryptWithPrivateKey(private_key,member[2])).decode('utf-8')} | Age: {(cryptoUtils.decryptWithPrivateKey(private_key,member[3])).decode('utf-8')} | Gender: {(cryptoUtils.decryptWithPrivateKey(private_key,member[4])).decode('utf-8')} | Weight: {(cryptoUtils.decryptWithPrivateKey(private_key,member[5])).decode('utf-8')} | Address: {(cryptoUtils.decryptWithPrivateKey(private_key,member[6])).decode('utf-8')} | City: {(cryptoUtils.decryptWithPrivateKey(private_key,member[7])).decode('utf-8')} | Postal Code: {(cryptoUtils.decryptWithPrivateKey(private_key,member[8])).decode('utf-8')} | Email: {(cryptoUtils.decryptWithPrivateKey(private_key,member[9])).decode('utf-8')} | Mobile: {(cryptoUtils.decryptWithPrivateKey(private_key,member[10])).decode('utf-8')} | Registration Date: {member[11]} |\n")
+                    print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
             input("Press any key to continue...")
             return
         
@@ -356,11 +356,11 @@ class consultant(userBlueprint):
                         result = db.deleteUser(Id, role)
                         if result == "OK":
                             print("User deleted")
-                            loggingSys.log("User deleted", False, f"User  '{cryptoUtils.decryptWithPrivateKey(privateKey,deletedUsername)}' has been deleted.", self.userName)
+                            loggingSys.log("User deleted", False, f"User  '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
                             deletedUsername = None
                         else:
                             print("An error occurred while deleting the user.")
-                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {cryptoUtils.decryptWithPrivateKey(privateKey,deletedUsername)}.", self.userName)
+                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {deletedUsername.decode('utf-8')}.", self.userName)
                             deletedUsername = None
                         time.sleep(1)
                     else:
@@ -518,7 +518,7 @@ class systemAdministrator(consultant):
             else:
                 for user in allUsers:
                     if len(user) >= 7: 
-                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} | Registration Date: {user[5]} | Role: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[6])).decode('utf-8')} |\n")
+                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {user[3]} | Registration Date: {user[5]} | Role: {user[6]} |\n")
                     else:
                         print("Incomplete user data found, skipping display.")
             

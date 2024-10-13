@@ -363,32 +363,61 @@ class DB:
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            
+
             query = "SELECT * FROM users"
             cursor.execute(query)
-            
+
             users = cursor.fetchall()
             cursor.close()
+
+            userList = []  # Initialize the userList here
+
             if role is not None:
-                private_key = cryptoUtils.loadPrivateKey()
-                userList = []
                 for user in users:
-                    encrypted_role = user[6] 
-                    decrypted_role_bytes = cryptoUtils.decryptWithPrivateKey(private_key, encrypted_role).decode('utf-8')
+                    encrypted_role = user[6]
+                    decrypted_role_bytes = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), encrypted_role).decode('utf-8')
                     if decrypted_role_bytes == role.value:
-                        userList.append(user)
-                
+                        decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
+                        decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
+                        hiddenPassword = "********"  # Assign hidden password here
+                        decryptedUser = (
+                            user[0],  # ID
+                            user[1],  # First name
+                            user[2],  # Last name
+                            decryptedUsername,  # Decrypted username
+                            hiddenPassword,  # Hidden password
+                            user[5],  # Registration date
+                            decryptedRole  # Decrypted role
+                        )
+                        userList.append(decryptedUser)
+
                 return userList
-            
-            return users
-        
+
+            for user in users:
+                decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
+                decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
+                hiddenPassword = "********"  # Assign hidden password here
+                decryptedUser = (
+                    user[0],  # ID
+                    user[1],  # First name
+                    user[2],  # Last name
+                    decryptedUsername,  # Decrypted username
+                    hiddenPassword,  # Hidden password
+                    user[5],  # Registration date
+                    decryptedRole  # Decrypted role
+                )
+                userList.append(decryptedUser)
+
+            return userList
+
         except sqlite3.Error as e:
             print("An error occurred while retrieving users:", e)
             return None
-        
+
         finally:
             if conn:
                 conn.close()
+
 
     def getUsernameByID(self, user_id):
         conn = None
@@ -400,7 +429,7 @@ class DB:
                 cursor.execute(query, (user_id,))
                 username = cursor.fetchone()
                 cursor.close()
-                return username[0] if username else None
+                return cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(),username[0]) if username else None
             return None
         except sqlite3.Error as e:
             print("An error occurred while retrieving username by user ID:", e)
@@ -411,6 +440,8 @@ class DB:
 
     def getMembers(self):
         conn = None
+        memberList = []
+        privateKey = cryptoUtils.loadPrivateKey()
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -418,7 +449,36 @@ class DB:
             cursor.execute(query)
             members = cursor.fetchall()
             cursor.close()
-            return members
+            for member in members:
+                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[0])).decode('utf-8')
+                decrypted_first_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[1])).decode('utf-8')
+                decrypted_last_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[2])).decode('utf-8')
+                decrypted_age = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[3])).decode('utf-8')
+                decrypted_gender = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[4])).decode('utf-8')
+                decrypted_weight = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[5])).decode('utf-8')
+                decrypted_address = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[6])).decode('utf-8')
+                decrypted_city = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[7])).decode('utf-8')
+                decrypted_postal_code = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[8])).decode('utf-8')
+                decrypted_email = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[9])).decode('utf-8')
+                decrypted_mobile = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[10])).decode('utf-8')
+                decrypted_registration_date = member[11] 
+                decrypted_member = (
+                            decrypted_membership_id,
+                            decrypted_first_name,
+                            decrypted_last_name,
+                            decrypted_age,
+                            decrypted_gender,
+                            decrypted_weight,
+                            decrypted_address,
+                            decrypted_city,
+                            decrypted_postal_code,
+                            decrypted_email,
+                            decrypted_mobile,
+                            decrypted_registration_date,
+                        )
+                memberList.append(decrypted_member)
+            return memberList
+                
         except sqlite3.Error as e:
             print("An error occurred while retrieving members:", e)
             return None
