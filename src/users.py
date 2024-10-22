@@ -95,6 +95,9 @@ class consultant(userBlueprint):
                     if weight < 0:
                         print("Weight must be a positive number!")
                         weight = ""
+                    if weight > 700:
+                        print("Invalid weight!")
+                        weight = ""
                 except ValueError:
                     print("Invalid weight!")
                     weight = ""
@@ -236,7 +239,7 @@ class consultant(userBlueprint):
                 "last_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
                 "age": lambda value: Validation.validateAge(value,self.userName,loggingSys),
                 "gender": lambda x: x in ["Male", "Female", "Other"],
-                "weight": lambda value: value.replace('.', '', 1).isdigit() and float(value) > 0,
+                "weight": lambda value: value.replace('.', '', 1).isdigit() and float(value) > 0 and float(value) < 700,
                 "address": lambda value: Validation.validateAddress(value,self.userName,loggingSys),
                 "city": lambda value: Validation.validateCity(value,self.userName,loggingSys),
                 "postalCode": lambda value: Validation.validateZipcode(value,self.userName,loggingSys),

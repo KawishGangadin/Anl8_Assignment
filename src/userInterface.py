@@ -36,7 +36,7 @@ class UI:
 
                 if not db.findUserID(user.id, roles.SUPERADMIN):
                     print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
+                    loggingSys.log("Logged out", True,"User ID associated with role Super Admin not found.",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break  # Exit the loop to log out
@@ -53,7 +53,7 @@ class UI:
 
                 if not db.findUserID(user.id, roles.ADMIN):
                     print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
+                    loggingSys.log("Logged out", False,"User ID associated with role Admin not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break 
@@ -69,7 +69,7 @@ class UI:
 
                 if not db.findUserID(user.id, roles.CONSULTANT):
                     print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", False,"User has been logged out due to a removal of their account during a backup restore.",f"{user.userName}")
+                    loggingSys.log("Logged out", False,"User ID associated with role Consultant not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break  # Exit the loop to log out
