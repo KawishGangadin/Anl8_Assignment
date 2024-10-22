@@ -15,7 +15,7 @@ class Validation:
         
         if not isinstance(name, str) or not Validation.checkNullByte(name):
             if loggingSys:
-                loggingSys.log(f'Invalid username format detected in username:', True, username=username)
+                loggingSys.log(f'Invalid username format or null byte detected in username:', True, username=username)
             return False
         
         try:
@@ -39,7 +39,7 @@ class Validation:
         
         if not isinstance(password, str) or not Validation.checkNullByte(password):
             if loggingSys:
-                loggingSys.log(f'Invalid password format null byte, or sql detected in password:', True, username=username)
+                loggingSys.log(f'Invalid password format or null byte detected in password:', True, username=username)
             return False
         
         try:
@@ -59,7 +59,7 @@ class Validation:
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not isinstance(email, str) or not Validation.checkNullByte(email):
             if loggingSys:
-                loggingSys.log(f'Invalid email format null byte, or sql detected in email:', True, username=username)
+                loggingSys.log(f'Invalid email format or null byte detected in email:', True, username=username)
             return False
         
         try: 
@@ -82,7 +82,7 @@ class Validation:
         except ValueError:
             if not isinstance(age, str) or not Validation.checkNullByte(age):
                 if loggingSys:
-                    loggingSys.log(f'Invalid age format null byte, or sql detected in age:', True, username=username)
+                    loggingSys.log(f'Invalid age format or null byte etected in age:', True, username=username)
             elif loggingSys:
                 loggingSys.log(f'Invalid age format (string found) in age:', False, username=username)
             return False
@@ -97,7 +97,7 @@ class Validation:
         except ValueError:
             if not isinstance(housenumber, str) or not Validation.checkNullByte(housenumber):
                 if loggingSys:
-                    loggingSys.log(f'Invalid housenumber format (non-string), null byte or sql detected in housenumber.', True, username=username)
+                    loggingSys.log(f'Invalid housenumber format (non-string) or null byte detected in housenumber.', True, username=username)
             elif loggingSys:
                 loggingSys.log(f'Invalid housenumber format (string found) in housenumber', False, username=username)
         return False
@@ -106,7 +106,7 @@ class Validation:
     def validateZipcode(zip_code, username='', loggingSys=None):
         if not isinstance(zip_code, str) or not Validation.checkNullByte(zip_code):
             if loggingSys:
-                loggingSys.log(f'Invalid zip code format (non-string), null byte or sql detected in zip code.', True, username=username)
+                loggingSys.log(f'Invalid zip code format (non-string) or null byte detected in zip code.', True, username=username)
             return False
         if len(zip_code) == 6 and zip_code[:4].isdigit() and zip_code[4:].isalpha():
             return True
@@ -118,7 +118,7 @@ class Validation:
 
         if not isinstance(name, str) or not Validation.checkNullByte(name):
             if loggingSys:
-                loggingSys.log(f"Invalid name format (non-string), null-byte or sql detected in name.", True, username=username)
+                loggingSys.log(f"Invalid name format (non-string) or null-byte detected in name.", True, username=username)
             return False
 
         if re.match(pattern, name) and len(name) <= 35:
@@ -137,10 +137,10 @@ class Validation:
         except ValueError:
             if not isinstance(mobile_number, str) or not Validation.checkNullByte(mobile_number):
                 if loggingSys:
-                    loggingSys.log(f"Invalid mobile number format null byte or sql detected in mobile number.", True, username=username)
+                    loggingSys.log(f"Invalid mobile number format or null byte detected in mobile number.", True, username=username)
             else:
                 if loggingSys:
-                    loggingSys.log(f"Invalid mobile number format (string found) entered.", False, username=username)
+                    loggingSys.log(f"Invalid mobile number entered.", False, username=username)
         return False
 
     @staticmethod
@@ -161,7 +161,7 @@ class Validation:
             except ValueError:
                 if not isinstance(membershipID, str) or not Validation.checkNullByte(str(membershipID)):
                     if loggingSys:
-                        loggingSys.log(f"Invalid membership ID format null byte or sql detected in membership ID", True, username=username)
+                        loggingSys.log(f"Invalid membership ID format or null byte detected in membership ID", True, username=username)
                     return False
                 else:
                     if loggingSys:
@@ -176,7 +176,7 @@ class Validation:
 
         if not isinstance(address, str) or not Validation.checkNullByte(address):
             if loggingSys:
-                loggingSys.log(f"Invalid street name format null byte or sql detected in address.", True, username=username)
+                loggingSys.log(f"Invalid street name format or null byte detected in address.", True, username=username)
             return False
 
         if re.match(pattern, address) and len(address) <= 35:
@@ -196,7 +196,7 @@ class Validation:
 
         if not isinstance(city, str) or not Validation.checkNullByte(city):
             if loggingSys:
-                loggingSys.log(f"Invalid city format null byte or sql detected in city name.", True, username=username)
+                loggingSys.log(f"Invalid city format or null byte detected in city name.", True, username=username)
             return False
         
         if city.strip().title() in allowed_cities:
@@ -212,7 +212,7 @@ class Validation:
         pattern = r'^backup([1-9][0-9]*)\.zip$'
         if not isinstance(backupName, str) or not Validation.checkNullByte(backupName):
             if loggingSys:
-                loggingSys.log(f'Invalid username format null byte or sql detected in backup input:', True, username=username)
+                loggingSys.log(f'Invalid username format or null byte detected in backup input:', True, username=username)
             return False
         
         try:
