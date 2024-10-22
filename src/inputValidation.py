@@ -118,7 +118,7 @@ class Validation:
 
         if not isinstance(name, str) or not Validation.checkNullByte(name):
             if loggingSys:
-                 loggingSys.log(f"Invalid name format (non-string), null-byte or sql detected in name.", True, username=username)
+                loggingSys.log(f"Invalid name format (non-string), null-byte or sql detected in name.", True, username=username)
             return False
 
         if re.match(pattern, name) and len(name) <= 35:
@@ -161,7 +161,7 @@ class Validation:
             except ValueError:
                 if not isinstance(membershipID, str) or not Validation.checkNullByte(str(membershipID)):
                     if loggingSys:
-                        loggingSys.log(f"Invalid membership ID format null byte or sql detected in membership ID: {membershipID}", True, username=username)
+                        loggingSys.log(f"Invalid membership ID format null byte or sql detected in membership ID", True, username=username)
                     return False
                 else:
                     if loggingSys:
@@ -209,10 +209,10 @@ class Validation:
     
     @staticmethod
     def validateBackup(backupName, username='', loggingSys=None):
-        pattern = r'^backup(100|[1-9][0-9]?)\.zip$'
+        pattern = r'^backup([1-9][0-9]*)\.zip$'
         if not isinstance(backupName, str) or not Validation.checkNullByte(backupName):
             if loggingSys:
-                loggingSys.log(f'Invalid username format detected in backup input:', True, username=username)
+                loggingSys.log(f'Invalid username format null byte or sql detected in backup input:', True, username=username)
             return False
         
         try:
@@ -231,6 +231,8 @@ class Validation:
     def validateGender(gender,username='', loggingSys=None):
         if gender.lower() in ["male","female","other"]:
             return True
+        if loggingSys:
+            loggingSys.log(f'Invalid gender format:', False, username=username)
         return False
 
     @staticmethod
@@ -240,7 +242,11 @@ class Validation:
             if 10 < weight < 700:
                 return True
         except ValueError:
+            if loggingSys:
+                loggingSys.log(f'Invalid weight format:', False, username=username)
             return False
+        if loggingSys:
+                loggingSys.log(f'Invalid weight format:', False, username=username)
         return False
     
     @staticmethod

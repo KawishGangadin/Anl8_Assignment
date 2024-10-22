@@ -87,12 +87,12 @@ class backup:
             
             if os.path.exists(os.path.join(self.logsFolder, logFile)):
                 os.remove(os.path.join(self.logsFolder, logFile))
-                print(f"Removed existing '{os.path.join(self.logsFolder, logFile)}'")
+                print(f"Removed existing logfile")
             self.move_file(backupLogPath, os.path.join(self.logsFolder, logFile))
             
             if os.path.exists(os.path.join(self.backupDir, dbFile)):
                 os.remove(os.path.join(self.backupDir, dbFile))
-                print(f"Removed existing '{os.path.join(self.backupDir, dbFile)}'")
+                print(f"Removed existing database")
             self.move_file(backupDbPath, os.path.join(self.backupDir, dbFile))
             print("Restoration complete.")
             logging.basicConfig(filename=os.path.join(self.logsFolder, logFile), filemode='a', level=logging.INFO, format=self.log_format, datefmt='%Y-%m-%d %H:%M:%S')
@@ -111,9 +111,9 @@ class backup:
                 os.remove(destination_file)
 
             os.replace(source_file, destination_file)
-            print(f"Successfully moved '{source_file}' to '{destination_file}'")
+            print(f"Successfully moved file to correct destination")
         except Exception as e:
-            print(f"Error moving '{source_file}' to '{destination_file}': {e}")
+            print(f"Error moving files: {e}")
     
     def listBackupNames(self):
         if not os.path.exists(self.backupFolder):
