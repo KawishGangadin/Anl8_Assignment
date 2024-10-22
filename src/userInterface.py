@@ -152,7 +152,7 @@ Super Admin Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False, username=user.userName)
+                loggingSys.log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
@@ -223,7 +223,7 @@ System Administrator Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False, username=user.userName)
+                loggingSys.log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
@@ -266,7 +266,7 @@ Consultant Menu:
                 self.displayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False, username=user.userName)
+                loggingSys.log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:

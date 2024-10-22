@@ -24,21 +24,16 @@ class consultant(userBlueprint):
    - Must be an integer between 1 and 9999.
 
 4. Zip Code Validation:
-   - Must be exactly 6 characters long.
-   - The first four characters must be digits (0-9).
-   - The last two characters must be alphabetic.
+   Must be a valid Dutch zip code format for example 1234AB.
 
 5. Name Validation:
-   - Must contain only alphabetic characters, hyphens, apostrophes, or spaces.
+   - Must contain only alphabetic characters, hyphens, apostrophes.
    - Maximum of one hyphen or apostrophe, and two spaces.
    - Cannot start or end with a hyphen or apostrophe.
    - Cannot be empty.
 
 6. Mobile Number Validation:
-   - Must be an integer between 1000000000 and 9999999999.
-
-7. Membership ID Validation:
-   - Must be an integer between 1000000000 and 9999999999.
+   - Must be a valid dutch number for example +31622222222.
 
 8. Address Validation:
     - Must contain only alphanumeric characters, spaces, dots, commas, apostrophes, hyphens, or single quotes.
@@ -95,12 +90,13 @@ class consultant(userBlueprint):
                     if weight < 0:
                         print("Weight must be a positive number!")
                         weight = ""
-                    if weight > 700:
-                        print("Invalid weight!")
+                    elif weight > 700:
+                        print("Weight is impossible!")
                         weight = ""
                 except ValueError:
                     print("Invalid weight!")
                     weight = ""
+            weight = round(weight, 1)
 
             membershipId = Checksum.generateMembershipId(db)
 
@@ -142,7 +138,7 @@ class consultant(userBlueprint):
 
             mobile = ""
             while not mobile:
-                mobile = input("Enter the member's mobile number +316..... or press 'Q' to quit: ").strip()
+                mobile = input("Enter the member's mobile number +316..... or press 'Q' to quit: +316").strip()
                 if mobile.upper() == 'Q':
                     return
                 if not Validation.validateMobileNumber(mobile, self.userName, loggingSys):
@@ -173,7 +169,7 @@ class consultant(userBlueprint):
                 print("No members found:")
             else:
                 for member in allMembers:
-                    print(f"| Membership ID: {(cryptoUtils.decryptWithPrivateKey(private_key,member[0])).decode('utf-8')} | First name: {(cryptoUtils.decryptWithPrivateKey(private_key,member[1])).decode('utf-8')} | Last name: {(cryptoUtils.decryptWithPrivateKey(private_key,member[2])).decode('utf-8')} | Age: {(cryptoUtils.decryptWithPrivateKey(private_key,member[3])).decode('utf-8')} | Gender: {(cryptoUtils.decryptWithPrivateKey(private_key,member[4])).decode('utf-8')} | Weight: {(cryptoUtils.decryptWithPrivateKey(private_key,member[5])).decode('utf-8')} | Address: {(cryptoUtils.decryptWithPrivateKey(private_key,member[6])).decode('utf-8')} | City: {(cryptoUtils.decryptWithPrivateKey(private_key,member[7])).decode('utf-8')} | Postal Code: {(cryptoUtils.decryptWithPrivateKey(private_key,member[8])).decode('utf-8')} | Email: {(cryptoUtils.decryptWithPrivateKey(private_key,member[9])).decode('utf-8')} | Mobile: {(cryptoUtils.decryptWithPrivateKey(private_key,member[10])).decode('utf-8')} | Registration Date: {member[11]} |\n")
+                    print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
             input("Press any key to continue...")
             return
         
@@ -238,8 +234,8 @@ class consultant(userBlueprint):
                 "first_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
                 "last_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
                 "age": lambda value: Validation.validateAge(value,self.userName,loggingSys),
-                "gender": lambda x: x in ["Male", "Female", "Other"],
-                "weight": lambda value: value.replace('.', '', 1).isdigit() and float(value) > 0 and float(value) < 700,
+                "gender": lambda value: Validation.validateGender(value,self.userName,loggingSys),
+                "weight": lambda value: Validation.validateWeight(value,self.userName,loggingSys),
                 "address": lambda value: Validation.validateAddress(value,self.userName,loggingSys),
                 "city": lambda value: Validation.validateCity(value,self.userName,loggingSys),
                 "postalCode": lambda value: Validation.validateZipcode(value,self.userName,loggingSys),
@@ -360,11 +356,11 @@ class consultant(userBlueprint):
                         result = db.deleteUser(Id, role)
                         if result == "OK":
                             print("User deleted")
-                            loggingSys.log("User deleted", False, f"User  '{cryptoUtils.decryptWithPrivateKey(privateKey,deletedUsername)}' has been deleted.", self.userName)
+                            loggingSys.log("User deleted", False, f"User  '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
                             deletedUsername = None
                         else:
                             print("An error occurred while deleting the user.")
-                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {cryptoUtils.decryptWithPrivateKey(privateKey,deletedUsername)}.", self.userName)
+                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {deletedUsername.decode('utf-8')}.", self.userName)
                             deletedUsername = None
                         time.sleep(1)
                     else:
@@ -425,11 +421,11 @@ class systemAdministrator(consultant):
                 return
 
             roleType = role.value
-            public_key = cryptoUtils.loadPublicKey()
             print(f"=========creating a {roleType} =========")
 
             def processCreation():
-                validFL_Name = False
+                validF_Name = False
+                validL_Name = False
                 availableUsername = False
                 validPassword = False
                 print("""
@@ -448,19 +444,27 @@ class systemAdministrator(consultant):
     - Cannot be empty.
     """)
 
-                while not validFL_Name:
+                while not validF_Name:
                     firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
                     if firstName.upper() == 'Q':
                         return
-                    lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
-                    if lastName.upper() == 'Q':
-                        return
-                    if not Validation.validateName(firstName, self.userName, loggingSys) or not Validation.validateName(lastName, self.userName, loggingSys):
-                        print("Please enter a valid first and lastname!!!")
+                    if not Validation.validateName(firstName, self.userName, loggingSys):
+                        print("Please enter a valid firstname!!!")
                         loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
                         continue
                     else:
-                        validFL_Name = True
+                        validF_Name = True
+
+                while not validL_Name:
+                    lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
+                    if lastName.upper() == 'Q':
+                        return
+                    if not Validation.validateName(lastName, self.userName, loggingSys):
+                        print("Please enter a valid lastname!!!")
+                        loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
+                        continue
+                    else:
+                        validL_Name = True
 
                 while not availableUsername:
                     username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
@@ -483,6 +487,7 @@ class systemAdministrator(consultant):
                     if password.upper() == 'Q':
                         return
                     if not Validation.passwordValidation(password, self.userName, loggingSys):
+                        print("Please enter a valid password!!!")
                         loggingSys.log(f"User tried to create a {roleType}: with an invalid password", False, username=self.userName)
                         continue
                     else:
@@ -490,9 +495,7 @@ class systemAdministrator(consultant):
                         break
 
                 creationDate = date.today().strftime("%Y-%m-%d")
-                encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,roleType)
-                encryptedUsername = cryptoUtils.encryptWithPublicKey(public_key,username.lower())
-                result = self.db.createUser(firstName, lastName, encryptedUsername, password, creationDate, encryptedRole, False)
+                result = self.db.createUser(firstName, lastName, username, password, creationDate, role, False)
                 if result == "OK":
                     print(f"{roleType} created successfully.")
                     loggingSys.log(f"User has created a {roleType}", False, username=self.userName)
@@ -516,7 +519,7 @@ class systemAdministrator(consultant):
             else:
                 for user in allUsers:
                     if len(user) >= 7: 
-                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[3])).decode('utf-8')} | Registration Date: {user[5]} | Role: {(cryptoUtils.decryptWithPrivateKey(privateKey,user[6])).decode('utf-8')} |\n")
+                        print(f"| ID: {user[0]} | First name: {user[1]} | Last name: {user[2]} | Username: {user[3]} | Registration Date: {user[5]} | Role: {user[6]} |\n")
                     else:
                         print("Incomplete user data found, skipping display.")
             
@@ -683,7 +686,7 @@ class systemAdministrator(consultant):
                         print("Please enter a valid file name!")
                     else:
                         print("Restoring backup....")
-                        backUpSystem.restoreBackup(name)
+                        backUpSystem.restoreBackup(name,username=self.userName)
                         break
 
         except Exception as e:

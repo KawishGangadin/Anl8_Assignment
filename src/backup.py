@@ -1,6 +1,7 @@
 import os
 import zipfile
 import logging
+from log import Logger
 import time
 from users import systemAdministrator, superAdministrator
 
@@ -64,7 +65,7 @@ class backup:
         
         return numBackups + 1
     
-    def restoreBackup(self, backupName):
+    def restoreBackup(self, backupName, username =''):
         logging.shutdown()
         backupFilePath = os.path.join(self.backupFolder, backupName)
 
@@ -86,15 +87,17 @@ class backup:
             
             if os.path.exists(os.path.join(self.logsFolder, logFile)):
                 os.remove(os.path.join(self.logsFolder, logFile))
-                print(f"Removed existing '{os.path.join(self.logsFolder, logFile)}'")
+                print(f"Removed existing logfile")
             self.move_file(backupLogPath, os.path.join(self.logsFolder, logFile))
             
             if os.path.exists(os.path.join(self.backupDir, dbFile)):
                 os.remove(os.path.join(self.backupDir, dbFile))
-                print(f"Removed existing '{os.path.join(self.backupDir, dbFile)}'")
+                print(f"Removed existing database")
             self.move_file(backupDbPath, os.path.join(self.backupDir, dbFile))
-            
             print("Restoration complete.")
+            logging.basicConfig(filename=os.path.join(self.logsFolder, logFile), filemode='a', level=logging.INFO, format=self.log_format, datefmt='%Y-%m-%d %H:%M:%S')
+            logSys = Logger()
+            logSys.log("Backup restored", False,additional_info= f"Backup: {backupName} has been restored", username=username)
             time.sleep(2)
             
         except Exception as e:
@@ -108,9 +111,9 @@ class backup:
                 os.remove(destination_file)
 
             os.replace(source_file, destination_file)
-            print(f"Successfully moved '{source_file}' to '{destination_file}'")
+            print(f"Successfully moved file to correct destination")
         except Exception as e:
-            print(f"Error moving '{source_file}' to '{destination_file}': {e}")
+            print(f"Error moving files: {e}")
     
     def listBackupNames(self):
         if not os.path.exists(self.backupFolder):

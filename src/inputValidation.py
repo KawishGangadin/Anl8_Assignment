@@ -10,17 +10,10 @@ class Validation:
         return False
     
     @staticmethod
-    def checkSqlInjection(input):
-        sql_injection_keywords = [";", "--", "/*", "*/", "xp_", "UNION", "SELECT", "INSERT", "DELETE", "DROP"]
-        if any(keyword in input.upper() for keyword in sql_injection_keywords):
-            return False
-        return True
-    
-    @staticmethod
     def usernameValidation(name, username='', loggingSys=None):
         pattern = r"^[a-zA-Z_][a-zA-Z0-9_.']{7,9}$"
         
-        if not isinstance(name, str) or not Validation.checkNullByte(name) or not Validation.checkSqlInjection(name):
+        if not isinstance(name, str) or not Validation.checkNullByte(name):
             if loggingSys:
                 loggingSys.log(f'Invalid username format detected in username:', True, username=username)
             return False
@@ -44,7 +37,7 @@ class Validation:
         if password == "Admin_123?":
             return True
         
-        if not isinstance(password, str) or not Validation.checkNullByte(password) or not Validation.checkSqlInjection(password):
+        if not isinstance(password, str) or not Validation.checkNullByte(password):
             if loggingSys:
                 loggingSys.log(f'Invalid password format null byte, or sql detected in password:', True, username=username)
             return False
@@ -64,7 +57,7 @@ class Validation:
     @staticmethod
     def validateEmail(email, username='', loggingSys=None):
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not isinstance(email, str) or not Validation.checkNullByte(email) or not Validation.checkSqlInjection(email):
+        if not isinstance(email, str) or not Validation.checkNullByte(email):
             if loggingSys:
                 loggingSys.log(f'Invalid email format null byte, or sql detected in email:', True, username=username)
             return False
@@ -87,7 +80,7 @@ class Validation:
             if 1 <= age <= 100:
                 return True
         except ValueError:
-            if not isinstance(age, str) or not Validation.checkNullByte(age) or not Validation.checkSqlInjection(age):
+            if not isinstance(age, str) or not Validation.checkNullByte(age):
                 if loggingSys:
                     loggingSys.log(f'Invalid age format null byte, or sql detected in age:', True, username=username)
             elif loggingSys:
@@ -102,7 +95,7 @@ class Validation:
             if 1 <= housenumber <= 9999:
                 return True
         except ValueError:
-            if not isinstance(housenumber, str) or not Validation.checkNullByte(housenumber) or not Validation.checkSqlInjection(housenumber):
+            if not isinstance(housenumber, str) or not Validation.checkNullByte(housenumber):
                 if loggingSys:
                     loggingSys.log(f'Invalid housenumber format (non-string), null byte or sql detected in housenumber.', True, username=username)
             elif loggingSys:
@@ -111,7 +104,7 @@ class Validation:
 
     @staticmethod
     def validateZipcode(zip_code, username='', loggingSys=None):
-        if not isinstance(zip_code, str) or not Validation.checkNullByte(zip_code) or not Validation.checkSqlInjection(zip_code):
+        if not isinstance(zip_code, str) or not Validation.checkNullByte(zip_code):
             if loggingSys:
                 loggingSys.log(f'Invalid zip code format (non-string), null byte or sql detected in zip code.', True, username=username)
             return False
@@ -121,16 +114,18 @@ class Validation:
 
     @staticmethod
     def validateName(name, username='', loggingSys=None):
-        pattern = r"^[A-Za-z]+([ '-][A-Za-z]+)*$"
+        pattern = r"^[A-Za-z]+(['-][A-Za-z]+)*$"
 
-        if not isinstance(name, str) or not Validation.checkNullByte(name) or not Validation.checkSqlInjection(name):
-            loggingSys.log(f"Invalid name format (non-string), null-byte or sql detected in name.", True, username=username)
+        if not isinstance(name, str) or not Validation.checkNullByte(name):
+            if loggingSys:
+                loggingSys.log(f"Invalid name format (non-string), null-byte or sql detected in name.", True, username=username)
             return False
 
-        if re.match(pattern, name):
+        if re.match(pattern, name) and len(name) <= 35:
             return True
         else:
-            loggingSys.log(f"Invalid name format (did not match pattern).", False, username=username)
+            if loggingSys:
+                loggingSys.log(f"Invalid name format (did not match pattern).", False, username=username)
             return False
     
     @staticmethod
@@ -140,10 +135,12 @@ class Validation:
             if len(mobile_number) == 8 and mobile_number.isdigit():
                 return True
         except ValueError:
-            if not isinstance(mobile_number, str) or not Validation.checkNullByte(mobile_number) or not Validation.checkSqlInjection(mobile_number):
-                loggingSys.log(f"Invalid mobile number format null byte or sql detected in mobile number.", True, username=username)
+            if not isinstance(mobile_number, str) or not Validation.checkNullByte(mobile_number):
+                if loggingSys:
+                    loggingSys.log(f"Invalid mobile number format null byte or sql detected in mobile number.", True, username=username)
             else:
-                loggingSys.log(f"Invalid mobile number format (string found) entered.", False, username=username)
+                if loggingSys:
+                    loggingSys.log(f"Invalid mobile number format (string found) entered.", False, username=username)
         return False
 
     @staticmethod
@@ -162,11 +159,13 @@ class Validation:
                 if 999999999 < membershipID < 10000000000:
                     return True
             except ValueError:
-                if not isinstance(membershipID, str) or not Validation.checkNullByte(str(membershipID)) or not Validation.checkSqlInjection(str(membershipID)):
-                    loggingSys.log(f"Invalid membership ID format null byte or sql detected in membership ID: {membershipID}", True, username=username)
+                if not isinstance(membershipID, str) or not Validation.checkNullByte(str(membershipID)):
+                    if loggingSys:
+                        loggingSys.log(f"Invalid membership ID format null byte or sql detected in membership ID", True, username=username)
                     return False
                 else:
-                    loggingSys.log(f"Invalid membership ID format (string found)", False, username=username)
+                    if loggingSys:
+                        loggingSys.log(f"Invalid membership ID format (string found)", False, username=username)
                     return False
         else:
             return False
@@ -175,14 +174,16 @@ class Validation:
     def validateAddress(address, username='', loggingSys=None):
         pattern = r"^[A-Za-z0-9]+([ '-][A-Za-z0-9]+)*$" # regex pattern voor straatnaam: aplhanum characters, spaces, hyphens, and apostrophes
 
-        if not isinstance(address, str) or not Validation.checkNullByte(address) or not Validation.checkSqlInjection(address):
-            loggingSys.log(f"Invalid street name format null byte or sql detected in address.", True, username=username)
+        if not isinstance(address, str) or not Validation.checkNullByte(address):
+            if loggingSys:
+                loggingSys.log(f"Invalid street name format null byte or sql detected in address.", True, username=username)
             return False
 
-        if re.match(pattern, address):
+        if re.match(pattern, address) and len(address) <= 35:
             return True
         else:
-            loggingSys.log(f"Invalid street name format (did not match pattern)", False, username=username)
+            if loggingSys:
+                loggingSys.log(f"Invalid street name format (did not match pattern)", False, username=username)
             return False
 
     @staticmethod
@@ -193,23 +194,25 @@ class Validation:
             'Breda', 'Nijmegen'
         }
 
-        if not isinstance(city, str) or not Validation.checkNullByte(city) or not Validation.checkSqlInjection(city):
-            loggingSys.log(f"Invalid city format null byte or sql detected in city name.", True, username=username)
+        if not isinstance(city, str) or not Validation.checkNullByte(city):
+            if loggingSys:
+                loggingSys.log(f"Invalid city format null byte or sql detected in city name.", True, username=username)
             return False
         
         if city.strip().title() in allowed_cities:
             return True
         else:
-            loggingSys.log(f"Invalid city format (not in allowed cities)", False, username=username)
+            if loggingSys:
+                loggingSys.log(f"Invalid city format (not in allowed cities)", False, username=username)
 
         return False
     
     @staticmethod
     def validateBackup(backupName, username='', loggingSys=None):
-        pattern = r'^backup(100|[1-9][0-9]?)\.zip$'
-        if not isinstance(backupName, str) or not Validation.checkNullByte(backupName) or not Validation.checkSqlInjection(backupName):
+        pattern = r'^backup([1-9][0-9]*)\.zip$'
+        if not isinstance(backupName, str) or not Validation.checkNullByte(backupName):
             if loggingSys:
-                loggingSys.log(f'Invalid username format detected in backup input:', True, username=username)
+                loggingSys.log(f'Invalid username format null byte or sql detected in backup input:', True, username=username)
             return False
         
         try:
@@ -223,3 +226,57 @@ class Validation:
                 loggingSys.log(f'Regex error while validating username:', False, username=username)
         
         return False
+    
+    @staticmethod
+    def validateGender(gender,username='', loggingSys=None):
+        if gender.lower() in ["male","female","other"]:
+            return True
+        if loggingSys:
+            loggingSys.log(f'Invalid gender format:', False, username=username)
+        return False
+
+    @staticmethod
+    def validateWeight(weight,username='', loggingSys=None):
+        try:
+            weight = float(weight)
+            if 10 < weight < 700:
+                return True
+        except ValueError:
+            if loggingSys:
+                loggingSys.log(f'Invalid weight format:', False, username=username)
+            return False
+        if loggingSys:
+                loggingSys.log(f'Invalid weight format:', False, username=username)
+        return False
+    
+    @staticmethod
+    def validateMultipleInputs(**kwargs):
+        validation_mapping = {
+            'username': Validation.usernameValidation,
+            'password': Validation.passwordValidation,
+            'email': Validation.validateEmail,
+            'age': Validation.validateAge,
+            'housenumber': Validation.validateHousenumber,
+            'postalCode': Validation.validateZipcode,
+            'first_name': Validation.validateName,
+            'last_name': Validation.validateName,
+            'mobile': Validation.validateMobileNumber,
+            'membershipID': Validation.validateMembershipID,
+            'address': Validation.validateAddress,
+            'city': Validation.validateCity,
+            'backup': Validation.validateBackup,
+            'gender': Validation.validateGender,
+            'weight': Validation.validateWeight
+        }
+
+        for key, value in kwargs.items():
+            if key in validation_mapping:
+                validation_func = validation_mapping[key]
+                result = validation_func(value)
+                
+                if not result:
+                    return False
+            else:
+                return False
+
+        return True
