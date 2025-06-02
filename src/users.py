@@ -297,6 +297,7 @@ class consultant(userBlueprint):
                     elif Validation.passwordValidation(newPassword, self.userName, loggingSys):
                         result = db.updatePassword(self.id, newPassword)
                         if result == "OK":
+                            self.session += 1
                             print("Password has been successfully changed!")
                             loggingSys.log("Password has been successfully changed.", False, username=self.userName)
                         else:
@@ -673,21 +674,79 @@ class systemAdministrator(consultant):
             print(f"An error occurred while resetting password: {str(e)}")
             loggingSys.log(f"Error occurred during password reset: {str(e)}", True, username=self.userName)
 
-    def restoreBackup(self, backUpSystem, loggingSys):
+    # def restoreBackup(self, backUpSystem, loggingSys):
+    #     try:
+    #         backUpSystem.listBackupNames()
+    #         while True:
+    #             name = input("Enter the file name of the backup to start restoring or press Q to quit...")
+    #             if name.upper() == "Q":
+    #                 print("Quitting...")
+    #                 break
+    #             else:
+    #                 if not Validation.validateBackup(name,self.userName, loggingSys):
+    #                     print("Please enter a valid file name!")
+    #                 else:
+    #                     print("Restoring backup....")
+    #                     backUpSystem.restoreBackup(name,username=self.userName)
+    #                     break
+
+    #     except Exception as e:
+    #         print(f"An error occurred while restoring backup: {str(e)}")
+    #         loggingSys.log(f"Error occurred during backup restoration: {str(e)}", True, username=self.userName)
+
+    def restoreBackup(self, backUpSystem, loggingSys,db):
         try:
             backUpSystem.listBackupNames()
-            while True:
-                name = input("Enter the file name of the backup to start restoring or press Q to quit...")
-                if name.upper() == "Q":
-                    print("Quitting...")
-                    break
-                else:
-                    if not Validation.validateBackup(name,self.userName, loggingSys):
-                        print("Please enter a valid file name!")
-                    else:
-                        print("Restoring backup....")
-                        backUpSystem.restoreBackup(name,username=self.userName)
+            if isinstance(self, superAdministrator):
+                while True:
+                    name = input("Enter the name of the backup file to restore or press Q to quit: ").strip()
+                    if name.upper() == "Q":
+                        print("Quitting...")
                         break
+
+                    if not Validation.validateBackup(name, self.userName, loggingSys):
+                        print("Please enter a valid backup filename!")
+                        continue
+
+                    print("Restoring backup as Super Administrator...")
+                    backUpSystem.restoreBackup(name, username=self.userName)
+                    break
+                return
+            elif isinstance(self, systemAdministrator):
+                codes = db.getRestoreCodesByUser(self.id)
+                if not codes:
+                    print("No restore codes found for your account.")
+                    return
+
+                print("\nYour restore codes:")
+                for code, filename in codes:
+                    print(f"- Code: {code} | Backup: {filename}")
+                print()
+
+                while True:
+                    name = input("Enter the name of the backup file to restore or press Q to quit: ").strip()
+                    if name.upper() == "Q":
+                        print("Quitting...")
+                        break
+
+                    if not Validation.validateBackup(name, self.userName, loggingSys):
+                        print("Please enter a valid backup filename!")
+                        continue
+
+                    code = input("Enter your restore code or press Q to quit: ").strip()
+                    if code.upper() == "Q":
+                        print("Quitting...")
+                        break
+
+                    if (code, name) in codes:
+                        print("Restore code valid. Restoring backup...")
+                        backUpSystem.restoreBackup(name, username=self.userName)
+                        break
+                    else:
+                        print("Invalid restore code or backup mismatch.")
+
+            else:
+                print("Unauthorized user type. You are not allowed to restore backups.")
 
         except Exception as e:
             print(f"An error occurred while restoring backup: {str(e)}")
@@ -695,4 +754,37 @@ class systemAdministrator(consultant):
 
 
 class superAdministrator(systemAdministrator):
-    pass
+    def generateRestoreCode(self, db, loggingSys):
+        try:
+            self.displayUsers(db, roles.ADMIN)
+
+            while True:
+                admin_id = input("Enter the ID of the System Administrator to generate a restore code for, or press Q to quit: ").strip()
+                if admin_id.upper() == "Q":
+                    return
+                if admin_id.isdigit() and db.findUserID(int(admin_id), roles.ADMIN):
+                    admin_id = int(admin_id)
+                    break
+                else:
+                    print("Invalid ID or not a System Administrator!")
+                    time.sleep(0.5)
+
+            backup_name = input("Enter the exact name of the backup file (e.g., backup_20240601_1700.zip) or press Q to quit: ").strip()
+            if backup_name.upper() == "Q":
+                return
+
+            if not os.path.isfile(os.path.join("backups", backup_name)):
+                print("Backup file not found.")
+                return
+
+            code = db.createRestoreCode(admin_id, backup_name)
+            if code != "FAIL":
+                print(f"Restore code generated successfully: {code}")
+                loggingSys.log("Restore code generated", False, f"Restore code for backup '{backup_name}' assigned to user ID {admin_id}.", self.userName)
+            else:
+                print("Failed to generate restore code.")
+                loggingSys.log("Restore code generation failed", True, username=self.userName)
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during restore code generation: {str(e)}", True, username=self.userName)

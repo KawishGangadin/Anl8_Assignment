@@ -18,6 +18,10 @@ def main():
         dbInitialization.createMembersTable()
         dbInitialization.createUsersTable()
         dbInitialization.initSuperadmin()
+        dbInitialization.createTravellersTable()
+        dbInitialization.createScootersTable()
+        dbInitialization.createBackupsTable()
+
     initDB()
     running = True
     loggedIn = False

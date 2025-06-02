@@ -34,7 +34,7 @@ class UI:
                 self.clearScreen()
                 self.displayLogo()
 
-                if not db.findUserID(user.id, roles.SUPERADMIN):
+                if not db.validateSession(user.id, user.session):
                     print("You will now be logged out of the system...")
                     loggingSys.log("Logged out", True,"User ID associated with role Super Admin not found.",f"{user.userName}")
                     user = None
@@ -51,9 +51,9 @@ class UI:
                 self.clearScreen()
                 self.displayLogo()
 
-                if not db.findUserID(user.id, roles.ADMIN):
+                if not db.validateSession(user.id, user.session):
                     print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", False,"User ID associated with role Admin not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
+                    loggingSys.log("Logged out", False,"User ID associated with role Admin not found ",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break 
@@ -67,7 +67,7 @@ class UI:
                 self.clearScreen()
                 self.displayLogo()
 
-                if not db.findUserID(user.id, roles.CONSULTANT):
+                if not db.validateSession(user.id, user.session):
                     print("You will now be logged out of the system...")
                     loggingSys.log("Logged out", False,"User ID associated with role Consultant not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
                     user = None
@@ -97,7 +97,7 @@ class UI:
             "8": lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
             "9": lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
             "10": lambda : user.createBackup(user,backupSys,loggingSys),
-            "11": lambda : user.restoreBackup(backupSys,loggingSys),
+            "11": lambda : user.restoreBackup(backupSys,loggingSys,db),
             "12": lambda : user.displayLogs(loggingSys),
             "13": lambda : user.memberCreation(db,loggingSys),
             "14": lambda : user.editMember(db,loggingSys),
@@ -113,12 +113,13 @@ class UI:
             'DA': lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
             'RA': lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
             'BA': lambda : user.createBackup(user,backupSys,loggingSys),
-            'RB': lambda : user.restoreBackup(backupSys,loggingSys),
+            'RB': lambda : user.restoreBackup(backupSys,loggingSys,db),
             'SL': lambda : user.displayLogs(loggingSys),
             'AM': lambda : user.memberCreation(db,loggingSys),
             'UM': lambda : user.editMember(db,loggingSys),
             'DM': lambda : user.deletion(user, db, None, loggingSys),
             'SM': lambda : user.memberSearch(db,loggingSys),
+            'MR': lambda : user.generateRestoreCode( db, loggingSys)
             }
         print("""
 Super Admin Menu:
@@ -177,7 +178,7 @@ Super Admin Menu:
             "10": lambda : user.editMember(db,loggingSys), 
             "11": lambda : user.deletion(user, db, None, loggingSys), 
             "12": lambda : user.memberSearch(db,loggingSys),
-            "13": lambda : user.restoreBackup(backupSys,loggingSys),
+            "13": lambda : user.restoreBackup(backupSys,loggingSys,db),
             'UP': lambda : user.changePassword(user,db,loggingSys), 
             'LU': lambda : user.displayUsers(db), 
             'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
@@ -190,7 +191,7 @@ Super Admin Menu:
             'UM': lambda : user.editMember(db,loggingSys), 
             'DM': lambda : user.deletion(user, db, None, loggingSys), 
             'SM': lambda : user.memberSearch(db,loggingSys),
-            'RB': lambda : user.restoreBackup(backupSys,loggingSys)
+            'RB': lambda : user.restoreBackup(backupSys,loggingSys,db)
         }
 
 

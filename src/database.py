@@ -4,6 +4,8 @@ from sqlite3 import Error
 from roles import roles
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
+import secrets
+import string
 import os
 import time
 
@@ -40,6 +42,86 @@ class DB:
             if conn:
                 conn.close()
 
+    def createTravellersTable(self):
+        create_query = """
+        CREATE TABLE IF NOT EXISTS travellers (
+            unique_id TEXT PRIMARY KEY,
+            registration_date TEXT NOT NULL,
+            first_name TEXT NOT NULL,
+            last_name TEXT NOT NULL,
+            birthday TEXT NOT NULL,
+            gender TEXT NOT NULL,
+            street_name TEXT NOT NULL,
+            house_number INTEGER NOT NULL,
+            city TEXT NOT NULL,
+            zip_code TEXT NOT NULL,
+            email TEXT,
+            mobile TEXT NOT NULL
+        )
+        """
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute(create_query)
+            conn.commit()
+        except sqlite3.Error as e:
+            print("An error occurred while creating the travellers table:", e)
+        finally:
+            if conn:
+                conn.close()
+
+    def createScootersTable(self):
+        create_query = """
+        CREATE TABLE IF NOT EXISTS scooters (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            in_service_date TEXT NOT NULL,
+            brand TEXT NOT NULL,
+            model TEXT NOT NULL,
+            serial_number TEXT NOT NULL,
+            top_speed INTEGER NOT NULL,
+            battery_capacity INTEGER NOT NULL,
+            state_of_charge INTEGER NOT NULL,
+            target_soc_min INTEGER NOT NULL,    
+            target_soc_max INTEGER NOT NULL,
+            latitude REAL NOT NULL, 
+            longitude REAL NOT NULL, 
+            out_of_service BOOLEAN NOT NULL DEFAULT 0,
+            mileage INTEGER NOT NULL,
+            last_maintenance_date TEXT NOT NULL
+        )
+        """
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute(create_query)
+            conn.commit()
+        except sqlite3.Error as e:
+            print("An error occurred while creating the travellers table:", e)
+        finally:
+            if conn:
+                conn.close()
+
+    def createBackupsTable(self):
+        create_query = """
+        CREATE TABLE IF NOT EXISTS restore_codes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            system_admin_id INTEGER NOT NULL,
+            code TEXT NOT NULL UNIQUE,
+            backup_filename TEXT NOT NULL,
+            used BOOLEAN NOT NULL DEFAULT 0
+        )        
+        """
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute(create_query)
+            conn.commit()
+        except sqlite3.Error as e:
+            print("An error occurred while creating the backups table:", e)
+        finally:
+            if conn:
+                conn.close()
+
     def createUsersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS users (
@@ -51,7 +133,8 @@ class DB:
             registration_date DATE NOT NULL,
             role TEXT NOT NULL,
             temp BOOLEAN NOT NULL,
-            salt TEXT NOT NULL
+            salt TEXT NOT NULL,
+            session_id INTEGER NOT NULL DEFAULT 0
         )
         """
         try:
@@ -129,6 +212,62 @@ class DB:
         finally:
             if conn:
                 conn.close()
+
+    def getRestoreCodesByUser(self, user_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT code, backup_filename FROM restore_codes WHERE system_admin_id = ?"
+            cursor.execute(query, (user_id,))
+            codes = cursor.fetchall()
+            cursor.close()
+            return codes  # List of (code, backup_filename)
+        except sqlite3.Error as e:
+            print("An error occurred while fetching restore codes:", e)
+            return []
+        finally:
+            if conn:
+                conn.close()
+
+
+    def createRestoreCode(self, user_id, backup_name, required_role=roles.ADMIN):
+        if not self.findUserID(user_id, required_role):
+            print("User ID is invalid or does not have the required role.")
+            return "FAIL"
+
+        backup_path = os.path.join("backups", backup_name)
+        if not os.path.isfile(backup_path):
+            print("Backup file does not exist.")
+            return "FAIL"
+
+        def generate_code(length=16):
+            chars = string.ascii_letters + string.digits
+            return ''.join(secrets.choice(chars) for _ in range(length))
+
+        restore_code = generate_code()
+
+        # 4. Store the code in the restore_codes table
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = """
+                INSERT INTO restore_codes (system_admin_id, code, backup_filename)
+                VALUES (?, ?, ?)
+            """
+            cursor.execute(query, (user_id, restore_code, backup_name))
+            conn.commit()
+            cursor.close()
+            print(f"Restore code created: {restore_code}")
+            time.sleep(10)
+            return restore_code  # Return the code so you can display or copy it
+        except sqlite3.Error as e:
+            print("An error occurred while inserting the restore code:", e)
+            return "FAIL"
+        finally:
+            if conn:
+                conn.close()
+
     
     def initSuperadmin(self):
         conn = None
@@ -229,6 +368,32 @@ class DB:
         finally:
             if conn:
                 conn.close()
+    
+    def validateSession(self, user_id,session_id):
+        conn = None
+        try:
+            if str(user_id).isdigit():
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM users WHERE session_id = ? AND id = ?"
+                cursor.execute(query, (session_id,user_id))
+                users = cursor.fetchone()
+                cursor.close()
+
+                if users:
+                    return True
+                else:
+                    return False
+
+            return False  
+
+        except sqlite3.Error as e:
+            print("An error occurred while validating login:", e)
+            return False
+        finally:
+            if conn:
+                conn.close()
+
 
     def findUsername(self, username):
         conn = None
@@ -514,7 +679,6 @@ class DB:
                     result = "OK"
                 else:
                     result = "FAIL"
-            
                 conn.commit() 
                 
                 cursor.close()
@@ -594,7 +758,7 @@ class DB:
                 hashed_password, salt = cryptoUtils.hashPassword(newPassword)
 
                 temp_flag = 1 if temp else 0
-                query = "UPDATE users SET password_hash = ?, temp = ?, salt = ? WHERE id = ?"
+                query = "UPDATE users SET password_hash = ?, temp = ?, salt = ?, session_id = session_id +1 WHERE id = ?"
                 parameters = (hashed_password, temp_flag, salt, userId)
 
                 cursor.execute(query, parameters)
