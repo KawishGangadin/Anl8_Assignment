@@ -4,14 +4,14 @@ from datetime import datetime, date
 class Validation:
 
     @staticmethod
-    def validate_birthdate(birthdate):
+    def validate_birthdate(birthdate_str):
         try:
-            birthdate = datetime.strptime(birthdate, "%Y-%m-%d").date()
+            birthdate = datetime.strptime(birthdate_str, "%Y-%m-%d").date()
             if birthdate > date.today():
                 return False
 
             age = date.today().year - birthdate.year - ((date.today().month, date.today().day) < (birthdate.month, birthdate.day))
-            if age < 18:
+            if age < 10 or age > 120:
                 return False
 
             return True
