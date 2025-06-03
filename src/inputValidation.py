@@ -4,19 +4,22 @@ from datetime import datetime, date
 class Validation:
 
     @staticmethod
-    def validate_birthdate(birthdate):
+    def validate_birthdate(birthdate, username='', loggingSys=None):
         try:
+            birthdate = birthdate.strip()
             birthdate = datetime.strptime(birthdate, "%Y-%m-%d").date()
             if birthdate > date.today():
                 return False
 
-            age = date.today().year - birthdate.year - ((date.today().month, date.today().day) < (birthdate.month, birthdate.day))
-            if age < 18:
-                return False
+            today = date.today()
+            age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+            return age >= 18
 
-            return True
-        except ValueError:
+        except ValueError as e:
+            if loggingSys:
+                loggingSys.log(f"Invalid birthdate format: {e}", False, username=username)
             return False
+
 
     @staticmethod
     def checkNullByte(input):

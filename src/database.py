@@ -45,7 +45,7 @@ class DB:
     def createTravellersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS travellers (
-            unique_id TEXT PRIMARY KEY,
+            customer_id TEXT PRIMARY KEY,
             registration_date TEXT NOT NULL,
             first_name TEXT NOT NULL,
             last_name TEXT NOT NULL,
@@ -56,7 +56,8 @@ class DB:
             city TEXT NOT NULL,
             zip_code TEXT NOT NULL,
             email TEXT,
-            mobile TEXT NOT NULL
+            mobile TEXT NOT NULL,
+            license_number TEXT NOT NULL
         )
         """
         try:
@@ -148,6 +149,74 @@ class DB:
             if conn:
                 conn.close()
     
+
+    def createTraveller(self, customer_id, registration_date, first_name, last_name, birthdate,
+                    gender, street, house_number, city, zip_code, email, mobile, license_number):
+        conn = None
+        try:
+            # Defensive validation
+            if not (Validation.validateName(first_name)
+                    and Validation.validateName(last_name)
+                    and Validation.validateHousenumber(str(house_number))
+                    and Validation.validateZipcode(zip_code)
+                    and Validation.validateCity(city)
+                    and Validation.validateEmail(email)
+                    and Validation.validateMobileNumber(mobile)):
+                print("Validation failed during backend traveller creation.")
+                return "FAIL"
+
+            public_key = cryptoUtils.loadPublicKey()
+
+            encrypted_first_name = cryptoUtils.encryptWithPublicKey(public_key, first_name)
+            encrypted_last_name = cryptoUtils.encryptWithPublicKey(public_key, last_name)
+            encrypted_house_number = cryptoUtils.encryptWithPublicKey(public_key, str(house_number))
+            encrypted_street_name = cryptoUtils.encryptWithPublicKey(public_key, str(street))
+            encrypted_license_number = cryptoUtils.encryptWithPublicKey(public_key, str(license_number))
+            encrypted_zip = cryptoUtils.encryptWithPublicKey(public_key, zip_code)
+            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
+            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
+            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
+
+            # Open connection and insert
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+
+            query = """
+                INSERT INTO travellers (
+                    customer_id, registration_date, first_name, last_name, birthday,
+                    gender, street_name, house_number, city, zip_code, email, mobile, license_number
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            cursor.execute(query, (
+                customer_id,
+                registration_date,
+                encrypted_first_name,
+                encrypted_last_name,
+                birthdate,
+                gender,
+                encrypted_street_name,
+                encrypted_house_number,
+                encrypted_city,
+                encrypted_zip,
+                encrypted_email,
+                encrypted_mobile,
+                encrypted_license_number
+            ))
+            conn.commit()
+            cursor.close()
+            return "OK"
+
+        except sqlite3.Error as e:
+            print("Database error while creating traveller:", e)
+            return "FAIL"
+        except Exception as e:
+            print("Unexpected error while creating traveller:", e)
+            return "FAIL"
+        finally:
+            if conn:
+                conn.close()
+
+
     def createMember(self, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date, membership_id):
         conn = None
         try:

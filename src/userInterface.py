@@ -99,7 +99,7 @@ class UI:
             "10": lambda : user.createBackup(user,backupSys,loggingSys),
             "11": lambda : user.restoreBackup(backupSys,loggingSys,db),
             "12": lambda : user.displayLogs(loggingSys),
-            "13": lambda : user.memberCreation(db,loggingSys),
+            "13": lambda : user.createTraveller(db,roles.SUPERADMIN,loggingSys),
             "14": lambda : user.editMember(db,loggingSys),
             "15": lambda : user.deletion(user, db, None, loggingSys),
             "16": lambda : user.memberSearch(db,loggingSys),
@@ -136,7 +136,7 @@ Super Admin Menu:
 [10] or [BA] - Make a backup of the system
 [11] or [RB] - Restore a backup of the system
 [12] or [SL] - See the logs file of the system
-[13] or [AM] - Add a new member
+[13] or [AM] - Add a new traveller
 [14] or [UM] - Update a member’s information
 [15] or [DM] - Delete a member’s record
 [16] or [SM] - Search and retrieve a member’s information

@@ -27,11 +27,11 @@ class loginAuth:
                 roleType = roles(decrypted_role)
 
                 if roleType == roles.CONSULTANT:
-                    return consultant(user_id, decrypted_username, self.db, session_id) 
+                    return consultant(user_id, roles.CONSULTANT,decrypted_username, self.db, session_id) 
                 elif roleType == roles.ADMIN:
-                    return systemAdministrator(user_id, decrypted_username, self.db, session_id) 
+                    return systemAdministrator(user_id,roles.ADMIN ,decrypted_username, self.db, session_id) 
                 elif roleType == roles.SUPERADMIN:
-                    return superAdministrator(user_id, decrypted_username, self.db, session_id) 
+                    return superAdministrator(user_id, roles.SUPERADMIN, decrypted_username, self.db, session_id) 
                 else:
                     raise ValueError("Unknown role detected.")
         else:
