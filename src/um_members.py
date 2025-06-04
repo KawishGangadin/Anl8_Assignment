@@ -1,6 +1,6 @@
 from userInterface import UI
 import os
-from database import DB
+from database.database import DB
 from log import Logger
 from auth import loginAuth
 from inputValidation import Validation

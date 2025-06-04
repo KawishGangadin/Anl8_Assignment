@@ -100,7 +100,7 @@ class UI:
             "11": lambda : user.restoreBackup(backupSys,loggingSys,db),
             "12": lambda : user.displayLogs(loggingSys),
             "13": lambda : user.createTraveller(db,roles.SUPERADMIN,loggingSys),
-            "14": lambda : user.editMember(db,loggingSys),
+            "14": lambda : user.updateTraveller(db,loggingSys),
             "15": lambda : user.deletion(user, db, None, loggingSys),
             "16": lambda : user.memberSearch(db,loggingSys),
             "17": lambda : user.generateRestoreCode( db, loggingSys),

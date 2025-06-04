@@ -20,6 +20,18 @@ class Validation:
                 loggingSys.log(f"Invalid birthdate format: {e}", False, username=username)
             return False
 
+    @staticmethod
+    def validate_driving_license(license_number, username='', loggingSys=None):
+        license_number = license_number.strip().upper()
+        pattern = r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$'
+
+        if re.fullmatch(pattern, license_number):
+            return True
+
+        if loggingSys:
+            loggingSys.log("Invalid driving license number format.", False, username=username)
+        return False
+
 
     @staticmethod
     def checkNullByte(input):

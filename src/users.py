@@ -459,6 +459,105 @@ class systemAdministrator(consultant):
             loggingSys.log(f"Exception during traveller registration: {str(e)}", True, username=self.userName)
 
 
+    def updateTraveller(self, db, loggingSys):
+        def safe_decrypt(value):
+            try:
+                if isinstance(value, bytes):
+                    return cryptoUtils.decryptWithPrivateKey(private_key, value).decode()
+                return str(value)
+            except:
+                return "(decryption failed)"
+
+        # Display all decrypted travellers
+        travellers = db.getAllTravellers()
+        private_key = cryptoUtils.loadPrivateKey()
+
+        print("\n======= Registered Travellers =======")
+        for t in travellers:
+            try:
+                print(f"ID: {t[0]}")
+                print(f"Name: {safe_decrypt(t[2])} {safe_decrypt(t[3])}")
+                print(f"Birthdate: {t[4]}")
+                print(f"Gender: {safe_decrypt(t[5])}")
+                print(f"Street: {safe_decrypt(t[6])} {safe_decrypt(t[7])}")
+                print(f"City: {safe_decrypt(t[8])}")
+                print(f"Zip: {safe_decrypt(t[9])}")
+                print(f"Email: {safe_decrypt(t[10])}")
+                print(f"Mobile: {safe_decrypt(t[11])}")
+                print(f"License: {safe_decrypt(t[12])}")
+                print("-------------------------------------")
+            except:
+                print("(Unable to decrypt one or more fields)")
+
+        license_number = Utility.get_valid_input("Enter the traveller's current driving license number or Q to cancel:", Validation.validate_driving_license, {'username': self.userName}, loggingSys)
+        if license_number is None:
+            print("Update cancelled.")
+            return
+
+        if not db.licenseExists(license_number):
+            print("No traveller found with that license number.")
+            return
+
+        fields = {}
+
+        print("\nUpdating traveller fields. Leave empty to skip a field or Q to quit.")
+
+        new_first = Utility.get_optional_update("New first name:", Validation.validateName, None, {'username': self.userName}, loggingSys)
+        if new_first == "Q": return
+        if new_first: fields["first_name"] = new_first
+
+        new_last = Utility.get_optional_update("New last name:", Validation.validateName, None, {'username': self.userName}, loggingSys)
+        if new_last == "Q": return
+        if new_last: fields["last_name"] = new_last
+
+        new_gender = Utility.get_optional_update("New gender:", Validation.validateGender, None, {'username': self.userName}, loggingSys)
+        if new_gender == "Q": return
+        if new_gender: fields["gender"] = new_gender
+
+        new_street = Utility.get_optional_update("New street name:", Validation.validateAddress, None, {'username': self.userName}, loggingSys)
+        if new_street == "Q": return
+        if new_street: fields["street_name"] = new_street
+
+        new_house = Utility.get_optional_update("New house number:", Validation.validateHousenumber, None, {'username': self.userName}, loggingSys)
+        if new_house == "Q": return
+        if new_house: fields["house_number"] = new_house
+
+        new_city = Utility.get_optional_update("New city:", Validation.validateCity, None, {'username': self.userName}, loggingSys)
+        if new_city == "Q": return
+        if new_city: fields["city"] = new_city
+
+        new_zip = Utility.get_optional_update("New zip code:", Validation.validateZipcode, None, {'username': self.userName}, loggingSys)
+        if new_zip == "Q": return
+        if new_zip: fields["zip_code"] = new_zip
+
+        new_email = Utility.get_optional_update("New email:", Validation.validateEmail, None, {'username': self.userName}, loggingSys)
+        if new_email == "Q": return
+        if new_email: fields["email"] = new_email
+
+        new_mobile = Utility.get_optional_update("New mobile number:", Validation.validateMobileNumber, None, {'username': self.userName}, loggingSys)
+        if new_mobile == "Q": return
+        if new_mobile: fields["mobile"] = new_mobile
+
+        new_license = Utility.get_optional_update("New license number:", Validation.validate_driving_license, None, {'username': self.userName}, loggingSys)
+        if new_license == "Q": return
+        if new_license and new_license != license_number:
+            if db.licenseExists(new_license):
+                print("That license number is already in use.")
+                return
+            fields["license_number"] = new_license
+
+        result = db.updateTraveller(license_number, **fields)
+
+        if result == "OK":
+            print("Traveller updated successfully.")
+            loggingSys.log("Traveller updated", False, username=self.userName)
+        elif result == "NOT FOUND":
+            print("Traveller not found.")
+        else:
+            print("An error occurred while updating the traveller.")
+            loggingSys.log("Traveller update failed", True, username=self.userName)
+
+
     def createBackup(self, user, backUpSystem, loggingSys):
         try:
             while True:
