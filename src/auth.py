@@ -1,5 +1,5 @@
 from users import roles
-from users import consultant
+from users import serviceEngineer
 from users import systemAdministrator
 from users import superAdministrator
 from cryptoUtils import cryptoUtils
@@ -27,7 +27,7 @@ class loginAuth:
                 roleType = roles(decrypted_role)
 
                 if roleType == roles.CONSULTANT:
-                    return consultant(user_id, roles.CONSULTANT,decrypted_username, self.db, session_id) 
+                    return serviceEngineer(user_id, roles.CONSULTANT,decrypted_username, self.db, session_id) 
                 elif roleType == roles.ADMIN:
                     return systemAdministrator(user_id,roles.ADMIN ,decrypted_username, self.db, session_id) 
                 elif roleType == roles.SUPERADMIN:

@@ -10,7 +10,37 @@ from userBlueprint import userBlueprint
 from utility import Utility
 
 
-class consultant(userBlueprint):
+class serviceEngineer(userBlueprint):
+    
+    def memberSearch(self, db, loggingSys):
+        try:
+            search_key = input("Enter the search key: ")
+            result = db.searchMember(search_key)
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"Membership ID: {row[0]}")
+                    print(f"First Name: {row[1]}")
+                    print(f"Last Name: {row[2]}")
+                    print(f"Age: {row[3]}")
+                    print(f"Gender: {row[4]}")
+                    print(f"Weight: {row[5]}")
+                    print(f"Address: {row[6]}")
+                    print(f"City: {row[7]}")
+                    print(f"Postal Code: {row[8]}")
+                    print(f"Email: {row[9]}")
+                    print(f"Mobile: {row[10]}")
+                    print(f"Registration Date: {row[11]}")
+                    print("----------------")
+            else:
+                print("No results found.")
+            
+            input("Press any key to continue...")
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during member search: {str(e)}", True, username=self.userName)
 
 #     def memberCreation(self, db, loggingSys):
 #         try:
@@ -177,37 +207,6 @@ class consultant(userBlueprint):
 #         except Exception as e:
 #             print(f"An error occurred: {str(e)}")
 
-#     def memberSearch(self, db, loggingSys):
-#         try:
-#             search_key = input("Enter the search key: ")
-#             result = db.searchMember(search_key)
-            
-#             if result:
-#                 print("Search Results:")
-#                 print("----------------")
-#                 for row in result:
-#                     print(f"Membership ID: {row[0]}")
-#                     print(f"First Name: {row[1]}")
-#                     print(f"Last Name: {row[2]}")
-#                     print(f"Age: {row[3]}")
-#                     print(f"Gender: {row[4]}")
-#                     print(f"Weight: {row[5]}")
-#                     print(f"Address: {row[6]}")
-#                     print(f"City: {row[7]}")
-#                     print(f"Postal Code: {row[8]}")
-#                     print(f"Email: {row[9]}")
-#                     print(f"Mobile: {row[10]}")
-#                     print(f"Registration Date: {row[11]}")
-#                     print("----------------")
-#             else:
-#                 print("No results found.")
-            
-#             input("Press any key to continue...")
-
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-#             loggingSys.log(f"Error occurred during member search: {str(e)}", True, username=self.userName)
-
 #     def editMember(self, db, loggingSys):
 #         try:
 #             self.displayMembers(db)
@@ -315,7 +314,7 @@ class consultant(userBlueprint):
                 return
             elif isinstance(user, systemAdministrator):
                 processChangePW()
-            elif isinstance(user, consultant):
+            elif isinstance(user, serviceEngineer):
                 role = roles.CONSULTANT
                 processChangePW()
             else:
@@ -324,6 +323,9 @@ class consultant(userBlueprint):
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during password change: {str(e)}", True, username=self.userName)
+
+    def updateScooter(self, user, db, role, loggingSys):
+        pass
     
     # def deletion(self, user, db, role, loggingSys):
     #     try:
@@ -396,7 +398,13 @@ class consultant(userBlueprint):
     #         loggingSys.log(f"Error occurred during deletion: {str(e)}", True, username=self.userName)
 
 
-class systemAdministrator(consultant):
+class systemAdministrator(serviceEngineer):
+
+    def createScooter(self, db, loggingSys):
+        pass
+
+    def removeScooter(self, db, loggingSys):
+        pass
 
     def createTraveller(self, db, role, loggingSys):
         try:

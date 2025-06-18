@@ -341,27 +341,6 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
 
             userList = []  # Initialize the userList here
 
-            if role is not None:
-                for user in users:
-                    encrypted_role = user[6]
-                    decrypted_role_bytes = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), encrypted_role).decode('utf-8')
-                    if decrypted_role_bytes == role.value:
-                        decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
-                        decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
-                        hiddenPassword = "********"  # Assign hidden password here
-                        decryptedUser = (
-                            user[0],  # ID
-                            user[1],  # First name
-                            user[2],  # Last name
-                            decryptedUsername,  # Decrypted username
-                            hiddenPassword,  # Hidden password
-                            user[5],  # Registration date
-                            decryptedRole  # Decrypted role
-                        )
-                        userList.append(decryptedUser)
-
-                return userList
-
             for user in users:
                 decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
                 decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
@@ -419,33 +398,10 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             members = cursor.fetchall()
             cursor.close()
             for member in members:
-                decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[0])).decode('utf-8')
-                decrypted_first_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[1])).decode('utf-8')
-                decrypted_last_name = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[2])).decode('utf-8')
-                decrypted_age = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[3])).decode('utf-8')
-                decrypted_gender = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[4])).decode('utf-8')
-                decrypted_weight = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[5])).decode('utf-8')
-                decrypted_address = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[6])).decode('utf-8')
-                decrypted_city = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[7])).decode('utf-8')
-                decrypted_postal_code = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[8])).decode('utf-8')
-                decrypted_email = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[9])).decode('utf-8')
-                decrypted_mobile = cryptoUtils.decryptWithPrivateKey(privateKey, bytes(member[10])).decode('utf-8')
-                decrypted_registration_date = member[11] 
-                decrypted_member = (
-                            decrypted_membership_id,
-                            decrypted_first_name,
-                            decrypted_last_name,
-                            decrypted_age,
-                            decrypted_gender,
-                            decrypted_weight,
-                            decrypted_address,
-                            decrypted_city,
-                            decrypted_postal_code,
-                            decrypted_email,
-                            decrypted_mobile,
-                            decrypted_registration_date,
-                        )
-                memberList.append(decrypted_member)
+                data_to_bytes = list(map(bytes, member))
+                decrypted_data = list(map(cryptoUtils.decryptWithPrivateKey, privateKey, data_to_bytes))
+                decrypted_data = tuple(map(lambda s: s.decode('utf-8'), decrypted_data))
+                memberList.append(decrypted_data)
             return memberList
                 
         except sqlite3.Error as e:
@@ -727,3 +683,42 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
         finally:
             if conn:
                 conn.close()
+
+    def getScooters(self):
+        # TODO: test
+        conn = None
+        scooterList = []
+        privateKey = cryptoUtils.loadPrivateKey()
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM scooters"
+            cursor.execute(query)
+            scooters = cursor.fetchall()
+            cursor.close()
+            for scooter in scooters:
+                data_to_bytes = list(map(bytes, scooter))
+                decrypted_data = list(map(cryptoUtils.decryptWithPrivateKey, privateKey, data_to_bytes))
+                decrypted_data = tuple(map(lambda s: s.decode('utf-8'), decrypted_data))
+                scooterList.append(decrypted_data)
+            return scooterList
+                
+        except sqlite3.Error as e:
+            print("An error occurred while retrieving scooter data:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def getScooterByAttribute(self):
+        pass
+
+    def createScooter(self):
+        pass
+
+    def editScooter(self):
+        pass
+
+    def deleteScooter(self):
+        pass
+

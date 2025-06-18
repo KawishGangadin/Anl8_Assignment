@@ -1,5 +1,5 @@
 from users import roles
-from users import consultant
+from users import serviceEngineer
 from users import systemAdministrator
 from users import superAdministrator
 from roles import roles
@@ -63,7 +63,7 @@ class UI:
                     user = None
                     break
 
-            elif isinstance(user, consultant):
+            elif isinstance(user, serviceEngineer):
                 self.clearScreen()
                 self.displayLogo()
 
@@ -74,7 +74,7 @@ class UI:
                     time.sleep(2)
                     break  # Exit the loop to log out
 
-                logoutResult = self.consultant_Menu(user, db, loggingSys)
+                logoutResult = self.serviceEngineer_Menu(user, db, loggingSys)
                 if logoutResult is True:
                     user = None
                     break
@@ -236,7 +236,7 @@ System Administrator Menu:
         
         return False
 
-    def consultant_Menu(self,user,db,loggingSys):
+    def serviceEngineer_Menu(self,user,db,loggingSys):
         print(f"Welcome {user.userName}")
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
