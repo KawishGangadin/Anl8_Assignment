@@ -10,258 +10,7 @@ from userBlueprint import userBlueprint
 from utility import Utility
 
 
-class consultant(userBlueprint):
-
-#     def memberCreation(self, db, loggingSys):
-#         try:
-#             print("""
-# 1. Email Validation:
-#    - Must be in a valid email format (`username@domain.com`).
-
-# 2. Age Validation:
-#    - Must be an integer between 1 and 100.
-
-# 3. House Number Validation:
-#    - Must be an integer between 1 and 9999.
-
-# 4. Zip Code Validation:
-#    Must be a valid Dutch zip code format for example 1234AB.
-
-# 5. Name Validation:
-#    - Must contain only alphabetic characters, hyphens, apostrophes.
-#    - Maximum of one hyphen or apostrophe, and two spaces.
-#    - Cannot start or end with a hyphen or apostrophe.
-#    - Cannot be empty.
-
-# 6. Mobile Number Validation:
-#    - Must be a valid dutch number for example +31622222222.
-
-# 8. Address Validation:
-#     - Must contain only alphanumeric characters, spaces, dots, commas, apostrophes, hyphens, or single quotes.
-#     - Cannot be empty.
-
-# 9. City Validation:
-#     - Must be one of the following cities: Amsterdam, Rotterdam, The Hague, Utrecht, Eindhoven, Tilburg, Groningen, Almere, Breda, Nijmegen.
-# """)
-
-#             public_key = cryptoUtils.loadPublicKey()
-#             firstName = ""
-#             while not firstName:
-#                 firstName = input("Enter the member's first name or press 'Q' to quit: ").strip()
-#                 if firstName.upper() == 'Q':
-#                     return
-#                 if not Validation.validateName(firstName, self.userName, loggingSys):
-#                     print("Invalid firstName!")
-#                     firstName = ""
-
-#             lastName = ""
-#             while not lastName:
-#                 lastName = input("Enter the member's lastName or press 'Q' to quit: ").strip()
-#                 if lastName.upper() == 'Q':
-#                     return
-#                 if not Validation.validateName(lastName, self.userName, loggingSys):
-#                     print("Invalid lastName!")
-#                     lastName = ""
-
-#             age = ""
-#             while not age:
-#                 age = input("Enter the member's age or press 'Q' to quit: ").strip()
-#                 if age.upper() == 'Q':
-#                     return
-#                 if not Validation.validateAge(age, self.userName, loggingSys):
-#                     print("Invalid age!")
-#                     age = ""
-
-#             gender = ""
-#             while not gender:
-#                 gender = input("Enter the member's gender (Male/Female/Other) or press 'Q' to quit: ").strip().capitalize()
-#                 if gender.upper() == 'Q':
-#                     return
-#                 if gender not in ['Male', 'Female', 'Other']:
-#                     print("Invalid gender!")
-#                     gender = ""
-
-#             weight = ""
-#             while not weight:
-#                 weight = input("Enter the member's weight or press 'Q' to quit: ").strip()
-#                 if weight.upper() == 'Q':
-#                     return
-#                 try:
-#                     weight = float(weight)
-#                     if weight < 0:
-#                         print("Weight must be a positive number!")
-#                         weight = ""
-#                     elif weight > 700:
-#                         print("Weight is impossible!")
-#                         weight = ""
-#                 except ValueError:
-#                     print("Invalid weight!")
-#                     weight = ""
-#             weight = round(weight, 1)
-
-#             membershipId = Checksum.generateMembershipId(db)
-
-#             address = ""
-#             while not address:
-#                 address = input("Enter the member's address or press 'Q' to quit: ").strip()
-#                 if address.upper() == 'Q':
-#                     return
-#                 if not Validation.validateAddress(address, self.userName, loggingSys):
-#                     print("Invalid address!")
-#                     address = ""
-
-#             city = ""
-#             while not city:
-#                 city = input("Enter the member's city or press 'Q' to quit: ").strip()
-#                 if city.upper() == 'Q':
-#                     return
-#                 if not Validation.validateCity(city, self.userName, loggingSys):
-#                     print("Invalid city!")
-#                     city = ""
-
-#             postalCode = ""
-#             while not postalCode:
-#                 postalCode = input("Enter the member's postal code or press 'Q' to quit: ").strip()
-#                 if postalCode.upper() == 'Q':
-#                     return
-#                 if not Validation.validateZipcode(postalCode, self.userName, loggingSys):
-#                     print("Invalid postal code!")
-#                     postalCode = ""
-
-#             email = ""
-#             while not email:
-#                 email = input("Enter the member's email or press 'Q' to quit: ").strip()
-#                 if email.upper() == 'Q':
-#                     return
-#                 if not Validation.validateEmail(email, self.userName, loggingSys):
-#                     print("Invalid email address!")
-#                     email = ""
-
-#             mobile = ""
-#             while not mobile:
-#                 mobile = input("Enter the member's mobile number +316..... or press 'Q' to quit: +316").strip()
-#                 if mobile.upper() == 'Q':
-#                     return
-#                 if not Validation.validateMobileNumber(mobile, self.userName, loggingSys):
-#                     print("Invalid mobile number!")
-#                     mobile = ""
-
-#             registrationDate = date.today().strftime("%Y-%m-%d")
-
-#             result = db.createMember(firstName, lastName, age, gender, weight,
-#                                      address, city, postalCode,
-#                                      email, mobile, registrationDate, membershipId)
-#             if result == "OK":
-#                 loggingSys.log("Member registered.", False, f"Member with membership ID '{membershipId}' has been registered.", self.userName)
-#                 print("Member registered successfully.")
-#             else:
-#                 print("An error occurred while registering the member.")
-#                 loggingSys.log("Unsuccesful member registration", False, "An error occurred while registering the member.", self.userName)
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-#             loggingSys.log("Unsuccesful member registration", False, "An error occurred while registering the member.", self.userName)
-
-#     def displayMembers(self, db):
-#         try:
-#             allMembers = db.getMembers()
-#             private_key = cryptoUtils.loadPrivateKey()
-#             print(f"========List of Members====================================================================================================")
-#             if allMembers == None:
-#                 print("No members found:")
-#             else:
-#                 for member in allMembers:
-#                     print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
-#             input("Press any key to continue...")
-#             return
-        
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-
-#     def memberSearch(self, db, loggingSys):
-#         try:
-#             search_key = input("Enter the search key: ")
-#             result = db.searchMember(search_key)
-            
-#             if result:
-#                 print("Search Results:")
-#                 print("----------------")
-#                 for row in result:
-#                     print(f"Membership ID: {row[0]}")
-#                     print(f"First Name: {row[1]}")
-#                     print(f"Last Name: {row[2]}")
-#                     print(f"Age: {row[3]}")
-#                     print(f"Gender: {row[4]}")
-#                     print(f"Weight: {row[5]}")
-#                     print(f"Address: {row[6]}")
-#                     print(f"City: {row[7]}")
-#                     print(f"Postal Code: {row[8]}")
-#                     print(f"Email: {row[9]}")
-#                     print(f"Mobile: {row[10]}")
-#                     print(f"Registration Date: {row[11]}")
-#                     print("----------------")
-#             else:
-#                 print("No results found.")
-            
-#             input("Press any key to continue...")
-
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-#             loggingSys.log(f"Error occurred during member search: {str(e)}", True, username=self.userName)
-
-#     def editMember(self, db, loggingSys):
-#         try:
-#             self.displayMembers(db)
-#             while True:
-#                 membershipID = input("Enter the membership ID of the member you would like to edit or press Q to quit: ")
-#                 if membershipID.upper() == "Q":
-#                     return
-#                 if Validation.validateMembershipID(membershipID, self.userName, loggingSys) and db.findMembershipID(membershipID):
-#                     break
-#                 else:
-#                     print("Invalid membership ID!!!")
-
-#             def getValidInput(prompt, validation_func):
-#                 while True:
-#                     user_input = input(prompt).strip()
-#                     if user_input.upper() == "Q":
-#                         return "Q"
-#                     if user_input == "" or validation_func(user_input):
-#                         return user_input
-#                     else:
-#                         print("Invalid input!!!")
-
-#             updates = {}
-#             fields_validations = {
-#                 "first_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
-#                 "last_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
-#                 "age": lambda value: Validation.validateAge(value,self.userName,loggingSys),
-#                 "gender": lambda value: Validation.validateGender(value,self.userName,loggingSys),
-#                 "weight": lambda value: Validation.validateWeight(value,self.userName,loggingSys),
-#                 "address": lambda value: Validation.validateAddress(value,self.userName,loggingSys),
-#                 "city": lambda value: Validation.validateCity(value,self.userName,loggingSys),
-#                 "postalCode": lambda value: Validation.validateZipcode(value,self.userName,loggingSys),
-#                 "email": lambda value: Validation.validateEmail(value,self.userName,loggingSys),
-#                 "mobile": lambda value: Validation.validateMobileNumber(value,self.userName,loggingSys)
-#             }
-#             for field, validation in fields_validations.items():
-#                 input_value = getValidInput(f"Enter new {field.replace('_', ' ')} or leave empty to make no changes: ", validation)
-#                 if input_value == "Q":
-#                     print("Edit process terminated by user.")
-#                     return
-#                 if input_value:
-#                     updates[field] = int(input_value) if field == "age" else float(input_value) if field == "weight" else input_value
-
-#             result = db.updateMember(membershipID, **updates)
-#             if result == "OK":
-#                 print("Member updated successfully.")
-#                 loggingSys.log(f"Member with ID '{membershipID}' has been updated.", False, username=self.userName)
-#             else:
-#                 print("Failed to update member.")
-#                 loggingSys.log("Failed to update member.", True, username=self.userName)
-
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-#             loggingSys.log(f"Error occurred during member edit: {str(e)}", True, username=self.userName)
+class service(userBlueprint):
 
     def changePassword(self, user, db, loggingSys):
         try:
@@ -315,8 +64,8 @@ class consultant(userBlueprint):
                 return
             elif isinstance(user, systemAdministrator):
                 processChangePW()
-            elif isinstance(user, consultant):
-                role = roles.CONSULTANT
+            elif isinstance(user, service):
+                role = roles.SERVICE
                 processChangePW()
             else:
                 print("Unauthorized access...")
@@ -324,79 +73,107 @@ class consultant(userBlueprint):
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during password change: {str(e)}", True, username=self.userName)
-    
-    # def deletion(self, user, db, role, loggingSys):
-    #     try:
-    #         def processDeletion(role):
-    #             roleType = ""
-    #             if role == None:
-    #                 self.displayMembers(db)
-    #                 roleType = "member"
-    #             else:
-    #                 self.displayUsers(db, role)
-    #                 roleType = role.value
-    #             validID = False
-    #             while True:
-    #                 Id = input(f"Enter the ID/membership ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
-    #                 if Id.upper() == "Q":
-    #                     return
-    #                 elif Id.isdigit():
-    #                     if not role == None:
-    #                         if db.findUserID(int(Id), role):
-    #                             validID = True
-    #                             break
-    #                     else:
-    #                         if db.findMembershipID(Id):
-    #                            validID = True
-    #                            break 
-    #                 print("ID not found in the database!" if Id.isdigit() else "ID is invalid!")
-    #                 time.sleep(0.5)
-    #             if validID:
-    #                 if not role == None:
-    #                     privateKey = cryptoUtils.loadPrivateKey()
-    #                     deletedUsername = db.getUsernameByID(Id)
-    #                     result = db.deleteUser(Id, role)
-    #                     if result == "OK":
-    #                         print("User deleted")
-    #                         loggingSys.log("User deleted", False, f"User  '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
-    #                         deletedUsername = None
-    #                     else:
-    #                         print("An error occurred while deleting the user.")
-    #                         loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {deletedUsername.decode('utf-8')}.", self.userName)
-    #                         deletedUsername = None
-    #                     time.sleep(1)
-    #                 else:
-    #                     result = db.deleteMember(Id)
-    #                     if result == "OK":
-    #                         print("Member deleted")
-    #                         loggingSys.log("Member has been deleted", False, username=self.userName)
-    #                     else:
-    #                         print("An error occurred while deleting the member.")
-    #                         loggingSys.log(f"Failed to delete member with id {Id}", True, username=self.userName)
-    #                     time.sleep(1)
-    #         if role is None:  
-    #             if isinstance(user, consultant):
-    #                 processDeletion(role)
-    #             else:
-    #                 print("Unauthorized access...")
-    #         elif isinstance(user, superAdministrator):
-    #             if role in [None, roles.CONSULTANT, roles.ADMIN]:
-    #                 processDeletion(role)
-    #             else:
-    #                 print("Invalid request....")
-    #         elif isinstance(user, systemAdministrator):
-    #             if role in [None, roles.CONSULTANT]:
-    #                 processDeletion(role)
-    #             else:
-    #                 print("Unauthorized request.")
-    #         else:
-    #             print("Unauthorized access...")
-    #     except Exception as e:
-    #         print(f"An error occurred: {str(e)}")
-    #         loggingSys.log(f"Error occurred during deletion: {str(e)}", True, username=self.userName)
 
+    def editScooter(self, user, db, loggingSys):
+        pass
 
-class systemAdministrator(consultant):
+    def searchScooter(self, db, loggingSys):
+        pass
+
+class systemAdministrator(service):
+
+    def deletion(self, user, db, role, loggingSys):
+        try:
+            def processDeletion(role):
+                roleType = ""
+
+                # Determine entity type
+                if role == "traveller":
+                    db.displayTravellers()
+                    roleType = "traveller"
+                elif role == "traveller":
+                    db.displayScooters()
+                    roleType = "scooter"
+                else:
+                    self.displayUsers(db, role)
+                    roleType = role.value
+
+                while True:
+                    Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
+                    if Id.upper() == "Q":
+                        return
+
+                    if not Id.isdigit():
+                        print("ID is invalid!")
+                        time.sleep(0.5)
+                        continue
+
+                    Id = int(Id)
+
+                    validID = False
+                    if role == "traveller":
+                        validID = db.findMembershipID(str(Id))
+                    elif role == "scooter":
+                        validID = db.findScooterID(Id)
+                    else:
+                        validID = db.findUserID(Id, role)
+
+                    if validID:
+                        break
+                    else:
+                        print("ID not found in the database!")
+                        time.sleep(0.5)
+
+                # Execute deletion
+                if role == roles.TRAVELLER:
+                    result = db.deleteMember(str(Id))
+                    if result == "OK":
+                        print("Traveller deleted.")
+                        loggingSys.log("Traveller deleted", False, username=self.userName)
+                    else:
+                        print("An error occurred while deleting the traveller.")
+                        loggingSys.log("Failed to delete traveller", True, username=self.userName)
+
+                elif role == roles.SCOOTER:
+                    result = db.deleteScooter(Id)
+                    if result == "OK":
+                        print("Scooter deleted.")
+                        loggingSys.log("Scooter deleted", False, username=self.userName)
+                    else:
+                        print("An error occurred while deleting the scooter.")
+                        loggingSys.log("Failed to delete scooter", True, username=self.userName)
+
+                else:
+                    privateKey = cryptoUtils.loadPrivateKey()
+                    deletedUsername = db.getUsernameByID(Id)
+                    result = db.deleteUser(Id, role)
+                    if result == "OK":
+                        print("User deleted.")
+                        loggingSys.log("User deleted", False, f"User '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
+                    else:
+                        print("An error occurred while deleting the user.")
+                        loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername.decode('utf-8')}", self.userName)
+
+            # Permissions check
+            if isinstance(user, superAdministrator):
+                if role in [roles.ADMIN, roles.SERVICE, "traveller", "scooter"]:
+                    processDeletion(role)
+                else:
+                    print("Invalid request....")
+
+            elif isinstance(user, systemAdministrator):
+                if role in [roles.SERVICE, "traveller", "scooter"]:
+                    processDeletion(role)
+                else:
+                    print("Unauthorized request.")
+
+            else:
+                print("Unauthorized access...")
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during deletion: {str(e)}", True, username=self.userName)
+
 
     def createTraveller(self, db, role, loggingSys):
         try:
@@ -422,7 +199,6 @@ class systemAdministrator(consultant):
                     return
                 values[key] = value
 
-            # Handle license_number separately (no validator)
             license_number = input("Enter traveller's driving license number or Q to quit: ").strip()
             if license_number.upper() == "Q":
                 return
@@ -458,104 +234,67 @@ class systemAdministrator(consultant):
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Exception during traveller registration: {str(e)}", True, username=self.userName)
 
+    def createScooter(self, db, loggingSys):
+        try:
+            print("========== Scooter Registration ==========")
+            scooter = {}
 
-    def updateTraveller(self, db, loggingSys):
-        def safe_decrypt(value):
-            try:
-                if isinstance(value, bytes):
-                    return cryptoUtils.decryptWithPrivateKey(private_key, value).decode()
-                return str(value)
-            except:
-                return "(decryption failed)"
+            # Required text fields
+            scooter["serial_number"] = Utility.get_valid_input("Enter serial number (SC-XXXXXX):",
+                Validation.validateSerialNumber, {"username": self.userName}, loggingSys)
 
-        # Display all decrypted travellers
-        travellers = db.getAllTravellers()
-        private_key = cryptoUtils.loadPrivateKey()
+            scooter["brand"] = Utility.get_valid_input("Enter scooter brand:",
+                Validation.validateBrandOrModel, {"username": self.userName}, loggingSys)
 
-        print("\n======= Registered Travellers =======")
-        for t in travellers:
-            try:
-                print(f"ID: {t[0]}")
-                print(f"Name: {safe_decrypt(t[2])} {safe_decrypt(t[3])}")
-                print(f"Birthdate: {t[4]}")
-                print(f"Gender: {safe_decrypt(t[5])}")
-                print(f"Street: {safe_decrypt(t[6])} {safe_decrypt(t[7])}")
-                print(f"City: {safe_decrypt(t[8])}")
-                print(f"Zip: {safe_decrypt(t[9])}")
-                print(f"Email: {safe_decrypt(t[10])}")
-                print(f"Mobile: {safe_decrypt(t[11])}")
-                print(f"License: {safe_decrypt(t[12])}")
-                print("-------------------------------------")
-            except:
-                print("(Unable to decrypt one or more fields)")
+            scooter["model"] = Utility.get_valid_input("Enter scooter model:",
+                Validation.validateBrandOrModel, {"username": self.userName}, loggingSys)
 
-        license_number = Utility.get_valid_input("Enter the traveller's current driving license number or Q to cancel:", Validation.validate_driving_license, {'username': self.userName}, loggingSys)
-        if license_number is None:
-            print("Update cancelled.")
-            return
+            # Integers with range validation
+            scooter["top_speed"] = Utility.get_valid_input("Enter top speed (km/h):",
+                lambda v, u, l: Validation.validateIntegerInRange(v, 5, 120), {"username": self.userName}, loggingSys)
 
-        if not db.licenseExists(license_number):
-            print("No traveller found with that license number.")
-            return
+            scooter["battery_capacity"] = Utility.get_valid_input("Enter battery capacity (Wh):",
+                lambda v, u, l: Validation.validateIntegerInRange(v, 100, 2000), {"username": self.userName}, loggingSys)
 
-        fields = {}
+            scooter["state_of_charge"] = Utility.get_valid_input("Enter current charge (0-100):",
+                lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100), {"username": self.userName}, loggingSys)
 
-        print("\nUpdating traveller fields. Leave empty to skip a field or Q to quit.")
+            scooter["target_soc_min"] = Utility.get_valid_input("Enter minimum charge threshold (0-100):",
+                lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100), {"username": self.userName}, loggingSys)
 
-        new_first = Utility.get_optional_update("New first name:", Validation.validateName, None, {'username': self.userName}, loggingSys)
-        if new_first == "Q": return
-        if new_first: fields["first_name"] = new_first
+            scooter["target_soc_max"] = Utility.get_valid_input(f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):',
+                lambda v, u, l: Validation.validateIntegerInRange(v, int(scooter["target_soc_min"]), 100), {"username": self.userName}, loggingSys)
 
-        new_last = Utility.get_optional_update("New last name:", Validation.validateName, None, {'username': self.userName}, loggingSys)
-        if new_last == "Q": return
-        if new_last: fields["last_name"] = new_last
 
-        new_gender = Utility.get_optional_update("New gender:", Validation.validateGender, None, {'username': self.userName}, loggingSys)
-        if new_gender == "Q": return
-        if new_gender: fields["gender"] = new_gender
+            scooter["mileage"] = Utility.get_valid_input("Enter current mileage (default 0):",
+                lambda v, u, l: Validation.validateIntegerInRange(v, 0, 999999), {"username": self.userName}, loggingSys)
 
-        new_street = Utility.get_optional_update("New street name:", Validation.validateAddress, None, {'username': self.userName}, loggingSys)
-        if new_street == "Q": return
-        if new_street: fields["street_name"] = new_street
+            # Coordinates
+            latitude = input("Enter latitude (e.g. 51.92250): ").strip()
+            longitude = input("Enter longitude (e.g. 4.47917): ").strip()
 
-        new_house = Utility.get_optional_update("New house number:", Validation.validateHousenumber, None, {'username': self.userName}, loggingSys)
-        if new_house == "Q": return
-        if new_house: fields["house_number"] = new_house
-
-        new_city = Utility.get_optional_update("New city:", Validation.validateCity, None, {'username': self.userName}, loggingSys)
-        if new_city == "Q": return
-        if new_city: fields["city"] = new_city
-
-        new_zip = Utility.get_optional_update("New zip code:", Validation.validateZipcode, None, {'username': self.userName}, loggingSys)
-        if new_zip == "Q": return
-        if new_zip: fields["zip_code"] = new_zip
-
-        new_email = Utility.get_optional_update("New email:", Validation.validateEmail, None, {'username': self.userName}, loggingSys)
-        if new_email == "Q": return
-        if new_email: fields["email"] = new_email
-
-        new_mobile = Utility.get_optional_update("New mobile number:", Validation.validateMobileNumber, None, {'username': self.userName}, loggingSys)
-        if new_mobile == "Q": return
-        if new_mobile: fields["mobile"] = new_mobile
-
-        new_license = Utility.get_optional_update("New license number:", Validation.validate_driving_license, None, {'username': self.userName}, loggingSys)
-        if new_license == "Q": return
-        if new_license and new_license != license_number:
-            if db.licenseExists(new_license):
-                print("That license number is already in use.")
+            if not Validation.validateCoordinates(latitude, longitude, {"username": self.userName}, loggingSys):
+                print("Invalid GPS coordinates.")
                 return
-            fields["license_number"] = new_license
+            scooter["latitude"] = latitude
+            scooter["longitude"] = longitude
 
-        result = db.updateTraveller(license_number, **fields)
+            # Dates
+            scooter["in_service_date"] = datetime.today().strftime("%Y-%m-%d")
+            scooter["last_maintenance_date"] = scooter["in_service_date"]
 
-        if result == "OK":
-            print("Traveller updated successfully.")
-            loggingSys.log("Traveller updated", False, username=self.userName)
-        elif result == "NOT FOUND":
-            print("Traveller not found.")
-        else:
-            print("An error occurred while updating the traveller.")
-            loggingSys.log("Traveller update failed", True, username=self.userName)
+            result = db.createScooter(scooter)
+
+            if result == "OK":
+                print("Scooter registered successfully.")
+                loggingSys.log("Scooter registered", False, f"Serial: {scooter['serial_number']}", self.userName)
+            else:
+                print("Failed to register scooter.")
+                loggingSys.log("Scooter registration failed", True, username=self.userName)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            loggingSys.log(f"Scooter creation error: {str(e)}", True, username=self.userName)
 
 
     def createBackup(self, user, backUpSystem, loggingSys):
@@ -578,7 +317,7 @@ class systemAdministrator(consultant):
 
     def userCreation(self, db, role, loggingSys):
         try:
-            if role not in [roles.ADMIN, roles.CONSULTANT]:
+            if role not in [roles.ADMIN, roles.SERVICE]:
                 print("Invalid role")
                 loggingSys.log("User tried to create a user with an invalid RoleType", True, username=self.userName)
                 return
@@ -764,12 +503,12 @@ class systemAdministrator(consultant):
                         print("Failed to update user information.")
 
             if isinstance(user, superAdministrator):
-                if role in [roles.ADMIN, roles.CONSULTANT]:
+                if role in [roles.ADMIN, roles.SERVICE]:
                     processEdit(role)
                 else:
                     print("Invalid request....")
             elif isinstance(user, systemAdministrator):
-                if role == roles.CONSULTANT:
+                if role == roles.SERVICE:
                     processEdit(role)
                 else:
                     print("Unauthorized request.")
@@ -820,12 +559,12 @@ class systemAdministrator(consultant):
                             print("Please enter a valid password!")
             
             if isinstance(user, superAdministrator):
-                if role in [roles.ADMIN, roles.CONSULTANT]:
+                if role in [roles.ADMIN, roles.SERVICE]:
                     processReset(role)
                 else:
                     print("Invalid request.")
             elif isinstance(user, systemAdministrator):
-                if role == roles.CONSULTANT:
+                if role == roles.SERVICE:
                     processReset(role)
                 else:
                     print("Unauthorized request.")
@@ -896,7 +635,7 @@ class systemAdministrator(consultant):
 
 
 class superAdministrator(systemAdministrator):
-    def generateRestoreCode(self, db, loggingSys):
+    def generateRestoreCode(self, db,backupSys,loggingSys):
         try:
             self.displayUsers(db, roles.ADMIN)
 
@@ -914,12 +653,11 @@ class superAdministrator(systemAdministrator):
             backup_name = input("Enter the exact name of the backup file (e.g., backup_20240601_1700.zip) or press Q to quit: ").strip()
             if backup_name.upper() == "Q":
                 return
-
-            if not os.path.isfile(os.path.join("backups", backup_name)):
-                print("Backup file not found.")
+        
+            if not backupSys.doesBackupExist(backup_name):
                 return
 
-            code = db.createRestoreCode(admin_id, backup_name)
+            code = db.createRestoreCode(admin_id, backup_name,backupSys)
             if code != "FAIL":
                 print(f"Restore code generated successfully: {code}")
                 loggingSys.log("Restore code generated", False, f"Restore code for backup '{backup_name}' assigned to user ID {admin_id}.", self.userName)

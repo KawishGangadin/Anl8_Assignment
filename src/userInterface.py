@@ -1,5 +1,5 @@
 from users import roles
-from users import consultant
+from users import service
 from users import systemAdministrator
 from users import superAdministrator
 from roles import roles
@@ -13,13 +13,17 @@ class UI:
 
     def displayLogo(self):
         ascii_art = """
- _   _       _                    __  __            _ 
-| | | |_ __ (_) __ _ _   _  ___  |  \/  | ___  __ _| |
-| | | | '_ \| |/ _` | | | |/ _ \ | |\/| |/ _ \/ _` | |
-| |_| | | | | | (_| | |_| |  __/ | |  | |  __/ (_| | |
- \___/|_| |_|_|\__, |\__,_|\___| |_|  |_|\___|\__,_|_|
-                  |_|                                 
-=======================================================
+
+$$\   $$\ $$$$$$$\  $$$$$$$\   $$$$$$\  $$\   $$\       $$\      $$\  $$$$$$\  $$$$$$$\  $$$$$$\ $$\       $$$$$$\ $$$$$$$$\ $$\     $$\ 
+$$ |  $$ |$$  __$$\ $$  __$$\ $$  __$$\ $$$\  $$ |      $$$\    $$$ |$$  __$$\ $$  __$$\ \_$$  _|$$ |      \_$$  _|\__$$  __|\$$\   $$  |
+$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ /  $$ |$$$$\ $$ |      $$$$\  $$$$ |$$ /  $$ |$$ |  $$ |  $$ |  $$ |        $$ |     $$ |    \$$\ $$  / 
+$$ |  $$ |$$$$$$$  |$$$$$$$\ |$$$$$$$$ |$$ $$\$$ |      $$\$$\$$ $$ |$$ |  $$ |$$$$$$$\ |  $$ |  $$ |        $$ |     $$ |     \$$$$  /  
+$$ |  $$ |$$  __$$< $$  __$$\ $$  __$$ |$$ \$$$$ |      $$ \$$$  $$ |$$ |  $$ |$$  __$$\   $$ |  $$ |        $$ |     $$ |      \$$  /   
+$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$$ |  $$ |  $$ |  $$ |        $$ |     $$ |       $$ |    
+\$$$$$$  |$$ |  $$ |$$$$$$$  |$$ |  $$ |$$ | \$$ |      $$ | \_/ $$ | $$$$$$  |$$$$$$$  |$$$$$$\ $$$$$$$$\ $$$$$$\    $$ |       $$ |    
+ \______/ \__|  \__|\_______/ \__|  \__|\__|  \__|      \__|     \__| \______/ \_______/ \______|\________|\______|   \__|       \__|    
+                                                                                                                                         
+========================================================================================================================================
             """
         print(ascii_art)
     
@@ -27,7 +31,7 @@ class UI:
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def optionMenu(self, user, db, loggingSys, backupSys):
-        while user is not None:  # Loop while the user is logged in
+        while user is not None:
             private_key = cryptoUtils.loadPrivateKey()
             time.sleep(1)
             if isinstance(user, superAdministrator):
@@ -39,8 +43,7 @@ class UI:
                     loggingSys.log("Logged out", True,"User ID associated with role Super Admin not found.",f"{user.userName}")
                     user = None
                     time.sleep(2)
-                    break  # Exit the loop to log out
-                # Only return None if the user logs out
+                    break
 
                 logoutResult = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
@@ -57,24 +60,24 @@ class UI:
                     user = None
                     time.sleep(2)
                     break 
-                 # Exit the loop to log out
+
                 logoutResult = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
                     user = None
                     break
 
-            elif isinstance(user, consultant):
+            elif isinstance(user, service):
                 self.clearScreen()
                 self.displayLogo()
 
                 if not db.validateSession(user.id, user.session):
                     print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", False,"User ID associated with role Consultant not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
+                    loggingSys.log("Logged out", False,"User ID associated with role SERVICE not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
                     user = None
                     time.sleep(2)
-                    break  # Exit the loop to log out
+                    break 
 
-                logoutResult = self.consultant_Menu(user, db, loggingSys)
+                logoutResult = self.service_Menu(user, db, loggingSys)
                 if logoutResult is True:
                     user = None
                     break
@@ -82,16 +85,16 @@ class UI:
             else:
                 print("Unauthorized access to menu!")
                 loggingSys.log("User tried to access options with invalid role.", True, username=user.userName)
-                break  # exit
+                break
 
     def superAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
             "1": lambda : user.displayUsers(db),
-            "2": lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
-            "3": lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
-            "4": lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys),
-            "5": lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys), 
+            "2": lambda : user.userCreation(db, roles.SERVICE,loggingSys),
+            "3": lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
+            "4": lambda : user.deletion(user, db, roles.SERVICE, loggingSys),
+            "5": lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys), 
             "6": lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             "7": lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
             "8": lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
@@ -103,12 +106,13 @@ class UI:
             "14": lambda : user.updateTraveller(db,loggingSys),
             "15": lambda : user.deletion(user, db, None, loggingSys),
             "16": lambda : user.memberSearch(db,loggingSys),
-            "17": lambda : user.generateRestoreCode( db, loggingSys),
+            "17": lambda : user.generateRestoreCode( db,backupSys,loggingSys),
+            "18": lambda : user.createScooter(db, loggingSys),
             'L': lambda : user.displayUsers(db),
-            'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
-            'UC': lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
-            'DC': lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys),
-            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys),
+            'AC': lambda : user.userCreation(db, roles.SERVICE,loggingSys),
+            'UC': lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
+            'DC': lambda : user.deletion(user, db, roles.SERVICE, loggingSys),
+            'RC': lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys),
             'AA': lambda : user.userCreation(db, roles.ADMIN,loggingSys),
             'UA': lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
             'DA': lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
@@ -120,15 +124,15 @@ class UI:
             'UM': lambda : user.editMember(db,loggingSys),
             'DM': lambda : user.deletion(user, db, None, loggingSys),
             'SM': lambda : user.memberSearch(db,loggingSys),
-            'MR': lambda : user.generateRestoreCode( db, loggingSys)
+            'MR': lambda : user.generateRestoreCode( db,backupSys,loggingSys)
             }
         print("""
 Super Admin Menu:
 [1] or [L] - Get list of users and their roles
-[2] or [AC] - Add a new consultant
-[3] or [UC] - Update an existing consultant’s account and profile
-[4] or [DC] - Delete an existing consultant’s account
-[5] or [RC] - Reset an existing consultant’s password
+[2] or [AC] - Add a new SERVICE
+[3] or [UC] - Update an existing SERVICE’s account and profile
+[4] or [DC] - Delete an existing SERVICE’s account
+[5] or [RC] - Reset an existing SERVICE’s password
 [6] or [AA] - Add a new admin
 [7] or [UA] - Update an existing admin’s account and profile
 [8] or [DA] - Delete an existing admin’s account
@@ -141,6 +145,7 @@ Super Admin Menu:
 [15] or [DM] - Delete a member’s record
 [16] or [SM] - Search and retrieve a member’s information
 [17] or [MR] - Generate a restore code for the system
+              18 add scooter
 [0] or [Q] - Quit
 """)
         user.alertLogs(loggingSys)
@@ -170,10 +175,10 @@ Super Admin Menu:
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
             "2": lambda : user.displayUsers(db), 
-            "3": lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
-            "4": lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
-            "5": lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys), 
-            "6": lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys), 
+            "3": lambda : user.userCreation(db, roles.SERVICE,loggingSys), 
+            "4": lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
+            "5": lambda : user.deletion(user, db, roles.SERVICE, loggingSys), 
+            "6": lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys), 
             "7": lambda :  user.createBackup(user,backupSys,loggingSys), 
             "8": lambda :  user.displayLogs(loggingSys),
             "9": lambda : user.memberCreation(db,loggingSys), 
@@ -181,37 +186,41 @@ Super Admin Menu:
             "11": lambda : user.deletion(user, db, None, loggingSys), 
             "12": lambda : user.memberSearch(db,loggingSys),
             "13": lambda : user.restoreBackup(backupSys,loggingSys,db),
-            'UP': lambda : user.changePassword(user,db,loggingSys), 
-            'LU': lambda : user.displayUsers(db), 
-            'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
-            'UC': lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
-            'DC': lambda : user.deletion(user, db, roles.CONSULTANT, loggingSys), 
-            'RC': lambda : user.resetPassword(user,db,roles.CONSULTANT,loggingSys),  
-            'MB': lambda : user.createBackup(user,backupSys,loggingSys),
-            'SL': lambda : user.displayLogs(loggingSys),
-            'AM': lambda : user.memberCreation(db,loggingSys), 
-            'UM': lambda : user.editMember(db,loggingSys), 
-            'DM': lambda : user.deletion(user, db, None, loggingSys), 
-            'SM': lambda : user.memberSearch(db,loggingSys),
-            'RB': lambda : user.restoreBackup(backupSys,loggingSys,db)
+            "14": lambda : user.createScooter(db, loggingSys)
         }
 
 
         print("""
 System Administrator Menu:
-[1] or [UP] - Update their own password
-[2] or [LU] - Check the list of users and their roles
-[3] or [AC] - Define and add a new consultant to the system
-[4] or [UC] - Modify or update an existing consultant’s account and profile
-[5] or [DC] - Delete an existing consultant’s account
-[6] or [RC] - Reset an existing consultant’s password (a temporary password)
-[7] or [MB] - Make a backup of the system (members and users’ information, logs)
-[8] or [SL] - See the logs file(s) of the system
-[9] or [AM] - Add a new member to the system
-[10] or [UM] - Modify or update the information of a member in the system
-[11] or [DM] - Delete a member's record from the database (note that a consultant cannot delete a record but can only modify or update a member’s information)
-[12] or [SM] - Search and retrieve the information of a member
-[13] or [RB] - Restore a backup of the system
+Account Management:
+[1] - Update their own password
+[2] - Edit own profile
+[3] - Delete own account
+              
+System Management:
+[4]- See the logs file(s) of the system
+[5] - Make a backup of the system (members and users’ information, logs)
+[6] - Restore a backup of the system      
+
+User Management:
+[7] - Get list of users and their roles
+[8] - Add a new Service Engineer
+[9] - Modify or update an existing Service Engineer’s account and profile
+[10] - Delete an existing Service Engineer’s account
+[11] - Reset an existing Service Engineer’s password (a temporary password)   
+              
+Scooter Management:
+[12] - Search for a scooter
+[13] - Add a new scooter to the system
+[14] - Update a scooter's information
+[15] - Delete a scooter's record from the database
+              
+Traveller Management:             
+[16] - Add a new traveller to the system
+[17] - Modify or update the information of a traveller in the system
+[18] - Delete a traveller's record from the database
+[19] - Search and retrieve the information of a traveller
+              
 [0] or [Q] - Quit
 """)
         user.alertLogs(loggingSys)
@@ -236,27 +245,21 @@ System Administrator Menu:
         
         return False
 
-    def consultant_Menu(self,user,db,loggingSys):
+    def service_Menu(self,user,db,loggingSys):
         print(f"Welcome {user.userName}")
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
-            "2": lambda : user.memberCreation(db,loggingSys), 
-            "3": lambda : user.editMember(db,loggingSys), 
-            "4": lambda : user.memberSearch(db,loggingSys),
-            'UP': lambda : user.changePassword(user,db,loggingSys), 
-            'AM': lambda : user.memberCreation(db,loggingSys), 
-            'UM': lambda : user.editMember(db,loggingSys), 
-            'SM': lambda : user.memberSearch(db,loggingSys),
         }
 
 
         print("""
-Consultant Menu:
+SERVICE Menu:
+Account Management:
 [1] or [UP] - Update their own password
-[2] or [AM] - Add a new member to the system
-[3] or [UM] - Modify or update the information of a member in the system
-[4] or [SM] - Search and retrieve the information of a member
-[0] or [Q] - Quit
+              
+Scooter Management:
+[2] or [US] - Update a scooter's information
+[3] or [SS] - Search for a scooter
 """)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:

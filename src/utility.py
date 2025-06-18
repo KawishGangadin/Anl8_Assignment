@@ -15,19 +15,25 @@ class Utility:
                     loggingSys.log(f"Invalid input for prompt: {prompt}", False, username=user.get('username', ''))
 
     @staticmethod
-    def get_optional_update(prompt, validator, current_value=None, user=None, loggingSys=None):
+    def get_optional_update(prompt, validator, current_value, user=None, loggingSys=None):
+        """
+        Prompt user for an optional update. If left empty, current_value is returned.
+        If 'Q' is entered, returns "Q" to signal cancellation.
+        """
+        username = user.get('username', '') if user else ''
         while True:
-            value = input(f"{prompt} (leave empty to keep current or Q to quit): ").strip()
+            value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ").strip()
             if value.upper() == 'Q':
                 return "Q"
             if value == '':
                 return current_value
-            if validator(value, user.get('username', '') if user else '', loggingSys):
+            if validator(value, username, loggingSys):
                 return value
             else:
                 print("Invalid input! Please try again.")
-                if loggingSys and user:
-                    loggingSys.log(f"Invalid optional update input for prompt: {prompt}", False, username=user.get('username', ''))
+                if loggingSys:
+                    loggingSys.log(f"Invalid optional update input for prompt: {prompt}", False, username=username)
+
     
     @staticmethod
     def safe_decrypt(value):

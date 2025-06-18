@@ -25,7 +25,7 @@ class backup:
                 raise FileNotFoundError(f"Logs folder '{logsFolder}' does not exist")
             
             logFile = 'uniquemeal.log'
-            dbFile = 'uniqueMeal.db'
+            dbFile = 'urbanMobility.db'
             logPath = os.path.join(logsFolder, logFile)
             dbPath = os.path.join(self.backupDir, dbFile)
             
@@ -80,7 +80,7 @@ class backup:
             print("Backup extracted successfully.")
             
             logFile = 'uniquemeal.log'
-            dbFile = 'uniqueMeal.db'
+            dbFile = 'urbanMobility.db'
             
             backupLogPath = os.path.join(self.backupFolder, logFile)
             backupDbPath = os.path.join(self.backupFolder, dbFile)
@@ -129,3 +129,16 @@ class backup:
             print("List of backup files:")
             for name in backupNames:
                 print(name)
+    
+    @staticmethod
+    def doesBackupExist(backup_name):
+        backupDir = os.path.dirname(os.path.abspath(__file__))
+        backupFolder = os.path.join(backupDir, 'backups')
+        files = os.listdir(backupFolder)
+        for file in files:
+            if str(backup_name) == str(file):
+                return True
+        
+
+
+

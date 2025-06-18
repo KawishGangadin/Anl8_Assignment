@@ -13,15 +13,16 @@ import time
 Dependencies.dependenciesInstaller()
 def main():
     def initDB():
-        dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
+        dbPath = os.path.join(os.path.dirname(__file__), 'urbanMobility.db')
         dbInitialization = DB(dbPath)
-        dbInitialization.createMembersTable()
         dbInitialization.createUsersTable()
         dbInitialization.initSuperadmin()
         dbInitialization.createTravellersTable()
         dbInitialization.createScootersTable()
         dbInitialization.createBackupsTable()
-
+        dbInitialization.displayAllScooters()
+        dbInitialization.displayAllTravellers()
+        time.sleep(10)
     initDB()
     running = True
     loggedIn = False
@@ -29,7 +30,7 @@ def main():
     attemptedPasswords = []
     userInterface = UI()
 
-    dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
+    dbPath = os.path.join(os.path.dirname(__file__), 'urbanMobility.db')
     dataBase = DB(dbPath)
     loggingSys = Logger()
     backupSys = backup()

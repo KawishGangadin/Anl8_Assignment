@@ -4,6 +4,60 @@ from datetime import datetime, date
 class Validation:
 
     @staticmethod
+    def validateSerialNumber(serial_number, username=None, loggingSys=None):
+        pattern = r'^[A-Za-z0-9]{10,17}$'
+
+        if not isinstance(serial_number, str):
+            if loggingSys:
+                loggingSys.log("Serial number must be a string.", False, username=username)
+            return False
+
+        if re.fullmatch(pattern, serial_number.strip()):
+            return True
+
+        if loggingSys:
+            loggingSys.log("Invalid serial number format. Must be 10–17 alphanumeric characters.", False, username=username)
+        return False
+
+
+    @staticmethod
+    def validateIntegerInRange(value, min_val, max_val,username=None, loggingSys=None):
+        if not re.fullmatch(r'^[1-9]\d*$|^0$', value):
+            print(f"❌ '{value}' is not a valid integer format")
+            return False
+
+        number = int(value)
+        if min_val <= number <= max_val:
+            print(f"✅ '{value}' is valid (in range {min_val}-{max_val})")
+            return True
+
+        print(f"❌ '{value}' is not in range {min_val}-{max_val}")
+        return False
+
+    @staticmethod
+    def validateBrandOrModel(value, username=None, loggingSys=None):
+        # Allows only alphanumeric characters and hyphens, 2–30 characters long, no spaces
+        pattern = r'^[A-Za-z0-9-]{2,30}$'
+        result = bool(re.fullmatch(pattern, value))
+        print(f"validateBrandOrModel('{value}') = {result}")
+        return result
+
+
+    @staticmethod
+    def validateCoordinates(latitude, longitude,username =None, loggingSys=None):
+        try:
+            lat = float(latitude)
+            lon = float(longitude)
+            if not (51.85 <= lat <= 52.05 and 4.35 <= lon <= 4.55):
+                return False
+            if len(str(lat).split('.')[-1]) != 5 or len(str(lon).split('.')[-1]) != 5:
+                return False
+            return True
+        except ValueError:
+            return False
+
+
+    @staticmethod
     def validate_birthdate(birthdate, username='', loggingSys=None):
         try:
             birthdate = birthdate.strip()
@@ -311,3 +365,5 @@ class Validation:
                 return False
 
         return True
+    
+Validation.validateIntegerInRange("00007", 5, 120) 
