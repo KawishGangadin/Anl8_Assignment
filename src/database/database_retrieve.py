@@ -22,6 +22,22 @@ class DBRetrieve:
         finally:
             if conn:
                 conn.close()
+
+    def getAllScooters(self):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM scooters")
+            results = cursor.fetchall()
+            cursor.close()
+            return results
+        except sqlite3.Error as e:
+            print("Error retrieving scooter records:", e)
+            return []
+        finally:
+            if conn:
+                conn.close()
     
     def getRestoreCodesByUser(self, user_id):
         conn = None
@@ -168,7 +184,6 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-
     def displayAllTravellers(self):
         travellers = self.getAllTravellers()
 
@@ -212,6 +227,20 @@ class DBRetrieve:
 
         except sqlite3.Error as e:
             print("An error occurred while retrieving scooters:", e)
+        finally:
+            if conn:
+                conn.close()
+
+    def getScooterById(self, scooter_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM scooters WHERE id = ?", (scooter_id,))
+            return cursor.fetchone()  # Returns row or None
+        except sqlite3.Error as e:
+            print(f"Error retrieving scooter by ID: {e}")
+            return None
         finally:
             if conn:
                 conn.close()

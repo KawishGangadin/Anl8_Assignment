@@ -76,8 +76,101 @@ class service(userBlueprint):
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during password change: {str(e)}", True, username=self.userName)
 
-    def editScooter(self, user, db, loggingSys):
-        pass
+    def editScooter(self,db, loggingSys):
+        try:
+            db.displayAllScooters()
+
+            # Step 1: Ask for ID and check existence
+            while True:
+                scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
+                if scooter_id.upper() == 'Q':
+                    return
+                if not scooter_id.isdigit():
+                    print("Invalid ID format.")
+                    continue
+
+                scooter_id = int(scooter_id)
+                if db.getScooterById(scooter_id):
+                    break
+                else:
+                    print("Scooter ID not found.")
+
+            # Step 2: Define editable fields
+            editable_fields = {
+                "brand": Validation.validateBrandOrModel,
+                "model": Validation.validateBrandOrModel,
+                "serial_number": Validation.validateSerialNumber,
+                "top_speed": lambda v, u, l: Validation.validateIntegerInRange(v, 5, 120),
+                "battery_capacity": lambda v, u, l: Validation.validateIntegerInRange(v, 100, 2000),
+                "state_of_charge": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
+                "target_soc_min": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
+                "target_soc_max": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
+                "mileage": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 999999),
+                "last_maintenance_date": lambda v, u, l: Validation.validate_birthdate(v)
+            }
+
+            # Step 3: Restrict fields for service employees
+            if self.role == roles.SERVICE:
+                allowed = {"state_of_charge", "target_soc_min", "target_soc_max", "mileage", "last_maintenance_date"}
+            else:
+                allowed = set(editable_fields.keys()).union({"latitude", "longitude"})
+
+            updated = {}
+
+            # Step 4: Ask for updated field values
+            for field, validator in editable_fields.items():
+                if field not in allowed:
+                    continue
+                value = Utility.get_optional_update(
+                    f"Update {field.replace('_', ' ').title()}",
+                    validator,
+                    "(hidden)",  # current value not needed here
+                    user={"username": self.userName},
+                    loggingSys=loggingSys
+                )
+                if value == "Q":
+                    print("Cancelled editing.")
+                    return
+                elif value != "(hidden)":
+                    updated[field] = value
+
+            # Step 5: Latitude/Longitude for admins only
+            if "latitude" in allowed and "longitude" in allowed:
+                while True:
+                    lat = input("Enter new latitude or leave empty to keep current (or Q to quit): ").strip()
+                    if lat.upper() == "Q":
+                        print("Cancelled editing.")
+                        return
+
+                    lon = input("Enter new longitude or leave empty to keep current (or Q to quit): ").strip()
+                    if lon.upper() == "Q":
+                        print("Cancelled editing.")
+                        return
+
+                    if not lat and not lon:
+                        break
+
+                    if Validation.validateCoordinates(lat, lon, self.userName, loggingSys):
+                        updated["latitude"] = lat
+                        updated["longitude"] = lon
+                        break
+                    else:
+                        print("Invalid coordinates. Try again or leave both empty.")
+
+            # Step 6: Update in database
+            if updated:
+                if db.updateScooter(scooter_id, updated) == "OK":
+                    print("Scooter updated successfully.")
+                    loggingSys.log("Scooter edited", False, f"Scooter ID {scooter_id} edited.", self.userName)
+                else:
+                    print("Failed to update scooter.")
+                    loggingSys.log("Scooter edit failed", True, f"Scooter ID {scooter_id} update failed.", self.userName)
+            else:
+                print("No changes were made.")
+
+        except Exception as e:
+            print(f"An error occurred while editing scooter: {str(e)}")
+            loggingSys.log(f"Error occurred during scooter editing: {str(e)}", True, username=self.userName)
 
     def searchScooter(self, db, loggingSys):
         pass
@@ -122,7 +215,6 @@ class systemAdministrator(service):
                         loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername.decode('utf-8')}.", self.userName)
                     time.sleep(1)
 
-            # Permissions check
             if isinstance(user, superAdministrator):
                 if role in [roles.ADMIN, roles.SERVICE]:
                     processDeletion(role)
@@ -141,7 +233,6 @@ class systemAdministrator(service):
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during deletion: {str(e)}", True, username=self.userName)
-
 
     def createTraveller(self, db, role, loggingSys):
         try:
@@ -633,7 +724,54 @@ class systemAdministrator(service):
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during account deletion: {str(e)}", True, username=self.userName)
 
+    def editOwnAccount(self,db,loggingsys):
+        try:
+            print("======= Edit Your Account =======")
+            print("You can edit your first name, last name, username, and password.")
+            print("Press 'Q' at any time to quit.")
 
+            while True:
+                first_name = input(f"Enter new first name (current: ): ").strip()
+                if first_name.upper() == 'Q':
+                    return
+                if not Validation.validateName(first_name, self.userName, loggingsys):
+                    print("Invalid first name. Please try again.")
+                    continue
+                break
+
+            while True:
+                last_name = input(f"Enter new last name (current: ): ").strip()
+                if last_name.upper() == 'Q':
+                    return
+                if not Validation.validateName(last_name, self.userName, loggingsys):
+                    print("Invalid last name. Please try again.")
+                    continue
+                break
+
+            while True:
+                username = input(f"Enter new username (current: {self.userName}): ").strip()
+                if username.upper() == 'Q':
+                    return
+                if not Validation.usernameValidation(username.lower(), self.userName, loggingsys):
+                    print("Invalid username. Please try again.")
+                    continue
+                if db.findUsername(username.lower()):
+                    print("Username already exists. Please choose another one.")
+                    continue
+                break
+
+
+            result = db.updateUser(self.id, first_name, last_name, username.lower())
+            if result == "OK":
+                print("Account updated successfully.")
+                loggingsys.log("Account updated", False, f"User {self.userName} updated their account.", self.userName)
+            else:
+                print("Failed to update account.")
+                loggingsys.log("Account update failed", True, f"User {self.userName} failed to update their account.", self.userName)
+        except Exception as e:
+            print(f"An error occurred while editing your account: {str(e)}")
+            loggingsys.log(f"Error occurred during account edit: {str(e)}", True, username=self.userName)
+        
 class superAdministrator(systemAdministrator):
     def generateRestoreCode(self, db,backupSys,loggingSys):
         try:

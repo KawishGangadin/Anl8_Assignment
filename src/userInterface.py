@@ -126,7 +126,9 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
             'UM': lambda : user.editMember(db,loggingSys),
             'DM': lambda : user.deletion(user, db, None, loggingSys),
             'SM': lambda : user.memberSearch(db,loggingSys),
-            'MR': lambda : user.generateRestoreCode( db,backupSys,loggingSys)
+            'MR': lambda : user.generateRestoreCode( db,backupSys,loggingSys),
+            "22": lambda : user.editScooter(db,loggingSys),
+            "23": lambda : user.editOwnAccount(db, loggingSys)
             }
         print("""
 Super Admin Menu:
@@ -251,6 +253,7 @@ Traveller Management:
         print(f"Welcome {user.userName}")
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
+            "2": lambda : user.editScooter(db,loggingSys),
         }
 
 

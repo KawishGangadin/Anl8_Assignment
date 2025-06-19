@@ -19,19 +19,18 @@ class Validation:
             loggingSys.log("Invalid serial number format. Must be 10–17 alphanumeric characters.", False, username=username)
         return False
 
-
     @staticmethod
     def validateIntegerInRange(value, min_val, max_val,username=None, loggingSys=None):
         if not re.fullmatch(r'^[1-9]\d*$|^0$', value):
-            print(f"❌ '{value}' is not a valid integer format")
+            print(f"'{value}' is not a valid integer format")
             return False
 
         number = int(value)
         if min_val <= number <= max_val:
-            print(f"✅ '{value}' is valid (in range {min_val}-{max_val})")
+            print(f"'{value}' is valid (in range {min_val}-{max_val})")
             return True
 
-        print(f"❌ '{value}' is not in range {min_val}-{max_val}")
+        print(f"'{value}' is not in range {min_val}-{max_val}")
         return False
 
     @staticmethod
@@ -41,7 +40,6 @@ class Validation:
         result = bool(re.fullmatch(pattern, value))
         print(f"validateBrandOrModel('{value}') = {result}")
         return result
-
 
     @staticmethod
     def validateCoordinates(latitude, longitude,username =None, loggingSys=None):
@@ -55,7 +53,6 @@ class Validation:
             return True
         except ValueError:
             return False
-
 
     @staticmethod
     def validate_birthdate(birthdate, username='', loggingSys=None):
@@ -85,7 +82,6 @@ class Validation:
         if loggingSys:
             loggingSys.log("Invalid driving license number format.", False, username=username)
         return False
-
 
     @staticmethod
     def checkNullByte(input):
@@ -321,20 +317,6 @@ class Validation:
         return False
 
     @staticmethod
-    def validateWeight(weight,username='', loggingSys=None):
-        try:
-            weight = float(weight)
-            if 10 < weight < 700:
-                return True
-        except ValueError:
-            if loggingSys:
-                loggingSys.log(f'Invalid weight format:', False, username=username)
-            return False
-        if loggingSys:
-                loggingSys.log(f'Invalid weight format:', False, username=username)
-        return False
-    
-    @staticmethod
     def validateMultipleInputs(**kwargs):
         validation_mapping = {
             'username': Validation.usernameValidation,
@@ -351,7 +333,6 @@ class Validation:
             'city': Validation.validateCity,
             'backup': Validation.validateBackup,
             'gender': Validation.validateGender,
-            'weight': Validation.validateWeight
         }
 
         for key, value in kwargs.items():
@@ -365,5 +346,3 @@ class Validation:
                 return False
 
         return True
-    
-Validation.validateIntegerInRange("00007", 5, 120) 
