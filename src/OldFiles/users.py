@@ -327,72 +327,60 @@ class consultant(userBlueprint):
     def deletion(self, user, db, role, loggingSys):
         try:
             def processDeletion(role):
-                roleType = ""
-                if role == None:
-                    self.displayMembers(db)
-                    roleType = "member"
-                else:
-                    self.displayUsers(db, role)
-                    roleType = role.value
+                self.displayUsers(db, role)
+                roleType = role.value
+
                 validID = False
                 while True:
-                    Id = input(f"Enter the ID/membership ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
+                    Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
                     if Id.upper() == "Q":
                         return
-                    elif Id.isdigit():
-                        if not role == None:
-                            if db.findUserID(int(Id), role):
-                                validID = True
-                                break
-                        else:
-                            if db.findMembershipID(Id):
-                               validID = True
-                               break 
-                    print("ID not found in the database!" if Id.isdigit() else "ID is invalid!")
-                    time.sleep(0.5)
-                if validID:
-                    if not role == None:
-                        privateKey = cryptoUtils.loadPrivateKey()
-                        deletedUsername = db.getUsernameByID(Id)
-                        result = db.deleteUser(Id, role)
-                        if result == "OK":
-                            print("User deleted")
-                            loggingSys.log("User deleted", False, f"User  '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
-                            deletedUsername = None
-                        else:
-                            print("An error occurred while deleting the user.")
-                            loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {deletedUsername.decode('utf-8')}.", self.userName)
-                            deletedUsername = None
-                        time.sleep(1)
+
+                    if not Id.isdigit():
+                        print("ID is invalid!")
+                        time.sleep(0.5)
+                        continue
+
+                    Id = int(Id)
+                    if db.findUserID(Id, role):
+                        validID = True
+                        break
                     else:
-                        result = db.deleteMember(Id)
-                        if result == "OK":
-                            print("Member deleted")
-                            loggingSys.log("Member has been deleted", False, username=self.userName)
-                        else:
-                            print("An error occurred while deleting the member.")
-                            loggingSys.log(f"Failed to delete member with id {Id}", True, username=self.userName)
-                        time.sleep(1)
-            if role is None:  
-                if isinstance(user, consultant):
+                        print("ID not found in the database!")
+                        time.sleep(0.5)
+
+                if validID:
+                    privateKey = cryptoUtils.loadPrivateKey()
+                    deletedUsername = db.getUsernameByID(Id)
+                    result = db.deleteUser(Id, role)
+                    if result == "OK":
+                        print("User deleted.")
+                        loggingSys.log("User deleted", False, f"User '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
+                    else:
+                        print("An error occurred while deleting the user.")
+                        loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername.decode('utf-8')}.", self.userName)
+                    time.sleep(1)
+
+            # Permissions check
+            if isinstance(user, superAdministrator):
+                if role in [roles.ADMIN, roles.SERVICE]:
                     processDeletion(role)
                 else:
-                    print("Unauthorized access...")
-            elif isinstance(user, superAdministrator):
-                if role in [None, roles.CONSULTANT, roles.ADMIN]:
-                    processDeletion(role)
-                else:
-                    print("Invalid request....")
+                    print("Invalid request...")
             elif isinstance(user, systemAdministrator):
-                if role in [None, roles.CONSULTANT]:
+                if role == roles.SERVICE:
                     processDeletion(role)
                 else:
                     print("Unauthorized request.")
+            elif isinstance(user, serviceEmployee):
+                print("You are not authorized to delete any users.")
             else:
                 print("Unauthorized access...")
+
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during deletion: {str(e)}", True, username=self.userName)
+
 
 
 class systemAdministrator(consultant):

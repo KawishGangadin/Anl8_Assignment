@@ -108,6 +108,8 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
             "16": lambda : user.memberSearch(db,loggingSys),
             "17": lambda : user.generateRestoreCode( db,backupSys,loggingSys),
             "18": lambda : user.createScooter(db, loggingSys),
+            "19" : lambda : user.accountDeletion( db, loggingSys),
+            "20" : lambda : user.manageRestoreCodes( db, loggingSys),
             'L': lambda : user.displayUsers(db),
             'AC': lambda : user.userCreation(db, roles.SERVICE,loggingSys),
             'UC': lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
@@ -175,7 +177,7 @@ Super Admin Menu:
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
             "2": lambda : user.displayUsers(db), 
-            "3": lambda : user.userCreation(db, roles.SERVICE,loggingSys), 
+            "3": lambda : user.accountDeletion(db, loggingSys),
             "4": lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
             "5": lambda : user.deletion(user, db, roles.SERVICE, loggingSys), 
             "6": lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys), 

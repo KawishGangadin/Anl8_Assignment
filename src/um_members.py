@@ -20,9 +20,7 @@ def main():
         dbInitialization.createTravellersTable()
         dbInitialization.createScootersTable()
         dbInitialization.createBackupsTable()
-        dbInitialization.displayAllScooters()
-        dbInitialization.displayAllTravellers()
-        time.sleep(10)
+        
     initDB()
     running = True
     loggedIn = False

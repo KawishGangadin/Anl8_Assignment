@@ -1,6 +1,8 @@
 from enum import Enum
 from datetime import date, datetime
 import os
+import random
+import string
 import time
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
@@ -85,19 +87,10 @@ class systemAdministrator(service):
     def deletion(self, user, db, role, loggingSys):
         try:
             def processDeletion(role):
-                roleType = ""
+                self.displayUsers(db, role)
+                roleType = role.value
 
-                # Determine entity type
-                if role == "traveller":
-                    db.displayTravellers()
-                    roleType = "traveller"
-                elif role == "traveller":
-                    db.displayScooters()
-                    roleType = "scooter"
-                else:
-                    self.displayUsers(db, role)
-                    roleType = role.value
-
+                validID = False
                 while True:
                     Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
                     if Id.upper() == "Q":
@@ -109,64 +102,39 @@ class systemAdministrator(service):
                         continue
 
                     Id = int(Id)
-
-                    validID = False
-                    if role == "traveller":
-                        validID = db.findMembershipID(str(Id))
-                    elif role == "scooter":
-                        validID = db.findScooterID(Id)
-                    else:
-                        validID = db.findUserID(Id, role)
-
-                    if validID:
+                    if db.findUserID(Id, role):
+                        validID = True
                         break
                     else:
                         print("ID not found in the database!")
                         time.sleep(0.5)
 
-                # Execute deletion
-                if role == roles.TRAVELLER:
-                    result = db.deleteMember(str(Id))
-                    if result == "OK":
-                        print("Traveller deleted.")
-                        loggingSys.log("Traveller deleted", False, username=self.userName)
-                    else:
-                        print("An error occurred while deleting the traveller.")
-                        loggingSys.log("Failed to delete traveller", True, username=self.userName)
-
-                elif role == roles.SCOOTER:
-                    result = db.deleteScooter(Id)
-                    if result == "OK":
-                        print("Scooter deleted.")
-                        loggingSys.log("Scooter deleted", False, username=self.userName)
-                    else:
-                        print("An error occurred while deleting the scooter.")
-                        loggingSys.log("Failed to delete scooter", True, username=self.userName)
-
-                else:
+                if validID:
                     privateKey = cryptoUtils.loadPrivateKey()
                     deletedUsername = db.getUsernameByID(Id)
+                    db.deleteUserRestoreCodes(Id,self)
                     result = db.deleteUser(Id, role)
                     if result == "OK":
                         print("User deleted.")
                         loggingSys.log("User deleted", False, f"User '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
                     else:
                         print("An error occurred while deleting the user.")
-                        loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername.decode('utf-8')}", self.userName)
+                        loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername.decode('utf-8')}.", self.userName)
+                    time.sleep(1)
 
             # Permissions check
             if isinstance(user, superAdministrator):
-                if role in [roles.ADMIN, roles.SERVICE, "traveller", "scooter"]:
+                if role in [roles.ADMIN, roles.SERVICE]:
                     processDeletion(role)
                 else:
-                    print("Invalid request....")
-
+                    print("Invalid request...")
             elif isinstance(user, systemAdministrator):
-                if role in [roles.SERVICE, "traveller", "scooter"]:
+                if role == roles.SERVICE:
                     processDeletion(role)
                 else:
                     print("Unauthorized request.")
-
+            elif isinstance(user, service):
+                print("You are not authorized to delete any users.")
             else:
                 print("Unauthorized access...")
 
@@ -295,7 +263,6 @@ class systemAdministrator(service):
         except Exception as e:
             print(f"An error occurred: {e}")
             loggingSys.log(f"Scooter creation error: {str(e)}", True, username=self.userName)
-
 
     def createBackup(self, user, backUpSystem, loggingSys):
         try:
@@ -633,6 +600,39 @@ class systemAdministrator(service):
             print(f"An error occurred while restoring backup: {str(e)}")
             loggingSys.log(f"Error occurred during backup restoration: {str(e)}", True, username=self.userName)
 
+    def accountDeletion(self,db, loggingSys):
+        try:
+            if isinstance(self, superAdministrator):
+                print("Super Administrators cannot delete their own accounts.")
+                return
+
+            randomPhrase = ' '.join(
+                ''.join(random.choices(string.ascii_lowercase, k=random.randint(3, 8)))
+                for _ in range(3)
+            )
+
+            while True:
+                confirmation = input(
+                    f"To confirm account deletion, please type the following phrase exactly:\n'{randomPhrase}'\nOr type 'Q' to quit: "
+                ).strip()
+
+                if confirmation == randomPhrase:
+                    print("Confirmation successful. Proceeding with account deletion...")
+                    break
+                elif confirmation.upper() == "Q":
+                    print("Exiting account deletion...")
+                    return
+                else:
+                    print("Incorrect phrase. Please try again or type 'Q' to cancel.")
+            db.deleteUserRestoreCodes(self.id,self)
+            db.deleteUser(self.id,self.role)
+            print("Account deleted successfully.")
+            loggingSys.log("Account deleted successfully", False, username=self.userName)
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during account deletion: {str(e)}", True, username=self.userName)
+
 
 class superAdministrator(systemAdministrator):
     def generateRestoreCode(self, db,backupSys,loggingSys):
@@ -668,3 +668,37 @@ class superAdministrator(systemAdministrator):
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during restore code generation: {str(e)}", True, username=self.userName)
+
+    def manageRestoreCodes(self, db, loggingSys):
+        try:
+            codes = db.getAllRestoreCodes(self)
+            if codes != "FAIL":
+                print("======== List of Restore Codes ====================================================================================================")
+                for code in codes:
+                    print(f"| Code: {code[0]} | Backup File: {code[1]} | System Admin ID: {code[2]} | Creation Date: {code[3]} |\n")
+                print("=============================================================================================================================")
+                print("Press the id of the restore code you want to delete or press 'Q' to quit:")
+                while True:
+                    code_id = input().strip()
+                    if code_id.upper() == "Q":
+                        return
+                    if code_id.isdigit():
+                        code_id = int(code_id)
+                        if db.deleteRestoreCode(self,code_id):
+                            print(f"Restore code {code_id} deleted successfully.")
+                            loggingSys.log(f"Restore code {code_id} deleted successfully.", False, username=self.userName)
+                            return
+                        else:
+                            print("Failed to delete restore code. Please try again.")
+                            loggingSys.log("Failed to delete restore code", True, username=self.userName)
+                            return
+                    else:
+                        print("Invalid input! Please enter a valid restore code ID or 'Q' to quit.")
+            else:
+                print("Failed to retrieve restore codes.")
+                loggingSys.log("Failed to retrieve restore codes", True, username=self.userName)
+                return
+        except Exception as e:
+            print(f"An error occurred while retrieving restore codes: {str(e)}")
+            loggingSys.log(f"Error occurred during restore code retrieval: {str(e)}", True, username=self.userName)
+            return

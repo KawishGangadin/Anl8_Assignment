@@ -2,6 +2,7 @@ from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 from utility import Utility
 import sqlite3
+import users
 import time
 
 class DBRetrieve:
@@ -34,6 +35,27 @@ class DBRetrieve:
             return codes
         except sqlite3.Error as e:
             print("An error occurred while fetching restore codes:", e)
+            return []
+        finally:
+            if conn:
+                conn.close()
+
+    def getAllRestoreCodes(self, user):
+        conn = None
+        try:
+            if isinstance(user, users.superAdministrator):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM restore_codes"
+                cursor.execute(query)
+                codes = cursor.fetchall()
+                cursor.close()
+                return codes
+            else:
+                print("Only superadmin can retrieve all restore codes.")
+                return "FAIL"
+        except sqlite3.Error as e:
+            print("An error occurred while fetching all restore codes:", e)
             return []
         finally:
             if conn:
@@ -146,7 +168,6 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-# Make sure this import exists if not already there
 
     def displayAllTravellers(self):
         travellers = self.getAllTravellers()

@@ -1,6 +1,7 @@
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
-import roles
+from roles import roles
+import users
 import sqlite3
 
 class DBDelete:
@@ -45,3 +46,51 @@ class DBDelete:
             if conn:
                 conn.close()
     
+    def deleteRestoreCode(self,user,code):
+        conn = None
+        try:
+            if isinstance(user, users.superAdministrator):
+                if code:
+                    conn = sqlite3.connect(self.databaseFile)
+                    cursor = conn.cursor()
+                    query = "DELETE FROM restore_codes WHERE id = ?"
+                    cursor.execute(query, (code,))
+                    conn.commit()
+                    
+                    if cursor.rowcount == 0:
+                        raise ValueError(f"No restore code found with value {code}")
+                    
+                    cursor.close()
+                    return "OK"
+                return "FAIL"
+            else:
+                raise ValueError("Only superadmin can delete restore codes.")
+        except sqlite3.Error as e:
+            print(f"An error occurred while deleting the restore code: {e}")
+            return "FAIL"
+        except ValueError as ve:
+            print(str(ve))
+            return "FAIL"
+        finally:
+            if conn:
+                conn.close()
+
+    def deleteUserRestoreCodes(self, user_id, user):
+        conn = None
+        try:
+            if isinstance(user, users.systemAdministrator):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "DELETE FROM restore_codes WHERE system_admin_id = ?"
+                cursor.execute(query, (user_id,))
+                conn.commit()
+
+                
+                cursor.close()
+                return "OK"
+        except sqlite3.Error as e:
+            print(f"An error occurred while deleting restore codes for user {user_id}: {e}")
+            return "FAIL"
+        except ValueError as ve:
+            print(str(ve))
+            return "FAIL" 
