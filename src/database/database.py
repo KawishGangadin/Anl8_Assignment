@@ -764,15 +764,13 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             cursor.close()
             return "OK"
         except sqlite3.Error as e:
-            print("An error occurred while trying to add the scooter:", e)
-            return None
+            return e
         finally:
             if conn:
                 conn.close()
             
 
     def editScooter(self, id, newFields):
-        # TODO: validate new scooter fields (in users.py)
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -789,8 +787,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             cursor.close()
             return "OK"
         except sqlite3.Error as e:
-            print("An error occurred while trying to update a scooter:", e)
-            return None
+            return e
         finally:
             if conn:
                 conn.close()

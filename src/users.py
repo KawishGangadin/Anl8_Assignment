@@ -11,256 +11,6 @@ from utility import Utility
 
 
 class serviceEngineer(userBlueprint):
-    
-    def memberSearch(self, db, loggingSys):
-        try:
-            search_key = input("Enter the search key: ")
-            result = db.searchMember(search_key)
-            if result:
-                print("Search Results:")
-                print("----------------")
-                for row in result:
-                    print(f"Membership ID: {row[0]}")
-                    print(f"First Name: {row[1]}")
-                    print(f"Last Name: {row[2]}")
-                    print(f"Age: {row[3]}")
-                    print(f"Gender: {row[4]}")
-                    print(f"Weight: {row[5]}")
-                    print(f"Address: {row[6]}")
-                    print(f"City: {row[7]}")
-                    print(f"Postal Code: {row[8]}")
-                    print(f"Email: {row[9]}")
-                    print(f"Mobile: {row[10]}")
-                    print(f"Registration Date: {row[11]}")
-                    print("----------------")
-            else:
-                print("No results found.")
-            
-            input("Press any key to continue...")
-
-        except Exception as e:
-            print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during member search: {str(e)}", True, username=self.userName)
-
-#     def memberCreation(self, db, loggingSys):
-#         try:
-#             print("""
-# 1. Email Validation:
-#    - Must be in a valid email format (`username@domain.com`).
-
-# 2. Age Validation:
-#    - Must be an integer between 1 and 100.
-
-# 3. House Number Validation:
-#    - Must be an integer between 1 and 9999.
-
-# 4. Zip Code Validation:
-#    Must be a valid Dutch zip code format for example 1234AB.
-
-# 5. Name Validation:
-#    - Must contain only alphabetic characters, hyphens, apostrophes.
-#    - Maximum of one hyphen or apostrophe, and two spaces.
-#    - Cannot start or end with a hyphen or apostrophe.
-#    - Cannot be empty.
-
-# 6. Mobile Number Validation:
-#    - Must be a valid dutch number for example +31622222222.
-
-# 8. Address Validation:
-#     - Must contain only alphanumeric characters, spaces, dots, commas, apostrophes, hyphens, or single quotes.
-#     - Cannot be empty.
-
-# 9. City Validation:
-#     - Must be one of the following cities: Amsterdam, Rotterdam, The Hague, Utrecht, Eindhoven, Tilburg, Groningen, Almere, Breda, Nijmegen.
-# """)
-
-#             public_key = cryptoUtils.loadPublicKey()
-#             firstName = ""
-#             while not firstName:
-#                 firstName = input("Enter the member's first name or press 'Q' to quit: ").strip()
-#                 if firstName.upper() == 'Q':
-#                     return
-#                 if not Validation.validateName(firstName, self.userName, loggingSys):
-#                     print("Invalid firstName!")
-#                     firstName = ""
-
-#             lastName = ""
-#             while not lastName:
-#                 lastName = input("Enter the member's lastName or press 'Q' to quit: ").strip()
-#                 if lastName.upper() == 'Q':
-#                     return
-#                 if not Validation.validateName(lastName, self.userName, loggingSys):
-#                     print("Invalid lastName!")
-#                     lastName = ""
-
-#             age = ""
-#             while not age:
-#                 age = input("Enter the member's age or press 'Q' to quit: ").strip()
-#                 if age.upper() == 'Q':
-#                     return
-#                 if not Validation.validateAge(age, self.userName, loggingSys):
-#                     print("Invalid age!")
-#                     age = ""
-
-#             gender = ""
-#             while not gender:
-#                 gender = input("Enter the member's gender (Male/Female/Other) or press 'Q' to quit: ").strip().capitalize()
-#                 if gender.upper() == 'Q':
-#                     return
-#                 if gender not in ['Male', 'Female', 'Other']:
-#                     print("Invalid gender!")
-#                     gender = ""
-
-#             weight = ""
-#             while not weight:
-#                 weight = input("Enter the member's weight or press 'Q' to quit: ").strip()
-#                 if weight.upper() == 'Q':
-#                     return
-#                 try:
-#                     weight = float(weight)
-#                     if weight < 0:
-#                         print("Weight must be a positive number!")
-#                         weight = ""
-#                     elif weight > 700:
-#                         print("Weight is impossible!")
-#                         weight = ""
-#                 except ValueError:
-#                     print("Invalid weight!")
-#                     weight = ""
-#             weight = round(weight, 1)
-
-#             membershipId = Checksum.generateMembershipId(db)
-
-#             address = ""
-#             while not address:
-#                 address = input("Enter the member's address or press 'Q' to quit: ").strip()
-#                 if address.upper() == 'Q':
-#                     return
-#                 if not Validation.validateAddress(address, self.userName, loggingSys):
-#                     print("Invalid address!")
-#                     address = ""
-
-#             city = ""
-#             while not city:
-#                 city = input("Enter the member's city or press 'Q' to quit: ").strip()
-#                 if city.upper() == 'Q':
-#                     return
-#                 if not Validation.validateCity(city, self.userName, loggingSys):
-#                     print("Invalid city!")
-#                     city = ""
-
-#             postalCode = ""
-#             while not postalCode:
-#                 postalCode = input("Enter the member's postal code or press 'Q' to quit: ").strip()
-#                 if postalCode.upper() == 'Q':
-#                     return
-#                 if not Validation.validateZipcode(postalCode, self.userName, loggingSys):
-#                     print("Invalid postal code!")
-#                     postalCode = ""
-
-#             email = ""
-#             while not email:
-#                 email = input("Enter the member's email or press 'Q' to quit: ").strip()
-#                 if email.upper() == 'Q':
-#                     return
-#                 if not Validation.validateEmail(email, self.userName, loggingSys):
-#                     print("Invalid email address!")
-#                     email = ""
-
-#             mobile = ""
-#             while not mobile:
-#                 mobile = input("Enter the member's mobile number +316..... or press 'Q' to quit: +316").strip()
-#                 if mobile.upper() == 'Q':
-#                     return
-#                 if not Validation.validateMobileNumber(mobile, self.userName, loggingSys):
-#                     print("Invalid mobile number!")
-#                     mobile = ""
-
-#             registrationDate = date.today().strftime("%Y-%m-%d")
-
-#             result = db.createMember(firstName, lastName, age, gender, weight,
-#                                      address, city, postalCode,
-#                                      email, mobile, registrationDate, membershipId)
-#             if result == "OK":
-#                 loggingSys.log("Member registered.", False, f"Member with membership ID '{membershipId}' has been registered.", self.userName)
-#                 print("Member registered successfully.")
-#             else:
-#                 print("An error occurred while registering the member.")
-#                 loggingSys.log("Unsuccesful member registration", False, "An error occurred while registering the member.", self.userName)
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-#             loggingSys.log("Unsuccesful member registration", False, "An error occurred while registering the member.", self.userName)
-
-#     def displayMembers(self, db):
-#         try:
-#             allMembers = db.getMembers()
-#             private_key = cryptoUtils.loadPrivateKey()
-#             print(f"========List of Members====================================================================================================")
-#             if allMembers == None:
-#                 print("No members found:")
-#             else:
-#                 for member in allMembers:
-#                     print(f"| Membership ID: {member[0]} | First name: {member[1]} | Last name: {member[2]} | Age: {member[3]} | Gender: {member[4]} | Weight: {member[5]} | Address: {member[6]} | City: {member[7]} | Postal Code: {member[8]} | Email: {member[9]} | Mobile: {member[10]} | Registration Date: {member[11]} |\n")
-#             input("Press any key to continue...")
-#             return
-        
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-
-#     def editMember(self, db, loggingSys):
-#         try:
-#             self.displayMembers(db)
-#             while True:
-#                 membershipID = input("Enter the membership ID of the member you would like to edit or press Q to quit: ")
-#                 if membershipID.upper() == "Q":
-#                     return
-#                 if Validation.validateMembershipID(membershipID, self.userName, loggingSys) and db.findMembershipID(membershipID):
-#                     break
-#                 else:
-#                     print("Invalid membership ID!!!")
-
-#             def getValidInput(prompt, validation_func):
-#                 while True:
-#                     user_input = input(prompt).strip()
-#                     if user_input.upper() == "Q":
-#                         return "Q"
-#                     if user_input == "" or validation_func(user_input):
-#                         return user_input
-#                     else:
-#                         print("Invalid input!!!")
-
-#             updates = {}
-#             fields_validations = {
-#                 "first_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
-#                 "last_name": lambda value: Validation.validateName(value,self.userName,loggingSys),
-#                 "age": lambda value: Validation.validateAge(value,self.userName,loggingSys),
-#                 "gender": lambda value: Validation.validateGender(value,self.userName,loggingSys),
-#                 "weight": lambda value: Validation.validateWeight(value,self.userName,loggingSys),
-#                 "address": lambda value: Validation.validateAddress(value,self.userName,loggingSys),
-#                 "city": lambda value: Validation.validateCity(value,self.userName,loggingSys),
-#                 "postalCode": lambda value: Validation.validateZipcode(value,self.userName,loggingSys),
-#                 "email": lambda value: Validation.validateEmail(value,self.userName,loggingSys),
-#                 "mobile": lambda value: Validation.validateMobileNumber(value,self.userName,loggingSys)
-#             }
-#             for field, validation in fields_validations.items():
-#                 input_value = getValidInput(f"Enter new {field.replace('_', ' ')} or leave empty to make no changes: ", validation)
-#                 if input_value == "Q":
-#                     print("Edit process terminated by user.")
-#                     return
-#                 if input_value:
-#                     updates[field] = int(input_value) if field == "age" else float(input_value) if field == "weight" else input_value
-
-#             result = db.updateMember(membershipID, **updates)
-#             if result == "OK":
-#                 print("Member updated successfully.")
-#                 loggingSys.log(f"Member with ID '{membershipID}' has been updated.", False, username=self.userName)
-#             else:
-#                 print("Failed to update member.")
-#                 loggingSys.log("Failed to update member.", True, username=self.userName)
-
-#         except Exception as e:
-#             print(f"An error occurred: {str(e)}")
-#             loggingSys.log(f"Error occurred during member edit: {str(e)}", True, username=self.userName)
 
     def changePassword(self, user, db, loggingSys):
         try:
@@ -272,21 +22,26 @@ class serviceEngineer(userBlueprint):
                         print("Exiting...")
                         time.sleep(0.5)
                         return
-                    elif Validation.passwordValidation(password, self.userName, loggingSys):
-                        data = db.getUserData(self.userName)
-                        if data  != None:
-                            storedPassword = data[4] 
-                            storedSalt = data[8]  
-                            if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
-                                correctPassword = True
-                                print("Password matches")
-                                break
+                    if isinstance(password, str) and Validation.checkNullByte(password):
+                        if Validation.passwordValidation(password, self.userName, loggingSys):
+                            data = db.getUserData(self.userName)
+                            if data  != None:
+                                storedPassword = data[4] 
+                                storedSalt = data[8]  
+                                if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
+                                    correctPassword = True
+                                    print("Password matches")
+                                    break
+                                else:
+                                    print("Password does not match.")
                             else:
-                                print("Password does not match.")
+                                print("Something went wrong, user not found.")
                         else:
-                            print("Something went wrong, user not found.")
+                            print("Please input a valid password...")
+                            loggingSys.log(f'Invalid password format (did not match pattern):', False, username=self.userName)
                     else:
                         print("Please input a valid password...")
+                        loggingSys.log(f'Non-string input format or null byte detected in password:', True, username=self.userName)
 
                 while correctPassword:
                     newPassword = input("Please input your new password or press Q to quit: ")
@@ -294,19 +49,24 @@ class serviceEngineer(userBlueprint):
                         print("Exiting...")
                         time.sleep(0.5)
                         return
-                    elif Validation.passwordValidation(newPassword, self.userName, loggingSys):
-                        result = db.updatePassword(self.id, newPassword)
-                        if result == "OK":
-                            self.session += 1
-                            print("Password has been successfully changed!")
-                            loggingSys.log("Password has been successfully changed.", False, username=self.userName)
+                    if isinstance(password, str) and Validation.checkNullByte(password):
+                        if Validation.passwordValidation(newPassword, self.userName, loggingSys):
+                            result = db.updatePassword(self.id, newPassword)
+                            if result == "OK":
+                                self.session += 1
+                                print("Password has been successfully changed!")
+                                loggingSys.log("Password has been successfully changed.", False, username=self.userName)
+                            else:
+                                print("Failed to change password.")
+                                loggingSys.log("Failed to change password.", True, username=self.userName)
+                            time.sleep(0.5)
+                            return
                         else:
-                            print("Failed to change password.")
-                            loggingSys.log("Failed to change password.", True, username=self.userName)
-                        time.sleep(0.5)
-                        return
+                            print("Please input a valid password...")
+                            loggingSys.log(f'Invalid password format (did not match pattern):', False, username=self.userName)
                     else:
                         print("Please input a valid password...")
+                        loggingSys.log(f'Non-string input format or null byte detected in password:', True, username=self.userName)
 
             if isinstance(user, superAdministrator):
                 print("Unauthorized access...")
@@ -314,9 +74,11 @@ class serviceEngineer(userBlueprint):
                 return
             elif isinstance(user, systemAdministrator):
                 processChangePW()
+                loggingSys.log(f"Password change", False, username=self.userName)
             elif isinstance(user, serviceEngineer):
                 role = roles.CONSULTANT
                 processChangePW()
+                loggingSys.log(f"Password change", False, username=self.userName)
             else:
                 print("Unauthorized access...")
 
@@ -328,7 +90,7 @@ class serviceEngineer(userBlueprint):
         try:
             result = db.getScooters()
             if result:
-                print("Search Results:")
+                print("Results:")
                 print("----------------")
                 for row in result:
                     print(f"ID: {row[0]}" )
@@ -352,38 +114,45 @@ class serviceEngineer(userBlueprint):
             input("Press any key to continue...")
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-            loggingSys.log(f"Error occurred during scooter search: {str(e)}", True, username=self.userName)
             
 
     def searchScooter(self, db, loggingSys):
-        # TODO: validate search key
         try:
-
             search_key = input("Enter the search key: ")
-            result = db.getScooterByAttribute(search_key)
-            if result:
-                print("Search Results:")
-                print("----------------")
-                for row in result:
-                    print(f"ID: {row[0]}" )
-                    print(f"In service date: {row[1]}")
-                    print(f"Brand: {row[2]}")
-                    print(f"Model: {row[3]}")
-                    print(f"Serial number: {row[4]}")
-                    print(f"Top speed: {row[5]}")
-                    print(f"Battery capacity: {row[6]}")
-                    print(f"State of charge (current): {row[7]}")
-                    print(f"State of charge min: {row[8]}")
-                    print(f"State of charge max: {row[9]}")
-                    print(f"Location: lat: {row[10]}, long: {row[11]}")
-                    print(f"Out of service date: {row[12]}")
-                    print(f"Mileage: {row[13]}")
-                    print(f"Last maintenance date: {row[14]}")
-                    print("----------------")
+            if isinstance(search_key, str) and Validation.checkNullByte(search_key):
+                if Validation.validate_length(search_key, loggingSys):
+                    result = db.getScooterByAttribute(search_key)
+                    if result:
+                        print("Search Results:")
+                        print("----------------")
+                        for row in result:
+                            print(f"ID: {row[0]}" )
+                            print(f"In service date: {row[1]}")
+                            print(f"Brand: {row[2]}")
+                            print(f"Model: {row[3]}")
+                            print(f"Serial number: {row[4]}")
+                            print(f"Top speed: {row[5]}")
+                            print(f"Battery capacity: {row[6]}")
+                            print(f"State of charge (current): {row[7]}")
+                            print(f"State of charge min: {row[8]}")
+                            print(f"State of charge max: {row[9]}")
+                            print(f"Location: lat: {row[10]}, long: {row[11]}")
+                            print(f"Out of service date: {row[12]}")
+                            print(f"Mileage: {row[13]}")
+                            print(f"Last maintenance date: {row[14]}")
+                            print("----------------")
+                    else:
+                        print("No results found.")
+                    input("Press any key to continue...")
+                else:
+                    print("Please input a valid search key...")
+                    loggingSys.log(f'Invalid search key format (too long):', False, username=self.userName)
+
             else:
-                print("No results found.")
-            
-            input("Press any key to continue...")
+                print("Please input a valid search key...")
+                loggingSys.log(f'Non-string input format or null byte detected in search key:', True, username=self.userName)
+                time.sleep(0.5)
+
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during scooter search: {str(e)}", True, username=self.userName)
@@ -394,136 +163,83 @@ class serviceEngineer(userBlueprint):
             self.displayScooters(db, loggingSys)
             id = input("Enter the ID of the scooter you would like to edit:")
             if id.upper() == "Q":
-                return
-            result = db.getScooterByID(id)
-            if result:
-                vFunctions = (
-                    Validation.validateAge, #soc
-                    Validation.validateAge, #soc min
-                    Validation.validateAge, #soc max
-                    Validation.validateWeight, #lat
-                    Validation.validateWeight, #long
-                    Validation.validateName, #out of service (bool)
-                    Validation.validateAge, #mileage
-                    Validation.validate_birthdate #last maintenance date
-                )
-                fNames = ("State of charge (current)", "State of charge min.", "State of charge max.", "Latitude", "Longitude",
-                          "Out of service", "Mileage", "Last maintenance date")
-                rFields = list(result[7:])
-                offset = 7 # skipping the first 7 fields
-
-                if isinstance(user, systemAdministrator) or isinstance(user, superAdministrator):
-                    adminVFunctions = (
-                        Validation.validateName, #validate brand name
-                        Validation.validateName, #validate model name
-                        Validation.validateMobileNumber, # validate serial number
-                        Validation.validateAge, # top speed
-                        Validation.validateAge, #battery cap
-                    )
-                    adminFNames = ("Brand", "Model", "Serial number", "Top speed", "Battery capacity")
-                    vFunctions = adminVFunctions + vFunctions
-                    fNames = adminFNames + fNames
-                    rFields = list(result[2:])
-                    offset = 2 # only skipping the first 2 fields
-
-                for i, (f, n, v) in enumerate(zip(rFields, fNames, vFunctions)):
-                    fInput = "-"
-                    print(f"{n}: {f}")
-                    while not v(fInput,self.userName, loggingSys) and fInput != "" and fInput != "Q":
-                        fInput = input(f"Enter a new value or press Enter to keep current value:")
-
-                    if fInput == "":
-                        continue
-                    elif fInput == "Q":
                         return
+            if isinstance(id, str) and Validation.checkNullByte(id):
+                if Validation.validateID(id, loggingSys):
+                    result = db.getScooterByID(id)
+                    if result:
+                        vFunctions = (
+                            Validation.validate_soc, #soc
+                            Validation.validate_soc, #soc min
+                            Validation.validate_soc, #soc max
+                            Validation.validate_lat, #lat
+                            Validation.validate_long, #long
+                            Validation.validate_oos, #out of service (bool)
+                            Validation.validate_mileage, #mileage
+                            Validation.validate_maintenance_date #last maintenance date
+                        )
+                        fNames = ("State of charge (current)", "State of charge min.", "State of charge max.", "Latitude", "Longitude",
+                                  "Out of service", "Mileage", "Last maintenance date")
+                        rFields = list(result[7:])
+                        offset = 7 # skipping the first 7 fields
+
+                        if isinstance(user, systemAdministrator) or isinstance(user, superAdministrator):
+                            adminVFunctions = (
+                                Validation.validateName, #validate brand name
+                                Validation.validateName, #validate model name
+                                Validation.validate_serial, # validate serial number
+                                Validation.validate_speed, # top speed
+                                Validation.validate_batterycap #battery cap
+                            )
+                            adminFNames = ("Brand", "Model", "Serial number", "Top speed", "Battery capacity")
+                            vFunctions = adminVFunctions + vFunctions
+                            fNames = adminFNames + fNames
+                            rFields = list(result[2:])
+                            offset = 2 # only skipping the first 2 fields
+
+                        for i, (f, n, v) in enumerate(zip(rFields, fNames, vFunctions)):
+                            fInput = "-"
+                            print(f"{n}: {f}")
+                            while True:
+                                fInput = input(f"Enter a new value or press Enter to keep current value (Q to cancel):")
+                                if fInput == "" or fInput == "Q": # exit loop
+                                    break
+                                if isinstance(fInput, str) and Validation.checkNullByte(fInput):
+                                    if v(fInput):
+                                        break
+                                    else:
+                                        print(f"Please input a valid {n}...")
+                                        time.sleep(0.5)
+                                        continue
+                                else:
+                                    loggingSys.log(f'Non-string input format or null byte detected in {n}:', True, username=self.userName)
+                            if fInput == "":
+                                continue
+                            if fInput == "Q":
+                                break
+
+                            rFields[i] = fInput
+
+                        rFields = list(result[1:offset]) + rFields
+                        result = db.editScooter(id, rFields) 
+                        if result == "OK":
+                            return
+                        else:
+                            raise Exception(result)
                     else:
-                        rFields[i] = fInput
-
-                rFields = list(result[1:offset]) + rFields
-                if db.editScooter(id, rFields):
-                    return
+                        print("Scooter with ID not found...")
+                        time.sleep(0.5)
                 else:
-                    raise Exception
-
+                    print("Please input a valid id...")
+                    loggingSys.log(f'Invalid search key format:', False, username=self.userName)
+            else:
+                print("Please input a vald id...")
+                loggingSys.log(f'Non-string input format or null byte detected in search key:', True, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred during scooter update:", e)
             loggingSys.log(f"Error occurred during scooter update: {str(e)}", True, username=self.userName)
             return
-
-
-
-    
-    # def deletion(self, user, db, role, loggingSys):
-    #     try:
-    #         def processDeletion(role):
-    #             roleType = ""
-    #             if role == None:
-    #                 self.displayMembers(db)
-    #                 roleType = "member"
-    #             else:
-    #                 self.displayUsers(db, role)
-    #                 roleType = role.value
-    #             validID = False
-    #             while True:
-    #                 Id = input(f"Enter the ID/membership ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
-    #                 if Id.upper() == "Q":
-    #                     return
-    #                 elif Id.isdigit():
-    #                     if not role == None:
-    #                         if db.findUserID(int(Id), role):
-    #                             validID = True
-    #                             break
-    #                     else:
-    #                         if db.findMembershipID(Id):
-    #                            validID = True
-    #                            break 
-    #                 print("ID not found in the database!" if Id.isdigit() else "ID is invalid!")
-    #                 time.sleep(0.5)
-    #             if validID:
-    #                 if not role == None:
-    #                     privateKey = cryptoUtils.loadPrivateKey()
-    #                     deletedUsername = db.getUsernameByID(Id)
-    #                     result = db.deleteUser(Id, role)
-    #                     if result == "OK":
-    #                         print("User deleted")
-    #                         loggingSys.log("User deleted", False, f"User  '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
-    #                         deletedUsername = None
-    #                     else:
-    #                         print("An error occurred while deleting the user.")
-    #                         loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user : {deletedUsername.decode('utf-8')}.", self.userName)
-    #                         deletedUsername = None
-    #                     time.sleep(1)
-    #                 else:
-    #                     result = db.deleteMember(Id)
-    #                     if result == "OK":
-    #                         print("Member deleted")
-    #                         loggingSys.log("Member has been deleted", False, username=self.userName)
-    #                     else:
-    #                         print("An error occurred while deleting the member.")
-    #                         loggingSys.log(f"Failed to delete member with id {Id}", True, username=self.userName)
-    #                     time.sleep(1)
-    #         if role is None:  
-    #             if isinstance(user, consultant):
-    #                 processDeletion(role)
-    #             else:
-    #                 print("Unauthorized access...")
-    #         elif isinstance(user, superAdministrator):
-    #             if role in [None, roles.CONSULTANT, roles.ADMIN]:
-    #                 processDeletion(role)
-    #             else:
-    #                 print("Invalid request....")
-    #         elif isinstance(user, systemAdministrator):
-    #             if role in [None, roles.CONSULTANT]:
-    #                 processDeletion(role)
-    #             else:
-    #                 print("Unauthorized request.")
-    #         else:
-    #             print("Unauthorized access...")
-    #     except Exception as e:
-    #         print(f"An error occurred: {str(e)}")
-    #         loggingSys.log(f"Error occurred during deletion: {str(e)}", True, username=self.userName)
-
 
 class systemAdministrator(serviceEngineer):
 
@@ -533,17 +249,17 @@ class systemAdministrator(serviceEngineer):
                 vFunctions = (
                     Validation.validateName, #validate brand name
                     Validation.validateName, #validate model name
-                    Validation.validateMobileNumber, # validate serial number
-                    Validation.validateAge, # top speed
-                    Validation.validateAge, #battery cap
-                    Validation.validateAge, #soc
-                    Validation.validateAge, #soc min
-                    Validation.validateAge, #soc max
-                    Validation.validateWeight, #lat
-                    Validation.validateWeight, #long
-                    Validation.validateName, #out of service (bool)
-                    Validation.validateAge, #mileage
-                    Validation.validate_birthdate #last maintenance date
+                    Validation.validate_serial, # validate serial number
+                    Validation.validate_speed, # top speed
+                    Validation.validate_batterycap, #battery cap
+                    Validation.validate_soc, #soc
+                    Validation.validate_soc, #soc min
+                    Validation.validate_soc, #soc max
+                    Validation.validate_lat, #lat
+                    Validation.validate_long, #long
+                    Validation.validate_oos, #out of service (bool)
+                    Validation.validate_mileage, #mileage
+                    Validation.validate_maintenance_date #last maintenance date
                 )
                 fNames = ("Brand", "Model", "Serial number", "Top speed", "Battery capacity", "State of charge (current)",
                           "State of charge min.", "State of charge max.", "Latitude", "Longitude",
@@ -554,18 +270,25 @@ class systemAdministrator(serviceEngineer):
                 for i, (n, v) in enumerate(zip(fNames, vFunctions)):
                     fInput = "-"
                     print(f"{n}:")
-                    while not v(fInput,self.userName, loggingSys) and fInput != "Q":
+                    while True:
                         fInput = input(f"Enter a value (Q to cancel):")
+                        if fInput == "Q":
+                            return
+                        if isinstance(fInput, str) and Validation.checkNullByte(fInput):
+                            if v(fInput):
+                                fields.append(fInput)
+                                break
+                            else:
+                                loggingSys.log()
+                        else:
+                            loggingSys.log()
+                        print("Invalid input")
 
-                    if fInput == "Q":
-                        return
-                    else:
-                        fields.append(fInput)
-
-                if db.createScooter(fields):
+                result = db.createScooter(fields)
+                if result == "OK":
                     return
                 else:
-                    raise Exception
+                    raise Exception(result)
 
 
         except Exception as e:

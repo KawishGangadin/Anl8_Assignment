@@ -1,7 +1,69 @@
+from pickle import TRUE
 import re
 from datetime import datetime, date
 
 class Validation:
+
+    @staticmethod
+    def validate_length(input, min=1, max=64):
+        return min <= len(input) <= max
+
+    @staticmethod
+    def validate_num_in_range(input, min, max):
+        if Validation.validate_length(input) and Validation.convertableToInt(input):
+            return min <= int(input) <= max
+
+    @staticmethod
+    def validate_soc(input):
+        return Validation.validate_num_in_range(input, 0, 100)
+
+    @staticmethod
+    def validate_speed(input):
+        return Validation.validate_num_in_range(input, 0, 45)
+
+    @staticmethod
+    def validate_batterycap(input):
+        return Validation.validate_num_in_range(input, 250, 1000)
+
+    @staticmethod
+    def validate_long(input):
+        lengthCheck = len(input.split(".")[1]) == 5
+        if Validation.convertableToFloat(input):
+            return lengthCheck and 4.41 < float(input) < 4.58 #coordinaat in rotterdam
+
+    @staticmethod
+    def validate_lat(input):
+        lengthCheck = len(input.split(".")[1]) == 5
+        if Validation.convertableToFloat(input):
+            return lengthCheck and 51.86 < float(input) < 51.96 #coordinaat in rotterdam
+
+    @staticmethod
+    def validate_oos(input):
+        if Validation.validate_length(input):
+            try:
+                bool(input)
+                return True
+            except:
+                print("Invalid input")
+                return False
+
+    @staticmethod
+    def validate_mileage(input):
+         Validation.validate_num_in_range(input, 0, 200000)
+
+    @staticmethod
+    def validate_serial(input):
+        return Validation.validate_length(input, 10, 17) and input.isalnum()
+
+    @staticmethod
+    def validate_maintenance_date(input):
+        try:
+            mdatetime = input.strip()
+            mdatetime = datetime.strptime(mdatetime, "%Y-%m-%d").date()
+            return Validation.validate_length(input) and mdatetime < date.today() and mdatetime.year() > 2010
+        except:
+            print("Invalid date")
+        return False
 
     @staticmethod
     def validate_birthdate(birthdate, username='', loggingSys=None):
@@ -67,21 +129,9 @@ class Validation:
         
         if password == "Admin_123?":
             return True
-        
-        if not isinstance(password, str) or not Validation.checkNullByte(password):
-            if loggingSys:
-                loggingSys.log(f'Invalid password format or null byte detected in password:', True, username=username)
-            return False
-        
-        try:
-            if re.match(pattern, password):
-                return True
-            else:
-                if loggingSys:
-                    loggingSys.log(f'Invalid password format (did not match pattern):', False, username=username)
-        except re.error:
-            if loggingSys:
-                loggingSys.log(f'Regex error while validating password:', False, username=username)
+
+        if re.match(pattern, password):
+            return True
         
         return False
    
@@ -103,7 +153,7 @@ class Validation:
             if loggingSys:
                 loggingSys.log(f'Regex error while validating email:', False, username=username)
         return False 
-    
+
     @staticmethod
     def validateAge(age, username='', loggingSys=None):
         try:
@@ -144,34 +194,16 @@ class Validation:
         return False
 
     @staticmethod
-    def validateName(name, username='', loggingSys=None):
+    def validateName(name):
         pattern = r"^[A-Za-z]+(['-][A-Za-z]+)*$"
-
-        if not isinstance(name, str) or not Validation.checkNullByte(name):
-            if loggingSys:
-                loggingSys.log(f"Invalid name format (non-string) or null-byte detected in name.", True, username=username)
-            return False
-
         if re.match(pattern, name) and len(name) <= 35:
             return True
-        else:
-            if loggingSys:
-                loggingSys.log(f"Invalid name format (did not match pattern).", False, username=username)
-            return False
+        return False
     
     @staticmethod
-    def validateMobileNumber(mobile_number, username='', loggingSys=None):
-        try: 
-            mobile_number = str(mobile_number)
-            if len(mobile_number) == 8 and mobile_number.isdigit():
-                return True
-        except ValueError:
-            if not isinstance(mobile_number, str) or not Validation.checkNullByte(mobile_number):
-                if loggingSys:
-                    loggingSys.log(f"Invalid mobile number format or null byte detected in mobile number.", True, username=username)
-            else:
-                if loggingSys:
-                    loggingSys.log(f"Invalid mobile number entered.", False, username=username)
+    def validateMobileNumber(mobile_number):
+        if len(mobile_number) == 8 and mobile_number.isdigit():
+            return True
         return False
 
     @staticmethod
@@ -181,25 +213,22 @@ class Validation:
             return True
         except ValueError:
             return False
+
+    @staticmethod
+    def convertableToFloat(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
         
     @staticmethod
-    def validateMembershipID(membershipID, username='', loggingSys=None):
-        if (Validation.convertableToInt(membershipID)):
-            try:
-                membershipID = int(membershipID)
-                if 999999999 < membershipID < 10000000000:
-                    return True
-            except ValueError:
-                if not isinstance(membershipID, str) or not Validation.checkNullByte(str(membershipID)):
-                    if loggingSys:
-                        loggingSys.log(f"Invalid membership ID format or null byte detected in membership ID", True, username=username)
-                    return False
-                else:
-                    if loggingSys:
-                        loggingSys.log(f"Invalid membership ID format (string found)", False, username=username)
-                    return False
-        else:
-            return False
+    def validateID(id, loggingSys=None):
+        if Validation.validate_length(id, loggingSys) and Validation.convertableToInt(id):
+            id = int(id)
+            if 999999999 < id < 10000000000:
+                return True
+        return False
     
     @staticmethod
     def validateAddress(address, username='', loggingSys=None):
