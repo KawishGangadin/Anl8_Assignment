@@ -27,15 +27,19 @@ class Validation:
 
     @staticmethod
     def validate_long(input):
-        lengthCheck = len(input.split(".")[1]) == 5
+        splitInput = input.split(".")
+        if len(splitInput) == 2:
+            lengthCheck = len(splitInput[1]) == 5
         if Validation.convertableToFloat(input):
             return lengthCheck and 4.41 < float(input) < 4.58 #coordinaat in rotterdam
 
     @staticmethod
     def validate_lat(input):
-        lengthCheck = len(input.split(".")[1]) == 5
-        if Validation.convertableToFloat(input):
-            return lengthCheck and 51.86 < float(input) < 51.96 #coordinaat in rotterdam
+        splitInput = input.split(".")
+        if len(splitInput) == 2:
+            lengthCheck = len(splitInput[1]) == 5
+            if Validation.convertableToFloat(input):
+                return lengthCheck and 51.86 < float(input) < 51.96 #coordinaat in rotterdam
 
     @staticmethod
     def validate_oos(input):
@@ -49,7 +53,7 @@ class Validation:
 
     @staticmethod
     def validate_mileage(input):
-         Validation.validate_num_in_range(input, 0, 200000)
+         return Validation.validate_num_in_range(input, 0, 200000)
 
     @staticmethod
     def validate_serial(input):
@@ -60,9 +64,9 @@ class Validation:
         try:
             mdatetime = input.strip()
             mdatetime = datetime.strptime(mdatetime, "%Y-%m-%d").date()
-            return Validation.validate_length(input) and mdatetime < date.today() and mdatetime.year() > 2010
-        except:
-            print("Invalid date")
+            return Validation.validate_length(input) and mdatetime < date.today() and mdatetime.year > 2010
+        except Exception as e:
+            print(f"Invalid date: {e}")
         return False
 
     @staticmethod
@@ -320,7 +324,6 @@ class Validation:
             'first_name': Validation.validateName,
             'last_name': Validation.validateName,
             'mobile': Validation.validateMobileNumber,
-            'membershipID': Validation.validateMembershipID,
             'address': Validation.validateAddress,
             'city': Validation.validateCity,
             'backup': Validation.validateBackup,

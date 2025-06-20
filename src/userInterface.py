@@ -107,7 +107,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
             '14': lambda : user.displayLogs(loggingSys),
 
             "15": lambda : user.createScooter(db, loggingSys),
-            "16": lambda : user.editScooter(db,loggingSys),
+            "16": lambda : user.editScooter(db,user,loggingSys),
             "17": lambda : user.deleteScooter(db,loggingSys),
             "18": lambda : user.searchScooter(db,loggingSys),
                         

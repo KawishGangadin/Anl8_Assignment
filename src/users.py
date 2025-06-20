@@ -111,7 +111,7 @@ class service(userBlueprint):
         try:
             search_key = input("Enter the search key: ")
             if isinstance(search_key, str) and Validation.checkNullByte(search_key):
-                if Validation.validate_length(search_key, loggingSys):
+                if Validation.validate_length(search_key):
                     result = db.getScooterByAttribute(search_key)
                     if result:
                         print("Search Results:")
@@ -270,9 +270,9 @@ class systemAdministrator(service):
                                 fields.append(fInput)
                                 break
                             else:
-                                loggingSys.log()
+                                loggingSys.log(f'Invalid {n} format:', False, username=self.userName)
                         else:
-                            loggingSys.log()
+                            loggingSys.log(f'Non-string input format or null byte detected in search key:', True, username=self.userName)
                         print("Invalid input")
 
                 result = db.createScooter(fields)
