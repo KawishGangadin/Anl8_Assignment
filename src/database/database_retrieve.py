@@ -136,7 +136,7 @@ class DBRetrieve:
             users = cursor.fetchall()
             cursor.close()
 
-            userList = []  # Initialize the userList here
+            userList = [] 
 
             if role is not None:
                 for user in users:
@@ -145,15 +145,15 @@ class DBRetrieve:
                     if decrypted_role_bytes == role.value:
                         decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
                         decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
-                        hiddenPassword = "********"  # Assign hidden password here
+                        hiddenPassword = "********"  
                         decryptedUser = (
-                            user[0],  # ID
-                            user[1],  # First name
-                            user[2],  # Last name
-                            decryptedUsername,  # Decrypted username
-                            hiddenPassword,  # Hidden password
-                            user[5],  # Registration date
-                            decryptedRole  # Decrypted role
+                            user[0], 
+                            user[1],
+                            user[2], 
+                            decryptedUsername,  
+                            hiddenPassword, 
+                            user[5],  
+                            decryptedRole 
                         )
                         userList.append(decryptedUser)
 
@@ -162,15 +162,15 @@ class DBRetrieve:
             for user in users:
                 decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
                 decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
-                hiddenPassword = "********"  # Assign hidden password here
+                hiddenPassword = "********"  
                 decryptedUser = (
-                    user[0],  # ID
-                    user[1],  # First name
-                    user[2],  # Last name
-                    decryptedUsername,  # Decrypted username
-                    hiddenPassword,  # Hidden password
-                    user[5],  # Registration date
-                    decryptedRole  # Decrypted role
+                    user[0], 
+                    user[1], 
+                    user[2],  
+                    decryptedUsername, 
+                    hiddenPassword, 
+                    user[5], 
+                    decryptedRole 
                 )
                 userList.append(decryptedUser)
 
@@ -237,10 +237,207 @@ class DBRetrieve:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT id FROM scooters WHERE id = ?", (scooter_id,))
-            return cursor.fetchone()  # Returns row or None
+            return cursor.fetchone()  
         except sqlite3.Error as e:
             print(f"Error retrieving scooter by ID: {e}")
             return None
+        finally:
+            if conn:
+                conn.close()
+
+    def getTravellerById(self, traveller_id):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute("SELECT customer_id FROM travellers WHERE customer_id = ?", (traveller_id,))
+            return cursor.fetchone()  
+        except sqlite3.Error as e:
+            print(f"Error retrieving scooter by ID: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def searchTraveller(self, search_term):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM travellers")
+            travellers = cursor.fetchall()
+            
+            matching_travellers = []
+            for traveller in travellers:
+                try:
+                    decrypted_customer_id = Utility.safe_decrypt(traveller[0])
+                    decrypted_registration_date = Utility.safe_decrypt(traveller[1])
+                    decrypted_first_name = Utility.safe_decrypt(traveller[2])
+                    decrypted_last_name = Utility.safe_decrypt(traveller[3])
+                    decrypted_birthdate = Utility.safe_decrypt(traveller[4])
+                    decrypted_gender = Utility.safe_decrypt(traveller[5])
+                    decrypted_street = Utility.safe_decrypt(traveller[6])
+                    decrypted_house_number = Utility.safe_decrypt(traveller[7])
+                    decrypted_city = Utility.safe_decrypt(traveller[8])
+                    decrypted_zip = Utility.safe_decrypt(traveller[9])
+                    decrypted_email = Utility.safe_decrypt(traveller[10])
+                    decrypted_mobile = Utility.safe_decrypt(traveller[11])
+                    decrypted_license = Utility.safe_decrypt(traveller[12])
+
+                    if (search_term.lower() in decrypted_customer_id.lower() or
+                        search_term.lower() in decrypted_registration_date.lower() or
+                        search_term.lower() in decrypted_first_name.lower() or
+                        search_term.lower() in decrypted_last_name.lower() or
+                        search_term.lower() in decrypted_birthdate.lower() or
+                        search_term.lower() in decrypted_gender.lower() or
+                        search_term.lower() in decrypted_street.lower() or
+                        search_term.lower() in decrypted_house_number.lower() or
+                        search_term.lower() in decrypted_city.lower() or
+                        search_term.lower() in decrypted_zip.lower() or
+                        search_term.lower() in decrypted_email.lower() or
+                        search_term.lower() in decrypted_mobile.lower() or
+                        search_term.lower() in decrypted_license.lower()):
+        
+                        decrypted_traveller = (
+                            decrypted_customer_id,
+                            decrypted_registration_date,
+                            decrypted_first_name,
+                            decrypted_last_name,
+                            decrypted_birthdate,
+                            decrypted_gender,
+                            decrypted_street,
+                            decrypted_house_number,
+                            decrypted_city,
+                            decrypted_zip,
+                            decrypted_email,
+                            decrypted_mobile,
+                            decrypted_license
+                        )
+                        matching_travellers.append(decrypted_traveller)
+                
+                except Exception as e:
+                    print(f"Error decrypting member data: {str(e)}")
+            
+            cursor.close()
+            return matching_travellers
+        
+        except sqlite3.Error as e:
+            print("An error occurred while searching members:", e)
+            return None
+        
+        except Exception as e:
+            print("An error occurred:", e)
+            return None
+        
+        finally:
+            if conn:
+                conn.close()
+
+    def searchScooter(self, search_term):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM scooters")
+            scooters = cursor.fetchall()
+            
+            matching_scooters = []
+            for scooter in scooters:
+                try:
+                    decrypted_id = Utility.safe_decrypt(scooter[0])
+                    decrypted_isd = Utility.safe_decrypt(scooter[1])
+                    decrypted_brand = Utility.safe_decrypt(scooter[2])
+                    decrypted_model = Utility.safe_decrypt(scooter[3])
+                    decrypted_serial_number = Utility.safe_decrypt(scooter[4])
+                    decrypted_top_speed = Utility.safe_decrypt(scooter[5])
+                    decrypted_battery_capacity = Utility.safe_decrypt(scooter[6])
+                    decrypted_soc = Utility.safe_decrypt(scooter[7])
+                    decrypted_target_min = Utility.safe_decrypt(scooter[8])
+                    decrypted_target_max = Utility.safe_decrypt(scooter[9])
+                    decrypted_latitude = Utility.safe_decrypt(scooter[10])
+                    decrypted_longitude = Utility.safe_decrypt(scooter[11])
+                    decrypted_out_of_service = Utility.safe_decrypt(scooter[12])
+                    decrypted_mileage = Utility.safe_decrypt(scooter[13])
+                    decrypted_last_maintenance = Utility.safe_decrypt(scooter[14])
+
+                    if (search_term.lower() in decrypted_id.lower() or
+                        search_term.lower() in decrypted_isd.lower() or
+                        search_term.lower() in decrypted_brand.lower() or
+                        search_term.lower() in decrypted_model.lower() or
+                        search_term.lower() in decrypted_serial_number.lower() or
+                        search_term.lower() in decrypted_top_speed.lower() or
+                        search_term.lower() in decrypted_battery_capacity.lower() or
+                        search_term.lower() in decrypted_soc.lower() or
+                        search_term.lower() in decrypted_target_min.lower() or
+                        search_term.lower() in decrypted_target_max.lower() or
+                        search_term.lower() in decrypted_latitude.lower() or
+                        search_term.lower() in decrypted_longitude.lower() or
+                        search_term.lower() in decrypted_out_of_service.lower() or
+                        search_term.lower() in decrypted_mileage.lower() or
+                        search_term.lower() in decrypted_last_maintenance.lower()):
+        
+                        decrypted_scooter = (
+                            decrypted_id,
+                            decrypted_isd,
+                            decrypted_brand,
+                            decrypted_model,
+                            decrypted_serial_number,
+                            decrypted_top_speed,
+                            decrypted_battery_capacity,
+                            decrypted_soc,
+                            decrypted_target_min,
+                            decrypted_target_max,
+                            decrypted_latitude,
+                            decrypted_longitude,
+                            decrypted_out_of_service,
+                            decrypted_mileage,
+                            decrypted_last_maintenance
+                        )
+                        matching_scooters.append(decrypted_scooter)
+                
+                except Exception as e:
+                    print(f"Error decrypting member data: {str(e)}")
+            
+            cursor.close()
+            return matching_scooters
+        
+        except sqlite3.Error as e:
+            print("An error occurred while searching members:", e)
+            return None
+        
+        except Exception as e:
+            print("An error occurred:", e)
+            return None
+        
+        finally:
+            if conn:
+                conn.close()
+
+    def findTravellerID(self, traveller_id):
+        conn = None
+        private_key = cryptoUtils.loadPrivateKey() 
+        try:
+            if Validation.validateMembershipID(traveller_id):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM travellers"
+                cursor.execute(query)
+                members = cursor.fetchall()
+                cursor.close()
+
+                decrypted_membership_id = None
+
+                for member in members:
+                    decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
+                    if decrypted_membership_id.decode('utf-8') == traveller_id:
+                        return True  
+
+                return False  
+            return False
+
+        except sqlite3.Error as e:
+            print("An error occurred while searching for membership ID:", e)
+            return False
         finally:
             if conn:
                 conn.close()

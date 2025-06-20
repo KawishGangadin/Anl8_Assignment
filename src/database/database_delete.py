@@ -46,6 +46,74 @@ class DBDelete:
             if conn:
                 conn.close()
     
+    def deleteScooter(self, scooter_id, user):
+        conn = None
+        try:
+            if isinstance(user, users.systemAdministrator):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM scooters WHERE id = ?"
+                cursor.execute(query, (scooter_id,))
+                scooter = cursor.fetchone()
+                
+                if scooter is None:
+                    raise ValueError(f"No scooter found with id {scooter_id}")
+                
+                delete_query = "DELETE FROM scooters WHERE id = ?"
+                cursor.execute(delete_query, (scooter_id,))
+                conn.commit()
+                
+                if cursor.rowcount == 0:
+                    raise ValueError(f"No scooter found with id {scooter_id}")
+                
+                cursor.close()
+                return "OK"
+            return "FAIL"
+        
+        except sqlite3.Error as e:
+            print(f"An error occurred while deleting the scooter: {e}")
+            return "FAIL"
+        except ValueError as ve:
+            print(str(ve))
+            return "FAIL"
+        finally:
+            if conn:
+                conn.close()
+
+    def deleteTraveller(self, traveller_id, user):
+        conn = None
+        try:
+            if isinstance(user, users.systemAdministrator):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT * FROM travellers WHERE customer_id = ?"
+                cursor.execute(query, (traveller_id,))
+                traveller = cursor.fetchone()
+                
+                if traveller is None:
+                    raise ValueError(f"No traveller found with id {traveller_id}")
+                
+                delete_query = "DELETE FROM travellers WHERE customer_id = ?"
+                cursor.execute(delete_query, (traveller_id,))
+                conn.commit()
+                
+                if cursor.rowcount == 0:
+                    raise ValueError(f"No traveller found with id {traveller_id}")
+                
+                cursor.close()
+                return "OK"
+            return "FAIL"
+        
+        except sqlite3.Error as e:
+            print(f"An error occurred while deleting the traveller: {e}")
+            return "FAIL"
+        except ValueError as ve:
+            print(str(ve))
+            return "FAIL"
+        finally:
+            if conn:
+                conn.close()
+
     def deleteRestoreCode(self,user,code):
         conn = None
         try:

@@ -293,7 +293,6 @@ class DBCreate:
 
         restore_code = generate_code()
 
-        # 4. Store the code in the restore_codes table
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -305,7 +304,7 @@ class DBCreate:
             conn.commit()
             cursor.close()
             print(f"Restore code created: {restore_code}")
-            return restore_code  # Return the code so you can display or copy it
+            return restore_code  
         except sqlite3.Error as e:
             print("An error occurred while inserting the restore code:", e)
             return "FAIL"

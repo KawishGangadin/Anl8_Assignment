@@ -36,7 +36,6 @@ class DBUpdate:
             validationData = { "first_name": firstName, "last_name": lastName, "username": username }
             if Validation.validateMultipleInputs(**validationData):
                 conn = sqlite3.connect(self.databaseFile)
-                privateKey = cryptoUtils.loadPrivateKey()
                 publicKey = cryptoUtils.loadPublicKey()
                 cursor = conn.cursor()
                 query = """
@@ -86,7 +85,6 @@ class DBUpdate:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
 
-            # Confirm scooter exists
             cursor.execute("SELECT id FROM scooters WHERE id = ?", (scooter_id,))
             if not cursor.fetchone():
                 print("Scooter not found.")
@@ -122,6 +120,44 @@ class DBUpdate:
 
         except sqlite3.Error as e:
             print("An error occurred while updating the scooter:", e)
+            return "FAIL"
+        finally:
+            if conn:
+                conn.close()
+
+    def updateTraveller(self, traveller_id, updates: dict):
+        conn = None
+        try:
+            if not updates:
+                print("No fields to update.")
+                return "OK"
+
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * FROM travellers WHERE customer_id = ?", (traveller_id,))
+            if not cursor.fetchone():
+                print("Traveller not found.")
+                return "FAIL"
+
+            public_key = cryptoUtils.loadPublicKey()
+            encrypted_updates = {}
+            for key, value in updates.items():
+                if key in ["first_name", "last_name", "gender", "street_name", "house_number", "city", "zip_code", "email", "mobile", "license_number"]:
+                    encrypted_updates[key] = cryptoUtils.encryptWithPublicKey(public_key, str(value))
+                else:
+                    encrypted_updates[key] = value
+
+            query = "UPDATE travellers SET " + ", ".join(f"{k} = ?" for k in encrypted_updates.keys())
+            query += " WHERE customer_id = ?"
+            parameters = list(encrypted_updates.values()) + [traveller_id]
+
+            cursor.execute(query, parameters)
+            conn.commit()
+            return "OK" if cursor.rowcount > 0 else "FAIL"
+
+        except sqlite3.Error as e:
+            print("An error occurred while updating the traveller:", e)
             return "FAIL"
         finally:
             if conn:

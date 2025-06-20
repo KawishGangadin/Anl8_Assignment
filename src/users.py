@@ -80,7 +80,6 @@ class service(userBlueprint):
         try:
             db.displayAllScooters()
 
-            # Step 1: Ask for ID and check existence
             while True:
                 scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
                 if scooter_id.upper() == 'Q':
@@ -95,7 +94,6 @@ class service(userBlueprint):
                 else:
                     print("Scooter ID not found.")
 
-            # Step 2: Define editable fields
             editable_fields = {
                 "brand": Validation.validateBrandOrModel,
                 "model": Validation.validateBrandOrModel,
@@ -109,7 +107,6 @@ class service(userBlueprint):
                 "last_maintenance_date": lambda v, u, l: Validation.validate_birthdate(v)
             }
 
-            # Step 3: Restrict fields for service employees
             if self.role == roles.SERVICE:
                 allowed = {"state_of_charge", "target_soc_min", "target_soc_max", "mileage", "last_maintenance_date"}
             else:
@@ -117,14 +114,13 @@ class service(userBlueprint):
 
             updated = {}
 
-            # Step 4: Ask for updated field values
             for field, validator in editable_fields.items():
                 if field not in allowed:
                     continue
                 value = Utility.get_optional_update(
                     f"Update {field.replace('_', ' ').title()}",
                     validator,
-                    "(hidden)",  # current value not needed here
+                    "(hidden)",
                     user={"username": self.userName},
                     loggingSys=loggingSys
                 )
@@ -134,7 +130,6 @@ class service(userBlueprint):
                 elif value != "(hidden)":
                     updated[field] = value
 
-            # Step 5: Latitude/Longitude for admins only
             if "latitude" in allowed and "longitude" in allowed:
                 while True:
                     lat = input("Enter new latitude or leave empty to keep current (or Q to quit): ").strip()
@@ -157,7 +152,6 @@ class service(userBlueprint):
                     else:
                         print("Invalid coordinates. Try again or leave both empty.")
 
-            # Step 6: Update in database
             if updated:
                 if db.updateScooter(scooter_id, updated) == "OK":
                     print("Scooter updated successfully.")
@@ -173,9 +167,102 @@ class service(userBlueprint):
             loggingSys.log(f"Error occurred during scooter editing: {str(e)}", True, username=self.userName)
 
     def searchScooter(self, db, loggingSys):
-        pass
+        try:
+            search_term = input("Enter the search key: ")
+            result = db.searchScooter(search_term)
+            
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"Scooter ID: {row[0]} | In Service Date: {row[1]} | Brand: {row[2]} | Model: {row[3]} | Serial Number: {row[4]} | Top Speed: {row[5]} km/h | Battery Capacity: {row[6]} Wh | State of Charge: {row[7]}% | Target SOC Min: {row[8]}% | Target SOC Max: {row[9]}% | Latitude: {row[10]} | Longitude: {row[11]} | Out of service: {row[12]} | Mileage: {row[13]} km | Last Maintenance Date: {row[14]}")
+                    print("----------------")
+            else:
+                print("No results found.")
+            
+            input("Press any key to continue...")
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during scooter search: {str(e)}", True, username=self.userName)
 
 class systemAdministrator(service):
+
+    def searchTraveller(self, db, loggingSys):
+        try:
+            search_term = input("Enter the search key: ")
+            result = db.searchTraveller(search_term)
+            
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"Customer ID: {row[0]} | Registration Date: {row[1]} | First Name: {row[2]} | Last Name: {row[3]} | Birthdate: {row[4]} | Gender: {row[5]} | Street: {row[6]} | House Number: {row[7]} | City: {row[8]} | Zip Code: {row[9]} | Email: {row[10]} | Mobile: {row[11]} | License Number: {row[12]}")
+                    print("----------------")
+            else:
+                print("No results found.")
+            
+            input("Press any key to continue...")
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during scooter search: {str(e)}", True, username=self.userName)
+
+    def deleteTraveller(self, db, loggingSys):
+        try:
+            db.displayAllTravellers()
+
+            while True:
+                traveller_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
+                if traveller_id.upper() == 'Q':
+                    return
+                if not traveller_id.isdigit():
+                    print("Invalid ID format.")
+                    continue
+
+                traveller_id = int(traveller_id)
+                if db.getTravellerById(traveller_id):
+                    break
+                else:
+                    print("Scooter ID not found.")
+            
+            if db.deleteTraveller(traveller_id, self)  == "OK":
+                print("Traveller deleted successfully.")
+                loggingSys.log("Traveller deleted", False, f"Traveller ID {traveller_id} deleted.", self.userName)
+            else:
+                print("Failed to delete traveller.")
+                loggingSys.log("Traveller deletion failed", True, f"Traveller ID {traveller_id} deletion failed.", self.userName)
+        except Exception as e:
+            print(f"An error occurred while deleting traveller: {str(e)}")
+            loggingSys.log(f"Error occurred during traveller deletion: {str(e)}", True, username=self.userName)
+
+    def deleteScooter(self, db, loggingSys):
+        try:
+            db.displayAllScooters()
+
+            while True:
+                scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
+                if scooter_id.upper() == 'Q':
+                    return
+                if not scooter_id.isdigit():
+                    print("Invalid ID format.")
+                    continue
+
+                scootetraveller_idr_id = int(scooter_id)
+                if db.getScooterById(scooter_id):
+                    break
+                else:
+                    print("Scooter ID not found.")
+            
+            if db.deleteScooter(scooter_id, self)  == "OK":
+                print("Traveller deleted successfully.")
+                loggingSys.log("Traveller deleted", False, f"Traveller ID {scooter_id} deleted.", self.userName)
+            else:
+                print("Failed to delete traveller.")
+                loggingSys.log("Traveller deletion failed", True, f"Traveller ID {scooter_id} deletion failed.", self.userName)
+        except Exception as e:
+            print(f"An error occurred while deleting traveller: {str(e)}")
+            loggingSys.log(f"Error occurred during traveller deletion: {str(e)}", True, username=self.userName)
 
     def deletion(self, user, db, role, loggingSys):
         try:
@@ -298,7 +385,6 @@ class systemAdministrator(service):
             print("========== Scooter Registration ==========")
             scooter = {}
 
-            # Required text fields
             scooter["serial_number"] = Utility.get_valid_input("Enter serial number (SC-XXXXXX):",
                 Validation.validateSerialNumber, {"username": self.userName}, loggingSys)
 
@@ -308,7 +394,6 @@ class systemAdministrator(service):
             scooter["model"] = Utility.get_valid_input("Enter scooter model:",
                 Validation.validateBrandOrModel, {"username": self.userName}, loggingSys)
 
-            # Integers with range validation
             scooter["top_speed"] = Utility.get_valid_input("Enter top speed (km/h):",
                 lambda v, u, l: Validation.validateIntegerInRange(v, 5, 120), {"username": self.userName}, loggingSys)
 
@@ -362,6 +447,7 @@ class systemAdministrator(service):
                 if keyPress.upper() == "Y":
                     print("Creating backup....")
                     backUpSystem.createBackupZip(user)
+                    time.sleep(5)
                     break
                 elif keyPress.upper() == "N":
                     print("Exiting.....")
@@ -507,6 +593,63 @@ class systemAdministrator(service):
         except Exception as e:
             print(f"An error occurred while sending log alert: {str(e)}")
             loggingSys.log(f"Error occurred during log alert: {str(e)}", True, username=self.userName)
+
+    def editTraveller(self, db, loggingSys):
+        try:
+            db.displayAllTravellers()
+
+            while True:
+                traveller_id = input("Enter the ID of the traveller you want to edit or press 'Q' to quit: ").strip()
+                if traveller_id.upper() == 'Q':
+                    return
+
+                if db.getTravellerById(traveller_id):
+                    break
+                else:
+                    print("Traveller ID not found.")
+
+            editable_fields = {
+                "first_name": Validation.validateName,
+                "last_name": Validation.validateName,
+                "birthdate": Validation.validate_birthdate,
+                "gender": Validation.validateGender,
+                "street_name": Validation.validateAddress,
+                "house_number": Validation.validateHousenumber,
+                "city": Validation.validateCity,
+                "zip_code": Validation.validateZipcode,
+                "email": Validation.validateEmail,
+                "mobile": Validation.validateMobileNumber,
+                "license_number": Validation.validate_driving_license
+            }
+
+            updated = {}
+            for field, validator in editable_fields.items():
+                value = Utility.get_optional_update(
+                    f"Update {field.replace('_', ' ').title()}",
+                    validator,
+                    "(hidden)",
+                    user={"username": self.userName},
+                    loggingSys=loggingSys
+                )
+                if value == "Q":
+                    print("Cancelled editing.")
+                    return
+                elif value != "(hidden)":
+                    updated[field] = value
+
+            if updated:
+                if db.updateTraveller(traveller_id, updated) == "OK":
+                    print("Traveller updated successfully.")
+                    loggingSys.log("Traveller edited", False, f"Traveller ID {traveller_id} edited.", self.userName)
+                else:
+                    print("Failed to update traveller.")
+                    loggingSys.log("Traveller edit failed", True, f"Traveller ID {traveller_id} update failed.", self.userName)
+            else:
+                print("No changes were made.")
+
+        except Exception as e:
+            print(f"An error occurred while editing traveller: {str(e)}")
+            loggingSys.log(f"Error occurred during traveller editing: {str(e)}", True, username=self.userName)
 
     def editUser(self, user, db, role, loggingSys):
         try:

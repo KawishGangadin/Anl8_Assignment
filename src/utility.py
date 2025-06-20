@@ -16,10 +16,6 @@ class Utility:
 
     @staticmethod
     def get_optional_update(prompt, validator, current_value, user=None, loggingSys=None):
-        """
-        Prompt user for an optional update. If left empty, current_value is returned.
-        If 'Q' is entered, returns "Q" to signal cancellation.
-        """
         username = user.get('username', '') if user else ''
         while True:
             value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ").strip()

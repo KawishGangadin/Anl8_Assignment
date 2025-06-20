@@ -99,57 +99,64 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
             "7": lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
             "8": lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
             "9": lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
+
             "10": lambda : user.createBackup(user,backupSys,loggingSys),
             "11": lambda : user.restoreBackup(backupSys,loggingSys,db),
-            "12": lambda : user.displayLogs(loggingSys),
-            "13": lambda : user.createTraveller(db,roles.SUPERADMIN,loggingSys),
-            "14": lambda : user.updateTraveller(db,loggingSys),
-            "15": lambda : user.deletion(user, db, None, loggingSys),
-            "16": lambda : user.memberSearch(db,loggingSys),
-            "17": lambda : user.generateRestoreCode( db,backupSys,loggingSys),
-            "18": lambda : user.createScooter(db, loggingSys),
-            "19" : lambda : user.accountDeletion( db, loggingSys),
-            "20" : lambda : user.manageRestoreCodes( db, loggingSys),
-            'L': lambda : user.displayUsers(db),
-            'AC': lambda : user.userCreation(db, roles.SERVICE,loggingSys),
-            'UC': lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
-            'DC': lambda : user.deletion(user, db, roles.SERVICE, loggingSys),
-            'RC': lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys),
-            'AA': lambda : user.userCreation(db, roles.ADMIN,loggingSys),
-            'UA': lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
-            'DA': lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
-            'RA': lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
-            'BA': lambda : user.createBackup(user,backupSys,loggingSys),
-            'RB': lambda : user.restoreBackup(backupSys,loggingSys,db),
-            'SL': lambda : user.displayLogs(loggingSys),
-            'AM': lambda : user.memberCreation(db,loggingSys),
-            'UM': lambda : user.editMember(db,loggingSys),
-            'DM': lambda : user.deletion(user, db, None, loggingSys),
-            'SM': lambda : user.memberSearch(db,loggingSys),
-            'MR': lambda : user.generateRestoreCode( db,backupSys,loggingSys),
-            "22": lambda : user.editScooter(db,loggingSys),
-            "23": lambda : user.editOwnAccount(db, loggingSys)
+            "12": lambda : user.generateRestoreCode( db,backupSys,loggingSys),
+            "13" : lambda : user.manageRestoreCodes( db, loggingSys),
+            '14': lambda : user.displayLogs(loggingSys),
+
+            "15": lambda : user.createScooter(db, loggingSys),
+            "16": lambda : user.editScooter(db,loggingSys),
+            "17": lambda : user.deleteScooter(db,loggingSys),
+            "18": lambda : user.searchScooter(db,loggingSys),
+                        
+            "19": lambda : user.createTraveller(db,roles.SUPERADMIN,loggingSys),
+            "20": lambda : user.editTraveller(db,loggingSys),
+            "21": lambda : user.deleteTraveller(db,loggingSys),
+            "22": lambda : user.searchTraveller(db,loggingSys),
             }
         print("""
-Super Admin Menu:
-[1] or [L] - Get list of users and their roles
-[2] or [AC] - Add a new SERVICE
-[3] or [UC] - Update an existing SERVICE’s account and profile
-[4] or [DC] - Delete an existing SERVICE’s account
-[5] or [RC] - Reset an existing SERVICE’s password
-[6] or [AA] - Add a new admin
-[7] or [UA] - Update an existing admin’s account and profile
-[8] or [DA] - Delete an existing admin’s account
-[9] or [RA] - Reset an existing admin’s password
-[10] or [BA] - Make a backup of the system
-[11] or [RB] - Restore a backup of the system
-[12] or [SL] - See the logs file of the system
-[13] or [AM] - Add a new traveller
-[14] or [UM] - Update a member’s information
-[15] or [DM] - Delete a member’s record
-[16] or [SM] - Search and retrieve a member’s information
-[17] or [MR] - Generate a restore code for the system
-              18 add scooter
+=====================================================
+|    $$\      $$\ $$$$$$$$\ $$\   $$\ $$\   $$\     |
+|    $$$\    $$$ |$$  _____|$$$\  $$ |$$ |  $$ |    |
+|    $$$$\  $$$$ |$$ |      $$$$\ $$ |$$ |  $$ |    |
+|    $$\$$\$$ $$ |$$$$$\    $$ $$\$$ |$$ |  $$ |    |
+|    $$ \$$$  $$ |$$  __|   $$ \$$$$ |$$ |  $$ |    |
+|    $$ |\$  /$$ |$$ |      $$ |\$$$ |$$ |  $$ |    |
+|    $$ | \_/ $$ |$$$$$$$$\ $$ | \$$ |\$$$$$$  |    |
+|    \__|     \__|\________|\__|  \__| \______/     |
+=====================================================
+User Management:
+[1] or [L] - List all users and their roles
+[2] or [AC] - Add a new Service Engineer
+[3] or [UC] - Modify or update an existing Service Engineer’s account and profile
+[4] or [DC] - Delete an existing Service Engineer’s account
+[5] or [RC] - Reset an existing Service Engineer’s password (a temporary password)
+[6] or [AA] - Add a new System Administrator
+[7] or [UA] - Modify or update an existing System Administrator’s account and profile
+[8] or [DA] - Delete an existing System Administrator’s account
+[9] or [RA] - Reset an existing System Administrator’s password (a temporary password)    
+
+System Management:
+[10] or [BA] - Make a backup of the system (members and users’ information, logs)
+[11] or [RB] - Restore a backup of the system    
+[12] - Genereate a restore code for the system
+[13] - Manage restore codes for the system  
+[14] or [SL] - See the logs file(s) of the system  
+
+Scooter Management:
+[15] or [AM] - Add a new scooter to the system
+[16] or [UM] - Update a scooter's information
+[17] or [DM] - Delete a scooter's record from the database
+[18] or [SM] - Search for a scooter
+
+Traveller Management:
+[19] or [MR] - Add a new traveller to the system
+[20] or [UM] - Modify or update the information of a traveller in the system
+[21] or [DM] - Delete a traveller's record from the database
+[22] or [SM] - Search and retrieve the information of a traveller  
+
 [0] or [Q] - Quit
 """)
         user.alertLogs(loggingSys)
@@ -178,24 +185,42 @@ Super Admin Menu:
         print(f"Welcome {user.userName}")
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
-            "2": lambda : user.displayUsers(db), 
+            "2": lambda : user.editOwnAccount(db,loggingSys),
             "3": lambda : user.accountDeletion(db, loggingSys),
-            "4": lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
-            "5": lambda : user.deletion(user, db, roles.SERVICE, loggingSys), 
-            "6": lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys), 
-            "7": lambda :  user.createBackup(user,backupSys,loggingSys), 
-            "8": lambda :  user.displayLogs(loggingSys),
-            "9": lambda : user.memberCreation(db,loggingSys), 
-            "10": lambda : user.editMember(db,loggingSys), 
-            "11": lambda : user.deletion(user, db, None, loggingSys), 
-            "12": lambda : user.memberSearch(db,loggingSys),
-            "13": lambda : user.restoreBackup(backupSys,loggingSys,db),
-            "14": lambda : user.createScooter(db, loggingSys)
+
+            "4": lambda :  user.displayLogs(loggingSys),
+            "5": lambda :  user.createBackup(user,backupSys,loggingSys), 
+            "6": lambda : user.restoreBackup(backupSys,loggingSys,db),
+
+            "7": lambda : user.displayUsers(db),
+            "8": lambda : user.userCreation(db, roles.SERVICE,loggingSys),
+            "9": lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
+            "10": lambda : user.deletion(user, db, roles.SERVICE, loggingSys),
+            "11": lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys), 
+
+            "15": lambda : user.createScooter(db, loggingSys),
+            "16": lambda : user.editScooter(db,loggingSys),
+            "17": lambda : user.deleteScooter(db,loggingSys),
+            "18": lambda : user.searchScooter(db,loggingSys),
+                        
+            "19": lambda : user.createTraveller(db,roles.ADMIN,loggingSys),
+            "20": lambda : user.editTraveller(db,loggingSys),
+            "21": lambda : user.deleteTraveller(db,loggingSys),
+            "22": lambda : user.searchTraveller(db,loggingSys),
         }
 
 
         print("""
-System Administrator Menu:
+=====================================================
+|    $$\      $$\ $$$$$$$$\ $$\   $$\ $$\   $$\     |
+|    $$$\    $$$ |$$  _____|$$$\  $$ |$$ |  $$ |    |
+|    $$$$\  $$$$ |$$ |      $$$$\ $$ |$$ |  $$ |    |
+|    $$\$$\$$ $$ |$$$$$\    $$ $$\$$ |$$ |  $$ |    |
+|    $$ \$$$  $$ |$$  __|   $$ \$$$$ |$$ |  $$ |    |
+|    $$ |\$  /$$ |$$ |      $$ |\$$$ |$$ |  $$ |    |
+|    $$ | \_/ $$ |$$$$$$$$\ $$ | \$$ |\$$$$$$  |    |
+|    \__|     \__|\________|\__|  \__| \______/     |
+=====================================================
 Account Management:
 [1] - Update their own password
 [2] - Edit own profile
@@ -225,7 +250,7 @@ Traveller Management:
 [18] - Delete a traveller's record from the database
 [19] - Search and retrieve the information of a traveller
               
-[0] or [Q] - Quit
+[0] or [Q]- Quit
 """)
         user.alertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
@@ -254,17 +279,29 @@ Traveller Management:
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
             "2": lambda : user.editScooter(db,loggingSys),
+            "3": lambda : user.searchScooter(db,loggingSys),
         }
 
 
         print("""
-SERVICE Menu:
+=====================================================
+|    $$\      $$\ $$$$$$$$\ $$\   $$\ $$\   $$\     |
+|    $$$\    $$$ |$$  _____|$$$\  $$ |$$ |  $$ |    |
+|    $$$$\  $$$$ |$$ |      $$$$\ $$ |$$ |  $$ |    |
+|    $$\$$\$$ $$ |$$$$$\    $$ $$\$$ |$$ |  $$ |    |
+|    $$ \$$$  $$ |$$  __|   $$ \$$$$ |$$ |  $$ |    |
+|    $$ |\$  /$$ |$$ |      $$ |\$$$ |$$ |  $$ |    |
+|    $$ | \_/ $$ |$$$$$$$$\ $$ | \$$ |\$$$$$$  |    |
+|    \__|     \__|\________|\__|  \__| \______/     |
+=====================================================
 Account Management:
 [1] or [UP] - Update their own password
               
 Scooter Management:
 [2] or [US] - Update a scooter's information
 [3] or [SS] - Search for a scooter
+              
+[0] or [Q]- Quit
 """)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:

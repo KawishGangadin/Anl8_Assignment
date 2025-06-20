@@ -14,7 +14,7 @@ class Checksum:
 
             check_digit = sum(int(digit) for digit in membership_id) % 10
             membership_id += str(check_digit)
-            if db.findMembershipID(membership_id):
+            if db.findTravellerID(membership_id):
                 pass
             else:
                 break

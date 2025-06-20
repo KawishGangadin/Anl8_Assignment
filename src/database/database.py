@@ -166,7 +166,6 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
     def findTravellerID(self, customer_id):
         conn = None
         try:
-            from cryptoUtils import loadPrivateKey, decryptWithPrivateKey
             private_key = cryptoUtils.loadPrivateKey()
 
             conn = sqlite3.connect(self.databaseFile)
