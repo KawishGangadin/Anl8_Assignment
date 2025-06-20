@@ -23,18 +23,63 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getAllScooters(self):
+    def getScooters(self):
+        # TODO: test
         conn = None
+        scooterList = []
+        privateKey = cryptoUtils.loadPrivateKey()
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM scooters")
-            results = cursor.fetchall()
+            query = "SELECT * FROM scooters"
+            cursor.execute(query)
+            scooters = cursor.fetchall()
             cursor.close()
-            return results
+            for scooter in scooters:
+                data_to_bytes = list(map(bytes, scooter))[1:]
+                decrypted_data = [cryptoUtils.decryptWithPrivateKey(privateKey, s) for s in data_to_bytes]
+                decrypted_data = tuple(map(lambda s: s.decode('utf-8'), decrypted_data))
+                all_data = (scooter[0],) + decrypted_data
+                scooterList.append(all_data)
+            return scooterList
+                
         except sqlite3.Error as e:
-            print("Error retrieving scooter records:", e)
-            return []
+            print("An error occurred while retrieving scooter data:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def getScooterByAttribute(self, search_key):
+        scooterList = self.getScooters()
+        if search_key:
+            return [s for s in scooterList if ([x for x in s if search_key.lower() in str(x).lower()])]
+        else:
+            return scooterList
+
+    def getScooterByID(self, id):
+        conn = None
+        scooter = None
+        privateKey = cryptoUtils.loadPrivateKey()
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM scooters WHERE id = ?"
+            cursor.execute(query, (id,))
+            scooter = cursor.fetchone()
+            cursor.close()
+            if scooter:
+                data_to_bytes = list(map(bytes, scooter))[1:]
+                decrypted_data = [cryptoUtils.decryptWithPrivateKey(privateKey, s) for s in data_to_bytes]
+                decrypted_data = tuple(map(lambda s: s.decode('utf-8'), decrypted_data))
+                all_data = (scooter[0],) + decrypted_data
+                return all_data
+            else:
+                return None
+                
+        except sqlite3.Error as e:
+            print("An error occurred while retrieving scooter data:", e)
+            return None
         finally:
             if conn:
                 conn.close()
@@ -320,86 +365,6 @@ class DBRetrieve:
             
             cursor.close()
             return matching_travellers
-        
-        except sqlite3.Error as e:
-            print("An error occurred while searching members:", e)
-            return None
-        
-        except Exception as e:
-            print("An error occurred:", e)
-            return None
-        
-        finally:
-            if conn:
-                conn.close()
-
-    def searchScooter(self, search_term):
-        conn = None
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM scooters")
-            scooters = cursor.fetchall()
-            
-            matching_scooters = []
-            for scooter in scooters:
-                try:
-                    decrypted_id = Utility.safe_decrypt(scooter[0])
-                    decrypted_isd = Utility.safe_decrypt(scooter[1])
-                    decrypted_brand = Utility.safe_decrypt(scooter[2])
-                    decrypted_model = Utility.safe_decrypt(scooter[3])
-                    decrypted_serial_number = Utility.safe_decrypt(scooter[4])
-                    decrypted_top_speed = Utility.safe_decrypt(scooter[5])
-                    decrypted_battery_capacity = Utility.safe_decrypt(scooter[6])
-                    decrypted_soc = Utility.safe_decrypt(scooter[7])
-                    decrypted_target_min = Utility.safe_decrypt(scooter[8])
-                    decrypted_target_max = Utility.safe_decrypt(scooter[9])
-                    decrypted_latitude = Utility.safe_decrypt(scooter[10])
-                    decrypted_longitude = Utility.safe_decrypt(scooter[11])
-                    decrypted_out_of_service = Utility.safe_decrypt(scooter[12])
-                    decrypted_mileage = Utility.safe_decrypt(scooter[13])
-                    decrypted_last_maintenance = Utility.safe_decrypt(scooter[14])
-
-                    if (search_term.lower() in decrypted_id.lower() or
-                        search_term.lower() in decrypted_isd.lower() or
-                        search_term.lower() in decrypted_brand.lower() or
-                        search_term.lower() in decrypted_model.lower() or
-                        search_term.lower() in decrypted_serial_number.lower() or
-                        search_term.lower() in decrypted_top_speed.lower() or
-                        search_term.lower() in decrypted_battery_capacity.lower() or
-                        search_term.lower() in decrypted_soc.lower() or
-                        search_term.lower() in decrypted_target_min.lower() or
-                        search_term.lower() in decrypted_target_max.lower() or
-                        search_term.lower() in decrypted_latitude.lower() or
-                        search_term.lower() in decrypted_longitude.lower() or
-                        search_term.lower() in decrypted_out_of_service.lower() or
-                        search_term.lower() in decrypted_mileage.lower() or
-                        search_term.lower() in decrypted_last_maintenance.lower()):
-        
-                        decrypted_scooter = (
-                            decrypted_id,
-                            decrypted_isd,
-                            decrypted_brand,
-                            decrypted_model,
-                            decrypted_serial_number,
-                            decrypted_top_speed,
-                            decrypted_battery_capacity,
-                            decrypted_soc,
-                            decrypted_target_min,
-                            decrypted_target_max,
-                            decrypted_latitude,
-                            decrypted_longitude,
-                            decrypted_out_of_service,
-                            decrypted_mileage,
-                            decrypted_last_maintenance
-                        )
-                        matching_scooters.append(decrypted_scooter)
-                
-                except Exception as e:
-                    print(f"Error decrypting member data: {str(e)}")
-            
-            cursor.close()
-            return matching_scooters
         
         except sqlite3.Error as e:
             print("An error occurred while searching members:", e)

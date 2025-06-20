@@ -193,7 +193,7 @@ class Validation:
         return False
 
     @staticmethod
-    def validateName(name):
+    def validateName(name, username='', loggingSys=None):
         pattern = r"^[A-Za-z]+(['-][A-Za-z]+)*$"
         if re.match(pattern, name) and len(name) <= 35:
             return True

@@ -278,7 +278,7 @@ Traveller Management:
         print(f"Welcome {user.userName}")
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
-            "2": lambda : user.editScooter(db,loggingSys),
+            "2": lambda : user.editScooter(db,user,loggingSys),
             "3": lambda : user.searchScooter(db,loggingSys),
         }
 

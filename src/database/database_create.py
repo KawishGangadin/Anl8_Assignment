@@ -4,6 +4,7 @@ from roles import roles
 import sqlite3
 import secrets
 import string
+import datetime
 import os
 class DBCreate:
 
@@ -180,76 +181,27 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createScooter(self, scooter_data):
-        conn = None
+    def createScooter(self, fields):
         try:
-            in_service_date = scooter_data.get('in_service_date')
-            brand = scooter_data.get('brand')
-            model = scooter_data.get('model')
-            serial_number = scooter_data.get('serial_number')
-            top_speed = scooter_data.get('top_speed')
-            battery_capacity = scooter_data.get('battery_capacity')
-            state_of_charge = scooter_data.get('state_of_charge')
-            target_soc_min = scooter_data.get('target_soc_min')
-            target_soc_max = scooter_data.get('target_soc_max')
-            latitude = scooter_data.get('latitude')
-            longitude = scooter_data.get('longitude')
-            mileage = scooter_data.get('mileage')
-            last_maintenance_date = scooter_data.get('last_maintenance_date')
-
-            # Validate fields
-            if not (Validation.validateBrandOrModel(brand, None) and
-                    Validation.validateBrandOrModel(model, None) and
-                    Validation.validateSerialNumber(serial_number) and
-                    Validation.validateIntegerInRange(top_speed, 5, 120) and
-                    Validation.validateIntegerInRange(battery_capacity, 100, 2000) and
-                    Validation.validateIntegerInRange(state_of_charge, 0, 100) and
-                    Validation.validateIntegerInRange(target_soc_min, 0, 100) and
-                    Validation.validateIntegerInRange(target_soc_max, 0, 100) and
-                    Validation.validateIntegerInRange(mileage, 0, 999999) and
-                    Validation.validateCoordinates(latitude, longitude)):
-                print("Validation failed.")
-                return "FAIL"
-
-            public_key = cryptoUtils.loadPublicKey()
-
-            encrypted_serial = cryptoUtils.encryptWithPublicKey(public_key, serial_number)
-            encrypted_lat = cryptoUtils.encryptWithPublicKey(public_key, latitude)
-            encrypted_lon = cryptoUtils.encryptWithPublicKey(public_key, longitude)
-
-            query = """
-            INSERT INTO scooters (
-                in_service_date, brand, model, serial_number, top_speed,
-                battery_capacity, state_of_charge, target_soc_min, target_soc_max,
-                latitude, longitude, out_of_service, mileage, last_maintenance_date
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
-
-            parameters = (
-                in_service_date, brand, model, encrypted_serial,
-                int(top_speed), int(battery_capacity), int(state_of_charge),
-                int(target_soc_min), int(target_soc_max),
-                encrypted_lat, encrypted_lon,
-                0,  # Default for out_of_service
-                int(mileage),
-                last_maintenance_date
-            )
-
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            cursor.execute(query, parameters)
+            query = """
+                INSERT INTO scooters (in_service_date, brand, model, serial_number, top_speed, battery_capacity, state_of_charge, target_soc_min, target_soc_max, latitude, longitude, out_of_service, mileage, last_maintenance_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            public_key = cryptoUtils.loadPublicKey()
+            in_service_date = datetime.date.today().strftime("%Y-%m-%d")
+            fields.append(in_service_date)
+            scooterdata = tuple([cryptoUtils.encryptWithPublicKey(public_key, f) for f in fields])
+            cursor.execute(query, (scooterdata))
             conn.commit()
             cursor.close()
             return "OK"
-
         except sqlite3.Error as e:
-            print("DB error while creating scooter:", e)
-            return "FAIL"
+            return e
         finally:
             if conn:
                 conn.close()
-
-
 
     def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
         conn = None

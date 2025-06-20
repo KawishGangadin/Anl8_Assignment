@@ -75,52 +75,24 @@ class DBUpdate:
             if conn:
                 conn.close()
     
-    def updateScooter(self, scooter_id, updates: dict):
-        conn = None
+    def updateScooter(self, id, newFields):
         try:
-            if not updates:
-                print("No fields to update.")
-                return "OK"
-
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-
-            cursor.execute("SELECT id FROM scooters WHERE id = ?", (scooter_id,))
-            if not cursor.fetchone():
-                print("Scooter not found.")
-                return "FAIL"
-
-            allowed_fields = [
-                "brand", "model", "serial_number", "top_speed", "battery_capacity",
-                "state_of_charge", "target_soc_min", "target_soc_max", "latitude",
-                "longitude", "mileage", "last_maintenance_date"
-            ]
-
-            updates = {k: v for k, v in updates.items() if k in allowed_fields}
-            if not updates:
-                print("No valid fields provided.")
-                return "FAIL"
-
+            query = """ 
+                UPDATE scooters SET in_service_date = ?, brand = ?, model = ?, serial_number = ?, top_speed = ?, battery_capacity = ?,
+                state_of_charge = ?, target_soc_min = ?, target_soc_max = ?, latitude = ?, longitude = ?, out_of_service = ?,
+                mileage = ?, last_maintenance_date = ? WHERE id = ?
+            """
             public_key = cryptoUtils.loadPublicKey()
-            encrypted_updates = {}
-
-            for key, value in updates.items():
-                if key in ["serial_number", "latitude", "longitude"]:
-                    encrypted_updates[key] = cryptoUtils.encryptWithPublicKey(public_key, str(value))
-                else:
-                    encrypted_updates[key] = value
-
-            query = "UPDATE scooters SET " + ", ".join(f"{k} = ?" for k in encrypted_updates.keys())
-            query += " WHERE id = ?"
-            parameters = list(encrypted_updates.values()) + [scooter_id]
-
-            cursor.execute(query, parameters)
+            encrypted = tuple([cryptoUtils.encryptWithPublicKey(public_key, f) for f in newFields])
+            all_data = encrypted + (id,)
+            cursor.execute(query, (all_data))
             conn.commit()
-            return "OK" if cursor.rowcount > 0 else "FAIL"
-
+            cursor.close()
+            return "OK"
         except sqlite3.Error as e:
-            print("An error occurred while updating the scooter:", e)
-            return "FAIL"
+            return e
         finally:
             if conn:
                 conn.close()
