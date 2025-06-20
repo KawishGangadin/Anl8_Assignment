@@ -697,10 +697,11 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             scooters = cursor.fetchall()
             cursor.close()
             for scooter in scooters:
-                data_to_bytes = list(map(bytes, scooter))
-                decrypted_data = list(map(cryptoUtils.decryptWithPrivateKey, privateKey, data_to_bytes))
+                data_to_bytes = list(map(bytes, scooter))[1:]
+                decrypted_data = [cryptoUtils.decryptWithPrivateKey(privateKey, s) for s in data_to_bytes]
                 decrypted_data = tuple(map(lambda s: s.decode('utf-8'), decrypted_data))
-                scooterList.append(decrypted_data)
+                all_data = (scooter[0],) + decrypted_data
+                scooterList.append(all_data)
             return scooterList
                 
         except sqlite3.Error as e:
@@ -710,14 +711,89 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def getScooterByAttribute(self):
-        pass
+    def getScooterByAttribute(self, search_key):
+        scooterList = self.getScooters()
+        if search_key:
+            return [s for s in scooterList if ([x for x in s if search_key.lower() in str(x).lower()])]
+        else:
+            return scooterList
 
-    def createScooter(self):
-        pass
+    def getScooterByID(self, id):
+        conn = None
+        scooter = None
+        privateKey = cryptoUtils.loadPrivateKey()
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM scooters WHERE id = ?"
+            cursor.execute(query, (id,))
+            scooter = cursor.fetchone()
+            cursor.close()
+            if scooter:
+                data_to_bytes = list(map(bytes, scooter))[1:]
+                decrypted_data = [cryptoUtils.decryptWithPrivateKey(privateKey, s) for s in data_to_bytes]
+                decrypted_data = tuple(map(lambda s: s.decode('utf-8'), decrypted_data))
+                all_data = (scooter[0],) + decrypted_data
+                return all_data
+            else:
+                return None
+                
+        except sqlite3.Error as e:
+            print("An error occurred while retrieving scooter data:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+            
+        
+    def createScooter(self, fields):
+        # TODO: validate new scooter fields (do dit in users.py)
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = """
+                INSERT INTO scooters (in_service_date, brand, model, serial_number, top_speed, battery_capacity, state_of_charge, target_soc_min, target_soc_max, latitude, longitude, out_of_service, mileage, last_maintenance_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            public_key = cryptoUtils.loadPublicKey()
+            in_service_date = date.today().strftime("%Y-%m-%d")
+            fields.append(in_service_date)
+            scooterdata = tuple([cryptoUtils.encryptWithPublicKey(public_key, f) for f in fields])
+            cursor.execute(query, (scooterdata))
+            conn.commit()
+            cursor.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while trying to add the scooter:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+            
 
-    def editScooter(self):
-        pass
+    def editScooter(self, id, newFields):
+        # TODO: validate new scooter fields (in users.py)
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = """ 
+                UPDATE scooters SET in_service_date = ?, brand = ?, model = ?, serial_number = ?, top_speed = ?, battery_capacity = ?,
+                state_of_charge = ?, target_soc_min = ?, target_soc_max = ?, latitude = ?, longitude = ?, out_of_service = ?,
+                mileage = ?, last_maintenance_date = ? WHERE id = ?
+            """
+            public_key = cryptoUtils.loadPublicKey()
+            encrypted = tuple([cryptoUtils.encryptWithPublicKey(public_key, f) for f in newFields])
+            all_data = encrypted + (id,)
+            cursor.execute(query, (all_data))
+            conn.commit()
+            cursor.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while trying to update a scooter:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
 
     def deleteScooter(self):
         pass

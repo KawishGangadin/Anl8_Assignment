@@ -21,6 +21,11 @@ def main():
         dbInitialization.createTravellersTable()
         dbInitialization.createScootersTable()
         dbInitialization.createBackupsTable()
+        skoetertje = [
+    "2025", "Yamaha", "Little Green Wing", "1234", "90", "1000",
+    "29", "15", "80", "12.22224", "13.5553", "False", "5000", "2024"
+]
+        dbInitialization.createScooter(skoetertje)
 
     initDB()
     running = True

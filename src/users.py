@@ -324,8 +324,135 @@ class serviceEngineer(userBlueprint):
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during password change: {str(e)}", True, username=self.userName)
 
-    def updateScooter(self, user, db, role, loggingSys):
-        pass
+    def displayScooters(self, db, loggingSys):
+        try:
+            result = db.getScooters()
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"ID: {row[0]}" )
+                    print(f"In service date: {row[1]}")
+                    print(f"Brand: {row[2]}")
+                    print(f"Model: {row[3]}")
+                    print(f"Serial number: {row[4]}")
+                    print(f"Top speed: {row[5]}")
+                    print(f"Battery capacity: {row[6]}")
+                    print(f"State of charge (current): {row[7]}")
+                    print(f"State of charge min: {row[8]}")
+                    print(f"State of charge max: {row[9]}")
+                    print(f"Location: lat: {row[10]}, long: {row[11]}")
+                    print(f"Out of service date: {row[12]}")
+                    print(f"Mileage: {row[13]}")
+                    print(f"Last maintenance date: {row[14]}")
+                    print("----------------")
+            else:
+                print("No results found.")
+            
+            input("Press any key to continue...")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during scooter search: {str(e)}", True, username=self.userName)
+            
+
+    def searchScooter(self, db, loggingSys):
+        # TODO: validate search key
+        try:
+
+            search_key = input("Enter the search key: ")
+            result = db.getScooterByAttribute(search_key)
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"ID: {row[0]}" )
+                    print(f"In service date: {row[1]}")
+                    print(f"Brand: {row[2]}")
+                    print(f"Model: {row[3]}")
+                    print(f"Serial number: {row[4]}")
+                    print(f"Top speed: {row[5]}")
+                    print(f"Battery capacity: {row[6]}")
+                    print(f"State of charge (current): {row[7]}")
+                    print(f"State of charge min: {row[8]}")
+                    print(f"State of charge max: {row[9]}")
+                    print(f"Location: lat: {row[10]}, long: {row[11]}")
+                    print(f"Out of service date: {row[12]}")
+                    print(f"Mileage: {row[13]}")
+                    print(f"Last maintenance date: {row[14]}")
+                    print("----------------")
+            else:
+                print("No results found.")
+            
+            input("Press any key to continue...")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            loggingSys.log(f"Error occurred during scooter search: {str(e)}", True, username=self.userName)
+
+    def updateScooter(self, db, user, loggingSys):
+        # TODO: validate id and update validation for edited attributes
+        try:
+            self.displayScooters(db, loggingSys)
+            id = input("Enter the ID of the scooter you would like to edit:")
+            if id.upper() == "Q":
+                return
+            result = db.getScooterByID(id)
+            if result:
+                vFunctions = (
+                    Validation.validateAge, #soc
+                    Validation.validateAge, #soc min
+                    Validation.validateAge, #soc max
+                    Validation.validateWeight, #lat
+                    Validation.validateWeight, #long
+                    Validation.validateName, #out of service (bool)
+                    Validation.validateAge, #mileage
+                    Validation.validate_birthdate #last maintenance date
+                )
+                fNames = ("State of charge (current)", "State of charge min.", "State of charge max.", "Latitude", "Longitude",
+                          "Out of service", "Mileage", "Last maintenance date")
+                rFields = list(result[7:])
+                offset = 7 # skipping the first 7 fields
+
+                if isinstance(user, systemAdministrator) or isinstance(user, superAdministrator):
+                    adminVFunctions = (
+                        Validation.validateName, #validate brand name
+                        Validation.validateName, #validate model name
+                        Validation.validateMobileNumber, # validate serial number
+                        Validation.validateAge, # top speed
+                        Validation.validateAge, #battery cap
+                    )
+                    adminFNames = ("Brand", "Model", "Serial number", "Top speed", "Battery capacity")
+                    vFunctions = adminVFunctions + vFunctions
+                    fNames = adminFNames + fNames
+                    rFields = list(result[2:])
+                    offset = 2 # only skipping the first 2 fields
+
+                for i, (f, n, v) in enumerate(zip(rFields, fNames, vFunctions)):
+                    fInput = "-"
+                    print(f"{n}: {f}")
+                    while not v(fInput,self.userName, loggingSys) and fInput != "" and fInput != "Q":
+                        fInput = input(f"Enter a new value or press Enter to keep current value:")
+
+                    if fInput == "":
+                        continue
+                    elif fInput == "Q":
+                        return
+                    else:
+                        rFields[i] = fInput
+
+                rFields = list(result[1:offset]) + rFields
+                if db.editScooter(id, rFields):
+                    return
+                else:
+                    raise Exception
+
+
+        except Exception as e:
+            print(f"An error occurred during scooter update:", e)
+            loggingSys.log(f"Error occurred during scooter update: {str(e)}", True, username=self.userName)
+            return
+
+
+
     
     # def deletion(self, user, db, role, loggingSys):
     #     try:
@@ -401,7 +528,50 @@ class serviceEngineer(userBlueprint):
 class systemAdministrator(serviceEngineer):
 
     def createScooter(self, db, loggingSys):
-        pass
+        # TODO: validate id and update validation for edited attributes
+        try:
+                vFunctions = (
+                    Validation.validateName, #validate brand name
+                    Validation.validateName, #validate model name
+                    Validation.validateMobileNumber, # validate serial number
+                    Validation.validateAge, # top speed
+                    Validation.validateAge, #battery cap
+                    Validation.validateAge, #soc
+                    Validation.validateAge, #soc min
+                    Validation.validateAge, #soc max
+                    Validation.validateWeight, #lat
+                    Validation.validateWeight, #long
+                    Validation.validateName, #out of service (bool)
+                    Validation.validateAge, #mileage
+                    Validation.validate_birthdate #last maintenance date
+                )
+                fNames = ("Brand", "Model", "Serial number", "Top speed", "Battery capacity", "State of charge (current)",
+                          "State of charge min.", "State of charge max.", "Latitude", "Longitude",
+                          "Out of service", "Mileage", "Last maintenance date")
+
+                fields = []
+
+                for i, (n, v) in enumerate(zip(fNames, vFunctions)):
+                    fInput = "-"
+                    print(f"{n}:")
+                    while not v(fInput,self.userName, loggingSys) and fInput != "Q":
+                        fInput = input(f"Enter a value (Q to cancel):")
+
+                    if fInput == "Q":
+                        return
+                    else:
+                        fields.append(fInput)
+
+                if db.createScooter(fields):
+                    return
+                else:
+                    raise Exception
+
+
+        except Exception as e:
+            print(f"An error occurred during scooter update:", e)
+            loggingSys.log(f"Error occurred during scooter update: {str(e)}", True, username=self.userName)
+            return
 
     def removeScooter(self, db, loggingSys):
         pass

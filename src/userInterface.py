@@ -102,8 +102,10 @@ class UI:
             "13": lambda : user.createTraveller(db,roles.SUPERADMIN,loggingSys),
             "14": lambda : user.updateTraveller(db,loggingSys),
             "15": lambda : user.deletion(user, db, None, loggingSys),
-            "16": lambda : user.memberSearch(db,loggingSys),
-            "17": lambda : user.generateRestoreCode( db, loggingSys),
+            "16": lambda : user.searchScooter(db,loggingSys),
+            "17": lambda: user.updateScooter(db, user, loggingSys),
+            "18": lambda : user.createScooter(db, loggingSys),
+            "19": lambda : user.generateRestoreCode( db, loggingSys),
             'L': lambda : user.displayUsers(db),
             'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys),
             'UC': lambda : user.editUser(user,db,roles.CONSULTANT,loggingSys),
@@ -119,7 +121,9 @@ class UI:
             'AM': lambda : user.memberCreation(db,loggingSys),
             'UM': lambda : user.editMember(db,loggingSys),
             'DM': lambda : user.deletion(user, db, None, loggingSys),
-            'SM': lambda : user.memberSearch(db,loggingSys),
+            'SS': lambda : user.searchScooter(db,loggingSys),
+            'US': lambda : user.updateScooter(db, user, loggingSys),
+            'AS': lambda : user.createScooter(db, loggingSys),
             'MR': lambda : user.generateRestoreCode( db, loggingSys)
             }
         print("""
@@ -139,8 +143,10 @@ Super Admin Menu:
 [13] or [AM] - Add a new traveller
 [14] or [UM] - Update a member’s information
 [15] or [DM] - Delete a member’s record
-[16] or [SM] - Search and retrieve a member’s information
-[17] or [MR] - Generate a restore code for the system
+[16] or [SS] - Search and retrieve a scooter’s information
+[17] or [US] - Update a scooter's information
+[18] or [AS] - Add a new scooter
+[19] or [MR] - Generate a restore code for the system
 [0] or [Q] - Quit
 """)
         user.alertLogs(loggingSys)
@@ -179,8 +185,10 @@ Super Admin Menu:
             "9": lambda : user.memberCreation(db,loggingSys), 
             "10": lambda : user.editMember(db,loggingSys), 
             "11": lambda : user.deletion(user, db, None, loggingSys), 
-            "12": lambda : user.memberSearch(db,loggingSys),
-            "13": lambda : user.restoreBackup(backupSys,loggingSys,db),
+            "12": lambda : user.searchScooter(db,loggingSys),
+            "13": lambda : user.updateScooter(db, user, loggingSys),
+            "14": lambda : user.createScooter(db, loggingSys),
+            "15": lambda : user.restoreBackup(backupSys,loggingSys,db),
             'UP': lambda : user.changePassword(user,db,loggingSys), 
             'LU': lambda : user.displayUsers(db), 
             'AC': lambda : user.userCreation(db, roles.CONSULTANT,loggingSys), 
@@ -192,7 +200,9 @@ Super Admin Menu:
             'AM': lambda : user.memberCreation(db,loggingSys), 
             'UM': lambda : user.editMember(db,loggingSys), 
             'DM': lambda : user.deletion(user, db, None, loggingSys), 
-            'SM': lambda : user.memberSearch(db,loggingSys),
+            'SS': lambda : user.searchScooter(db,loggingSys),
+            'US': lambda : user.updateScooter(db, user, loggingSys),
+            'AS': lambda : user.createScooter(db, loggingSys),
             'RB': lambda : user.restoreBackup(backupSys,loggingSys,db)
         }
 
@@ -210,8 +220,10 @@ System Administrator Menu:
 [9] or [AM] - Add a new member to the system
 [10] or [UM] - Modify or update the information of a member in the system
 [11] or [DM] - Delete a member's record from the database (note that a consultant cannot delete a record but can only modify or update a member’s information)
-[12] or [SM] - Search and retrieve the information of a member
-[13] or [RB] - Restore a backup of the system
+[12] or [SS] - Search and retrieve the information of a scooter
+[13] or [US] - Update a scooter's information
+[14] or [AS] - Add a new scooter
+[15] or [RB] - Restore a backup of the system
 [0] or [Q] - Quit
 """)
         user.alertLogs(loggingSys)
@@ -241,12 +253,12 @@ System Administrator Menu:
         methodCall = {
             "1": lambda : user.changePassword(user,db,loggingSys), 
             "2": lambda : user.memberCreation(db,loggingSys), 
-            "3": lambda : user.editMember(db,loggingSys), 
-            "4": lambda : user.memberSearch(db,loggingSys),
+            "3": lambda : user.updateScooter(db, user, loggingSys), 
+            "4": lambda : user.searchScooter(db,loggingSys),
             'UP': lambda : user.changePassword(user,db,loggingSys), 
             'AM': lambda : user.memberCreation(db,loggingSys), 
-            'UM': lambda : user.editMember(db,loggingSys), 
-            'SM': lambda : user.memberSearch(db,loggingSys),
+            'US': lambda : user.updateScooter(db, user, loggingSys), 
+            'SM': lambda : user.searchScooter(db,loggingSys),
         }
 
 
@@ -254,8 +266,8 @@ System Administrator Menu:
 Consultant Menu:
 [1] or [UP] - Update their own password
 [2] or [AM] - Add a new member to the system
-[3] or [UM] - Modify or update the information of a member in the system
-[4] or [SM] - Search and retrieve the information of a member
+[3] or [US] - Modify or update the information of a scooter in the system
+[4] or [SM] - Search and retrieve the information of a scooter
 [0] or [Q] - Quit
 """)
         input_ = input("Press a key:").strip().upper()
