@@ -151,7 +151,7 @@ class service(userBlueprint):
     def editScooter(self, db, user, loggingSys):
         # TODO: validate id and update validation for edited attributes
         try:
-            self.displayScooters(db, loggingSys)
+            self.displayScooters(db)
             id = input("Enter the ID of the scooter you would like to edit:")
             if id.upper() == "Q":
                         return

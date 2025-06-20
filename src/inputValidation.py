@@ -227,9 +227,9 @@ class Validation:
         
     @staticmethod
     def validateID(id, loggingSys=None):
-        if Validation.validate_length(id, loggingSys) and Validation.convertableToInt(id):
+        if Validation.validate_length(id) and Validation.convertableToInt(id):
             id = int(id)
-            if 999999999 < id < 10000000000:
+            if 0 < id < 10000000000:
                 return True
         return False
     
