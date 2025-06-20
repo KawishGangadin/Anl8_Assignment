@@ -13,9 +13,8 @@ import time
 Dependencies.dependenciesInstaller()
 def main():
     def initDB():
-        dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
+        dbPath = os.path.join(os.path.dirname(__file__), 'urbanMobility.db')
         dbInitialization = DB(dbPath)
-        dbInitialization.createMembersTable()
         dbInitialization.createUsersTable()
         dbInitialization.initSuperadmin()
         dbInitialization.createTravellersTable()
@@ -34,7 +33,7 @@ def main():
     attemptedPasswords = []
     userInterface = UI()
 
-    dbPath = os.path.join(os.path.dirname(__file__), 'uniqueMeal.db')
+    dbPath = os.path.join(os.path.dirname(__file__), 'urbanMobility.db')
     dataBase = DB(dbPath)
     loggingSys = Logger()
     backupSys = backup()
@@ -43,7 +42,6 @@ def main():
     while running:
         maxTries = 3
         while not loggedIn:
-            # if user tries to log in too many times with wrong credentials, exit the system
             if maxTries <= 0:
                 if len(set(attemptedPasswords)) > 1 and len(set(attemptedUsernames)) > 1:
                     print("Multiple usernames and passwords are tried wrong in a row")
@@ -56,7 +54,6 @@ def main():
                     print("Exiting...")
                     exit()
 
-            # while user is not logged in, ask for username and password and store the attempts
             while maxTries > 0:
                 userInterface.clearScreen()
                 userInterface.displayLogo()
@@ -78,7 +75,6 @@ def main():
                 else:
                     data = dataBase.getUserData(username.lower())
                 
-                # if user is found in the database, verify the password and log in (this sets the user object)
                 if data:
                     storedPassword = data[4]
                     storedSalt = data[8] 
@@ -102,12 +98,10 @@ def main():
                     maxTries -= 1
         
         while loggedIn:
-            # make sure to go back to login screen if user logs out
             if not data:
                 loggedIn = False
                 break
 
-            # if the user has a temporary password, ask for a new password and update it
             isTemp = data[7]
 
             while isTemp == True:

@@ -7,34 +7,6 @@ import string
 import os
 class DBCreate:
 
-    def createMembersTable(self):
-        create_query = """
-        CREATE TABLE IF NOT EXISTS members (
-            membership_id TEXT PRIMARY KEY,
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            age INTEGER CHECK(age >= 0),
-            gender TEXT NOT NULL,
-            weight REAL CHECK(weight >= 0),
-            address TEXT NOT NULL,
-            city TEXT,
-            postalCode TEXT,
-            email TEXT,
-            mobile TEXT,
-            registration_date DATE NOT NULL
-        )
-        """
-        try:
-            conn = sqlite3.connect(self.databaseFile)
-            cursor = conn.cursor()
-            cursor.execute(create_query)
-            conn.commit()
-        except sqlite3.Error as e:
-            print("An error occurred while creating the members table:", e)
-        finally:
-            if conn:
-                conn.close()
-
     def createTravellersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS travellers (
@@ -142,7 +114,6 @@ class DBCreate:
             if conn:
                 conn.close()
     
-
     def createTraveller(self, customer_id, registration_date, first_name, last_name, birthdate,
                     gender, street, house_number, city, zip_code, email, mobile, license_number):
         conn = None
@@ -209,51 +180,83 @@ class DBCreate:
             if conn:
                 conn.close()
 
-
-    def createMember(self, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date, membership_id):
+    def createScooter(self, scooter_data):
         conn = None
         try:
-            validationData = { "first_name": first_name, "last_name": last_name, "age": age, "address": address, "city": city, "postalCode": postalCode, "email": email, "mobile": mobile, "membershipID": membership_id }
-            if Validation.validateMultipleInputs( **validationData):
-                conn = sqlite3.connect(self.databaseFile)
-                query = """
-                INSERT INTO members (membership_id, first_name, last_name, age, gender, weight, address, city, postalCode, email, mobile, registration_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """
-                public_key = cryptoUtils.loadPublicKey()
-                encrypted_firstName = cryptoUtils.encryptWithPublicKey(public_key, first_name)
-                encrypted_lastName = cryptoUtils.encryptWithPublicKey(public_key, last_name)
-                encrypted_age = cryptoUtils.encryptWithPublicKey(public_key, age)
-                encrypted_gender = cryptoUtils.encryptWithPublicKey(public_key, gender)
-                encrypted_weight = cryptoUtils.encryptWithPublicKey(public_key, str(weight))
-                encrypted_membershipId = cryptoUtils.encryptWithPublicKey(public_key, membership_id)
-                encrypted_address = cryptoUtils.encryptWithPublicKey(public_key, address)
-                encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
-                encrypted_postalCode = cryptoUtils.encryptWithPublicKey(public_key, postalCode)
-                encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
-                encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, str("316"+mobile))
-                parameters = (encrypted_membershipId, encrypted_firstName, encrypted_lastName, encrypted_age, encrypted_gender, encrypted_weight, encrypted_address, encrypted_city, encrypted_postalCode, encrypted_email, encrypted_mobile, registration_date)
-                cursor = conn.cursor()
+            in_service_date = scooter_data.get('in_service_date')
+            brand = scooter_data.get('brand')
+            model = scooter_data.get('model')
+            serial_number = scooter_data.get('serial_number')
+            top_speed = scooter_data.get('top_speed')
+            battery_capacity = scooter_data.get('battery_capacity')
+            state_of_charge = scooter_data.get('state_of_charge')
+            target_soc_min = scooter_data.get('target_soc_min')
+            target_soc_max = scooter_data.get('target_soc_max')
+            latitude = scooter_data.get('latitude')
+            longitude = scooter_data.get('longitude')
+            mileage = scooter_data.get('mileage')
+            last_maintenance_date = scooter_data.get('last_maintenance_date')
 
-                cursor.execute(query, parameters)
-                conn.commit()
-                cursor.close()
-                return "OK"
-            else:
+            # Validate fields
+            if not (Validation.validateBrandOrModel(brand, None) and
+                    Validation.validateBrandOrModel(model, None) and
+                    Validation.validateSerialNumber(serial_number) and
+                    Validation.validateIntegerInRange(top_speed, 5, 120) and
+                    Validation.validateIntegerInRange(battery_capacity, 100, 2000) and
+                    Validation.validateIntegerInRange(state_of_charge, 0, 100) and
+                    Validation.validateIntegerInRange(target_soc_min, 0, 100) and
+                    Validation.validateIntegerInRange(target_soc_max, 0, 100) and
+                    Validation.validateIntegerInRange(mileage, 0, 999999) and
+                    Validation.validateCoordinates(latitude, longitude)):
+                print("Validation failed.")
                 return "FAIL"
+
+            public_key = cryptoUtils.loadPublicKey()
+
+            encrypted_serial = cryptoUtils.encryptWithPublicKey(public_key, serial_number)
+            encrypted_lat = cryptoUtils.encryptWithPublicKey(public_key, latitude)
+            encrypted_lon = cryptoUtils.encryptWithPublicKey(public_key, longitude)
+
+            query = """
+            INSERT INTO scooters (
+                in_service_date, brand, model, serial_number, top_speed,
+                battery_capacity, state_of_charge, target_soc_min, target_soc_max,
+                latitude, longitude, out_of_service, mileage, last_maintenance_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+
+            parameters = (
+                in_service_date, brand, model, encrypted_serial,
+                int(top_speed), int(battery_capacity), int(state_of_charge),
+                int(target_soc_min), int(target_soc_max),
+                encrypted_lat, encrypted_lon,
+                0,  # Default for out_of_service
+                int(mileage),
+                last_maintenance_date
+            )
+
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            return "OK"
+
         except sqlite3.Error as e:
-            print("An error occurred while creating the member:", e)
-            return None
+            print("DB error while creating scooter:", e)
+            return "FAIL"
         finally:
             if conn:
                 conn.close()
+
+
 
     def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
         conn = None
         try:
             public_key = cryptoUtils.loadPublicKey()
             validationData = { "first_name": first_name, "last_name": last_name, "username": username, "password": password }
-            if Validation.validateMultipleInputs( **validationData) and role in [roles.ADMIN, roles.CONSULTANT] and temp in [False,True] :
+            if Validation.validateMultipleInputs( **validationData) and role in [roles.ADMIN, roles.SERVICE] and temp in [False,True] :
                 conn = sqlite3.connect(self.databaseFile)
                 hashed_password, salt = cryptoUtils.hashPassword(password)
                 encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,role.value)
@@ -275,13 +278,12 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createRestoreCode(self, user_id, backup_name, required_role=roles.ADMIN):
+    def createRestoreCode(self, user_id, backup_name,backupSys, required_role=roles.ADMIN):
         if not self.findUserID(user_id, required_role):
             print("User ID is invalid or does not have the required role.")
             return "FAIL"
 
-        backup_path = os.path.join("backups", backup_name)
-        if not os.path.isfile(backup_path):
+        if not backupSys.doesBackupExist(backup_name):
             print("Backup file does not exist.")
             return "FAIL"
 
@@ -291,7 +293,6 @@ class DBCreate:
 
         restore_code = generate_code()
 
-        # 4. Store the code in the restore_codes table
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -303,7 +304,7 @@ class DBCreate:
             conn.commit()
             cursor.close()
             print(f"Restore code created: {restore_code}")
-            return restore_code  # Return the code so you can display or copy it
+            return restore_code  
         except sqlite3.Error as e:
             print("An error occurred while inserting the restore code:", e)
             return "FAIL"

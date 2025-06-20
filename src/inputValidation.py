@@ -94,7 +94,6 @@ class Validation:
             loggingSys.log("Invalid driving license number format.", False, username=username)
         return False
 
-
     @staticmethod
     def checkNullByte(input):
         pattern = r'^[\x20-\x7E]+$' 
@@ -326,7 +325,6 @@ class Validation:
             'city': Validation.validateCity,
             'backup': Validation.validateBackup,
             'gender': Validation.validateGender,
-            'weight': Validation.validateWeight
         }
 
         for key, value in kwargs.items():
