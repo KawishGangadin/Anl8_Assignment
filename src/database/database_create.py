@@ -230,7 +230,7 @@ class DBCreate:
                 int(top_speed), int(battery_capacity), int(state_of_charge),
                 int(target_soc_min), int(target_soc_max),
                 encrypted_lat, encrypted_lon,
-                0,  # Default for out_of_service
+                0,
                 int(mileage),
                 last_maintenance_date
             )

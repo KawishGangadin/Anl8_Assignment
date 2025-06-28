@@ -7,7 +7,7 @@ class Logger:
     def __init__(self):
         self.log_format = '%(log_number)s | %(asctime)s | %(username)s | %(activity)s | %(additional_info)s | Suspicious: %(suspicious)s | Checked: %(checked)s | %(message)s'
         self.log_dir = os.path.dirname(os.path.abspath(__file__))
-        self.log_file = os.path.join(self.log_dir, 'logs', 'uniquemeal.log')
+        self.log_file = os.path.join(self.log_dir, 'logs', 'urbanmobility.log')
         self.checkLogFile()
         self.basicConfig()
         self.public_key = cryptoUtils.loadPublicKey() 

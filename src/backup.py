@@ -24,7 +24,7 @@ class backup:
             if not os.path.exists(logsFolder):
                 raise FileNotFoundError(f"Logs folder '{logsFolder}' does not exist")
             
-            logFile = 'uniquemeal.log'
+            logFile = 'urbanmobility.log'
             dbFile = 'urbanMobility.db'
             logPath = os.path.join(logsFolder, logFile)
             dbPath = os.path.join(self.backupDir, dbFile)
@@ -79,7 +79,7 @@ class backup:
             
             print("Backup extracted successfully.")
             
-            logFile = 'uniquemeal.log'
+            logFile = 'urbanmobility.log'
             dbFile = 'urbanMobility.db'
             
             backupLogPath = os.path.join(self.backupFolder, logFile)

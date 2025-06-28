@@ -92,15 +92,15 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
         methodCall = {
             "1": lambda : user.displayUsers(db),
             "2": lambda : user.userCreation(db, roles.SERVICE,loggingSys),
-            "3": lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
-            "4": lambda : user.deletion(user, db, roles.SERVICE, loggingSys),
-            "5": lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys), 
+            "3": lambda : user.editUser(db,roles.SERVICE,loggingSys),
+            "4": lambda : user.deletion( db, roles.SERVICE, loggingSys),
+            "5": lambda : user.resetPassword(db,roles.SERVICE,loggingSys), 
             "6": lambda : user.userCreation(db, roles.ADMIN,loggingSys),
-            "7": lambda : user.editUser(user,db,roles.ADMIN,loggingSys),
-            "8": lambda : user.deletion(user, db, roles.ADMIN, loggingSys),
-            "9": lambda : user.resetPassword(user,db,roles.ADMIN,loggingSys), 
+            "7": lambda : user.editUser(db,roles.ADMIN,loggingSys),
+            "8": lambda : user.deletion( db, roles.ADMIN, loggingSys),
+            "9": lambda : user.resetPassword(db,roles.ADMIN,loggingSys), 
 
-            "10": lambda : user.createBackup(user,backupSys,loggingSys),
+            "10": lambda : user.createBackup(backupSys,loggingSys),
             "11": lambda : user.restoreBackup(backupSys,loggingSys,db),
             "12": lambda : user.generateRestoreCode( db,backupSys,loggingSys),
             "13" : lambda : user.manageRestoreCodes( db, loggingSys),
@@ -184,19 +184,19 @@ Traveller Management:
     def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
-            "1": lambda : user.changePassword(user,db,loggingSys), 
+            "1": lambda : user.changePassword(db,loggingSys), 
             "2": lambda : user.editOwnAccount(db,loggingSys),
             "3": lambda : user.accountDeletion(db, loggingSys),
 
             "4": lambda :  user.displayLogs(loggingSys),
-            "5": lambda :  user.createBackup(user,backupSys,loggingSys), 
+            "5": lambda :  user.createBackup(backupSys,loggingSys), 
             "6": lambda : user.restoreBackup(backupSys,loggingSys,db),
 
             "7": lambda : user.displayUsers(db),
             "8": lambda : user.userCreation(db, roles.SERVICE,loggingSys),
-            "9": lambda : user.editUser(user,db,roles.SERVICE,loggingSys),
-            "10": lambda : user.deletion(user, db, roles.SERVICE, loggingSys),
-            "11": lambda : user.resetPassword(user,db,roles.SERVICE,loggingSys), 
+            "9": lambda : user.editUser(db,roles.SERVICE,loggingSys),
+            "10": lambda : user.deletion( db, roles.SERVICE, loggingSys),
+            "11": lambda : user.resetPassword(db,roles.SERVICE,loggingSys), 
 
             "15": lambda : user.createScooter(db, loggingSys),
             "16": lambda : user.editScooter(db,loggingSys),
@@ -277,7 +277,7 @@ Traveller Management:
     def service_Menu(self,user,db,loggingSys):
         print(f"Welcome {user.userName}")
         methodCall = {
-            "1": lambda : user.changePassword(user,db,loggingSys), 
+            "1": lambda : user.changePassword(db,loggingSys), 
             "2": lambda : user.editScooter(db,loggingSys),
             "3": lambda : user.searchScooter(db,loggingSys),
         }

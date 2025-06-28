@@ -185,20 +185,23 @@ class DBRetrieve:
                 conn.close()
     
     def displayAllTravellers(self):
-        travellers = self.getAllTravellers()
+        try:
+            travellers = self.getAllTravellers()
 
-        print("\n======= Registered Travellers =======")
-        for t in travellers:
-            print(f"Name: {Utility.safe_decrypt(t[2])} {Utility.safe_decrypt(t[3])}")
-            print(f"Birthdate: {t[4]}")
-            print(f"Gender: {Utility.safe_decrypt(t[5])}")
-            print(f"Street: {Utility.safe_decrypt(t[6])} {Utility.safe_decrypt(t[7])}")
-            print(f"City: {Utility.safe_decrypt(t[8])}")
-            print(f"Zip: {Utility.safe_decrypt(t[9])}")
-            print(f"Email: {Utility.safe_decrypt(t[10])}")
-            print(f"Mobile: {Utility.safe_decrypt(t[11])}")
-            print(f"License: {Utility.safe_decrypt(t[12])}")
-            print("-------------------------------------")
+            print("\n======= Registered Travellers =======")
+            for t in travellers:
+                print(f"Name: {Utility.safe_decrypt(t[2])} {Utility.safe_decrypt(t[3])}")
+                print(f"Birthdate: {t[4]}")
+                print(f"Gender: {Utility.safe_decrypt(t[5])}")
+                print(f"Street: {Utility.safe_decrypt(t[6])} {Utility.safe_decrypt(t[7])}")
+                print(f"City: {Utility.safe_decrypt(t[8])}")
+                print(f"Zip: {Utility.safe_decrypt(t[9])}")
+                print(f"Email: {Utility.safe_decrypt(t[10])}")
+                print(f"Mobile: {Utility.safe_decrypt(t[11])}")
+                print(f"License: {Utility.safe_decrypt(t[12])}")
+                print("-------------------------------------")
+        except Exception as e:
+            print("An error occurred while displaying travellers:", e)
 
     def displayAllScooters(self):
         conn = None

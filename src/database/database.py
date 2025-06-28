@@ -56,6 +56,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                 print("Superadmin initialized successfully.")
         except sqlite3.Error as e:
             print("An error occurred while initializing superadmin:", e)
+            conn.close()
         finally:
             if conn:
                 conn.close()
@@ -81,7 +82,6 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                             return True 
 
             return False  
-
         except sqlite3.Error as e:
             print("An error occurred while searching for user ID:", e)
             return False
@@ -187,6 +187,25 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
         except sqlite3.Error as e:
             print("An error occurred while searching for traveller ID:", e)
             return False
+        finally:
+            if conn:
+                conn.close()
+
+    def getUsernameByID(self, user_id):
+        conn = None
+        try:
+            if(str(user_id).isdigit()):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+                query = "SELECT username FROM users WHERE id = ?"
+                cursor.execute(query, (user_id,))
+                username = cursor.fetchone()
+                cursor.close()
+                return cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(),username[0]) if username else None
+            return None
+        except sqlite3.Error as e:
+            print("An error occurred while retrieving username by user ID:", e)
+            return None
         finally:
             if conn:
                 conn.close()

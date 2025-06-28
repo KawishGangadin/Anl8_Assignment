@@ -162,3 +162,6 @@ class DBDelete:
         except ValueError as ve:
             print(str(ve))
             return "FAIL" 
+        finally:
+            if conn:
+                conn.close()

@@ -14,7 +14,7 @@ from utility import Utility
 
 class service(userBlueprint):
 
-    def changePassword(self, user, db, loggingSys):
+    def changePassword(self, db, loggingSys):
         try:
             def processChangePW():
                 correctPassword = False
@@ -60,13 +60,13 @@ class service(userBlueprint):
                     else:
                         print("Please input a valid password...")
 
-            if isinstance(user, superAdministrator):
+            if isinstance(self, superAdministrator):
                 print("Unauthorized access...")
                 time.sleep(0.5)
                 return
-            elif isinstance(user, systemAdministrator):
+            elif isinstance(self, systemAdministrator):
                 processChangePW()
-            elif isinstance(user, service):
+            elif isinstance(self, service):
                 role = roles.SERVICE
                 processChangePW()
             else:
@@ -264,7 +264,7 @@ class systemAdministrator(service):
             print(f"An error occurred while deleting traveller: {str(e)}")
             loggingSys.log(f"Error occurred during traveller deletion: {str(e)}", True, username=self.userName)
 
-    def deletion(self, user, db, role, loggingSys):
+    def deletion(self, db, role, loggingSys):
         try:
             def processDeletion(role):
                 self.displayUsers(db, role)
@@ -302,17 +302,17 @@ class systemAdministrator(service):
                         loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername.decode('utf-8')}.", self.userName)
                     time.sleep(1)
 
-            if isinstance(user, superAdministrator):
+            if isinstance(self, superAdministrator):
                 if role in [roles.ADMIN, roles.SERVICE]:
                     processDeletion(role)
                 else:
                     print("Invalid request...")
-            elif isinstance(user, systemAdministrator):
+            elif isinstance(self, systemAdministrator):
                 if role == roles.SERVICE:
                     processDeletion(role)
                 else:
                     print("Unauthorized request.")
-            elif isinstance(user, service):
+            elif isinstance(self, service):
                 print("You are not authorized to delete any users.")
             else:
                 print("Unauthorized access...")
@@ -440,13 +440,13 @@ class systemAdministrator(service):
             print(f"An error occurred: {e}")
             loggingSys.log(f"Scooter creation error: {str(e)}", True, username=self.userName)
 
-    def createBackup(self, user, backUpSystem, loggingSys):
+    def createBackup(self, backUpSystem, loggingSys):
         try:
             while True:
                 keyPress = input("Would you like to create a back up [Y/N] ")
                 if keyPress.upper() == "Y":
                     print("Creating backup....")
-                    backUpSystem.createBackupZip(user)
+                    backUpSystem.createBackupZip(self)
                     time.sleep(5)
                     break
                 elif keyPress.upper() == "N":
@@ -651,7 +651,7 @@ class systemAdministrator(service):
             print(f"An error occurred while editing traveller: {str(e)}")
             loggingSys.log(f"Error occurred during traveller editing: {str(e)}", True, username=self.userName)
 
-    def editUser(self, user, db, role, loggingSys):
+    def editUser(self, db, role, loggingSys):
         try:
             def processEdit(role):
                 self.displayUsers(db, role)
@@ -703,12 +703,12 @@ class systemAdministrator(service):
                     else:
                         print("Failed to update user information.")
 
-            if isinstance(user, superAdministrator):
+            if isinstance(self, superAdministrator):
                 if role in [roles.ADMIN, roles.SERVICE]:
                     processEdit(role)
                 else:
                     print("Invalid request....")
-            elif isinstance(user, systemAdministrator):
+            elif isinstance(self, systemAdministrator):
                 if role == roles.SERVICE:
                     processEdit(role)
                 else:
@@ -720,7 +720,7 @@ class systemAdministrator(service):
             print(f"An error occurred while editing user: {str(e)}")
             loggingSys.log(f"Error occurred during user edit: {str(e)}", True, username=self.userName)
     
-    def resetPassword(self, user, db, role, loggingSys):
+    def resetPassword(self, db, role, loggingSys):
         try:
             def processReset(role):
                 self.displayUsers(db, role)
@@ -759,12 +759,12 @@ class systemAdministrator(service):
                         else:
                             print("Please enter a valid password!")
             
-            if isinstance(user, superAdministrator):
+            if isinstance(self, superAdministrator):
                 if role in [roles.ADMIN, roles.SERVICE]:
                     processReset(role)
                 else:
                     print("Invalid request.")
-            elif isinstance(user, systemAdministrator):
+            elif isinstance(self, systemAdministrator):
                 if role == roles.SERVICE:
                     processReset(role)
                 else:

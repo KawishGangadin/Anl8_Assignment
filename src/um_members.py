@@ -110,6 +110,7 @@ def main():
 
                     elif Validation.passwordValidation(newPassword, username, loggingSys):
                         respone = dataBase.updatePassword(user.id,newPassword)
+                        user.session += 1
                         
                         if respone == "OK":
                             loggingSys.log(f"Successfully changed {username}'s password!",False)
