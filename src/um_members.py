@@ -10,7 +10,7 @@ from dependencies import Dependencies
 from cryptoUtils import cryptoUtils
 import time
 
-Dependencies.dependenciesInstaller()
+# Dependencies.dependenciesInstaller()
 def main():
     def initDB():
         dbPath = os.path.join(os.path.dirname(__file__), 'urbanMobility.db')

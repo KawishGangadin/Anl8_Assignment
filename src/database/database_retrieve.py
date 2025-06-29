@@ -253,8 +253,18 @@ class DBRetrieve:
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            cursor.execute("SELECT id FROM scooters WHERE id = ?", (scooter_id,))
-            return cursor.fetchone()  
+            cursor.execute("SELECT * FROM scooters WHERE id = ?", (scooter_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return None
+
+            cols = [desc[0] for desc in cursor.description]
+            decrypted = {
+                cols[i]: Utility.safe_decrypt(val)
+                for i, val in enumerate(row)
+            }
+            return decrypted
+
         except sqlite3.Error as e:
             print(f"Error retrieving scooter by ID: {e}")
             return None
@@ -262,13 +272,23 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
+
     def getTravellerById(self, traveller_id):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            cursor.execute("SELECT customer_id FROM travellers WHERE customer_id = ?", (traveller_id,))
-            return cursor.fetchone()  
+            cursor.execute("SELECT * FROM travellers WHERE customer_id = ?", (traveller_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return None
+
+            cols = [desc[0] for desc in cursor.description]
+            decrypted = {
+                cols[i]: Utility.safe_decrypt(val)
+                for i, val in enumerate(row)
+            }
+            return decrypted 
         except sqlite3.Error as e:
             print(f"Error retrieving scooter by ID: {e}")
             return None

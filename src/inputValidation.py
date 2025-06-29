@@ -34,7 +34,7 @@ class Validation:
         return 4.35 <= lon <= 4.55
 
     @staticmethod
-    def validate_birthdate(birthdate, username='', loggingSys=None):
+    def validate_birthdate(birthdate):
         try:
             birthdate = birthdate.strip()
             birthdate = datetime.strptime(birthdate, "%Y-%m-%d").date()
@@ -46,8 +46,6 @@ class Validation:
             return age >= 18
 
         except ValueError as e:
-            if loggingSys:
-                loggingSys.log(f"Invalid birthdate format: {e}", False, username=username)
             return False
 
     @staticmethod
@@ -126,17 +124,8 @@ class Validation:
             'username': Validation.usernameValidation,
             'password': Validation.passwordValidation,
             'email': Validation.validateEmail,
-            # 'age': Validation.validateAge,
-            # 'housenumber': Validation.validateHousenumber,
-            # 'postalCode': Validation.validateZipcode,
             'first_name': Validation.validateName,
             'last_name': Validation.validateName,
-        #     'mobile': Validation.validateMobileNumber,
-        #     'membershipID': Validation.validateMembershipID,
-        #     'address': Validation.validateAddress,
-        #     'city': Validation.validateCity,
-        #     'backup': Validation.validateBackup,
-        #     'gender': Validation.validateGender,
         }
 
         for key, value in kwargs.items():

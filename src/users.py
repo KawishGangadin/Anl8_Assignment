@@ -76,12 +76,13 @@ class service(userBlueprint):
             print(f"An error occurred: {str(e)}")
             loggingSys.log(f"Error occurred during password change: {str(e)}", True, username=self.userName)
 
-    def editScooter(self,db, loggingSys):
+    def editScooter(self, db, loggingSys):
         try:
             db.displayAllScooters()
 
+            # 1) Select the scooter
             while True:
-                scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
+                scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ").strip()
                 if scooter_id.upper() == 'Q':
                     return
                 if not scooter_id.isdigit():
@@ -89,62 +90,89 @@ class service(userBlueprint):
                     continue
 
                 scooter_id = int(scooter_id)
-                if db.getScooterById(scooter_id):
+                scooter_data = db.getScooterById(scooter_id)
+                if scooter_data:
+                    
                     break
                 else:
                     print("Scooter ID not found.")
 
+            # 3) Define editable fields & validators
             editable_fields = {
-                "brand": Validation.validateBrandOrModel,
-                "model": Validation.validateBrandOrModel,
-                "serial_number": Validation.validateSerialNumber,
-                "top_speed": lambda v, u, l: Validation.validateIntegerInRange(v, 5, 120),
-                "battery_capacity": lambda v, u, l: Validation.validateIntegerInRange(v, 100, 2000),
-                "state_of_charge": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
-                "target_soc_min": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
-                "target_soc_max": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
-                "mileage": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 999999),
-                "last_maintenance_date": lambda v, u, l: Validation.validate_birthdate(v),
-                "longitude": Validation.validateLongitude,
-                 "latitude": Validation.validateLatitude
+                "brand":               Validation.validateBrandOrModel,
+                "model":               Validation.validateBrandOrModel,
+                "serial_number":       Validation.validateSerialNumber,
+                "top_speed":           lambda v: Validation.validateIntegerInRange(v, 5, 120),
+                "battery_capacity":    lambda v: Validation.validateIntegerInRange(v, 100, 2000),
+                "state_of_charge":     lambda v: Validation.validateIntegerInRange(v, 0, 100),
+                "target_soc_min":      lambda v: Validation.validateIntegerInRange(v, 0, 100),
+                "target_soc_max":      lambda v: Validation.validateIntegerInRange(v, 0, 100),
+                "mileage":             lambda v: Validation.validateIntegerInRange(v, 0, 999999),
+                "last_maintenance_date":Validation.validate_birthdate,
+                "latitude":            Validation.validateLatitude,
+                "longitude":           Validation.validateLongitude,
             }
 
+            # 4) Determine which fields are allowed
             if self.role == roles.SERVICE:
-                allowed = {"state_of_charge", "target_soc_min", "target_soc_max", "mileage", "last_maintenance_date"}
+                allowed = {
+                    "state_of_charge", "target_soc_min", "target_soc_max",
+                    "mileage", "last_maintenance_date"
+                }
             else:
-                allowed = editable_fields.keys()
+                allowed = set(editable_fields.keys())
 
-            updated = {}
-
+            # 5) Prompt for updates, showing each field's current value
+            updates = {}
             for field, validator in editable_fields.items():
                 if field not in allowed:
                     continue
-                value = Utility.get_optional_update(
+                current_val = scooter_data.get(field, "")
+                new_val = Utility.get_optional_update(
                     f"Update {field.replace('_', ' ').title()}",
                     validator,
-                    "(hidden)",
+                    current_val,
                     self.userName,
-                    loggingSys=loggingSys
+                    loggingSys=loggingSys,
+                    fieldName=field
                 )
-                if value == "Q":
+                if new_val == "Q":
                     print("Cancelled editing.")
                     return
-                elif value != "(hidden)":
-                    updated[field] = value
+                if new_val != current_val:
+                    updates[field] = new_val
 
-            if updated:
-                if db.updateScooter(scooter_id, updated) == "OK":
-                    print("Scooter updated successfully.")
-                    loggingSys.log("Scooter edited", False, f"Scooter ID {scooter_id} edited.", self.userName)
-                else:
-                    print("Failed to update scooter.")
-                    loggingSys.log("Scooter edit failed", True, f"Scooter ID {scooter_id} update failed.", self.userName)
-            else:
+            # 6) Apply updates
+            if not updates:
                 print("No changes were made.")
+                return
+
+            if db.updateScooter(scooter_id, updates) == "OK":
+                print("Scooter updated successfully.")
+                loggingSys.log(
+                    "Scooter edited",
+                    False,
+                    f"Scooter ID {scooter_id} edited fields: {', '.join(updates.keys())}",
+                    self.userName
+                )
+            else:
+                print("Failed to update scooter.")
+                loggingSys.log(
+                    "Scooter edit failed",
+                    True,
+                    f"Scooter ID {scooter_id} update failed.",
+                    self.userName
+                )
 
         except Exception as e:
-            print(f"An error occurred while editing scooter: {str(e)}")
-            loggingSys.log(f"Error occurred during scooter editing: {str(e)}", True, username=self.userName)
+            print(f"An error occurred while editing scooter: {e}")
+            loggingSys.log(
+                "Error occurred during scooter editing",
+                True,
+                str(e),
+                username=self.userName
+            )
+
 
     def searchScooter(self, db, loggingSys):
         try:
@@ -201,7 +229,7 @@ class systemAdministrator(service):
                     continue
 
                 traveller_id = int(traveller_id)
-                if db.getTravellerById(traveller_id):
+                if traveller_id:
                     break
                 else:
                     print("Scooter ID not found.")
@@ -546,60 +574,88 @@ class systemAdministrator(service):
 
     def editTraveller(self, db, loggingSys):
         try:
+            # 1) Show all travellers and pick one
             db.displayAllTravellers()
-
             while True:
-                traveller_id = input("Enter the ID of the traveller you want to edit or press 'Q' to quit: ").strip()
+                traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ").strip()
                 if traveller_id.upper() == 'Q':
                     return
-
-                if db.getTravellerById(traveller_id):
+                # assume getTravellerById now returns a dict of decrypted fields or None
+                traveller_data = db.getTravellerById(traveller_id)
+                if traveller_data:
                     break
-                else:
-                    print("Traveller ID not found.")
+                print("Traveller ID not found.")
 
+            # 2) Display current values
+            print("\nCurrent traveller data:")
+            for field, val in traveller_data.items():
+                print(f"  {field.replace('_', ' ').title()}: {val}")
+            print()
+
+            # 3) Fields & validators
             editable_fields = {
-                "first_name": Validation.validateName,
-                "last_name": Validation.validateName,
-                "birthdate": Validation.validate_birthdate,
-                "gender": Validation.validateGender,
-                "street_name": Validation.validateAddress,
-                "house_number": Validation.validateHousenumber,
-                "city": Validation.validateCity,
-                "zip_code": Validation.validateZipcode,
-                "email": Validation.validateEmail,
-                "mobile": Validation.validateMobileNumber,
-                "license_number": Validation.validate_driving_license
+                "first_name":     Validation.validateName,
+                "last_name":      Validation.validateName,
+                "birthday":       Validation.validate_birthdate,
+                "gender":         Validation.validateGender,
+                "street_name":    Validation.validateAddress,
+                "house_number":   Validation.validateHousenumber,
+                "city":           Validation.validateCity,
+                "zip_code":       Validation.validateZipcode,
+                "email":          Validation.validateEmail,
+                "mobile":         Validation.validateMobileNumber,
+                "license_number": Validation.validate_driving_license,
             }
 
-            updated = {}
+            # 4) Prompt for updates
+            updates = {}
             for field, validator in editable_fields.items():
-                value = Utility.get_optional_update(
+                current = traveller_data.get(field, "")
+                new_val = Utility.get_optional_update(
                     f"Update {field.replace('_', ' ').title()}",
                     validator,
-                    "(hidden)",
-                    user={"username": self.userName},
-                    loggingSys=loggingSys
+                    current,
+                    self.userName,
+                    loggingSys,
+                    fieldName=field
                 )
-                if value == "Q":
+                if new_val == "Q":
                     print("Cancelled editing.")
                     return
-                elif value != "(hidden)":
-                    updated[field] = value
+                if new_val != current:
+                    updates[field] = new_val
 
-            if updated:
-                if db.updateTraveller(traveller_id, updated) == "OK":
-                    print("Traveller updated successfully.")
-                    loggingSys.log("Traveller edited", False, f"Traveller ID {traveller_id} edited.", self.userName)
-                else:
-                    print("Failed to update traveller.")
-                    loggingSys.log("Traveller edit failed", True, f"Traveller ID {traveller_id} update failed.", self.userName)
-            else:
+            # 5) Apply or skip
+            if not updates:
                 print("No changes were made.")
+                return
+
+            if db.updateTraveller(traveller_id, updates) == "OK":
+                print("Traveller updated successfully.")
+                loggingSys.log(
+                    "Traveller edited",
+                    False,
+                    f"Traveller ID {traveller_id} edited fields: {', '.join(updates.keys())}.",
+                    self.userName
+                )
+            else:
+                print("Failed to update traveller.")
+                loggingSys.log(
+                    "Traveller edit failed",
+                    True,
+                    f"Traveller ID {traveller_id} update failed.",
+                    self.userName
+                )
 
         except Exception as e:
-            print(f"An error occurred while editing traveller: {str(e)}")
-            loggingSys.log(f"Error occurred during traveller editing: {str(e)}", True, username=self.userName)
+            print(f"An error occurred while editing traveller: {e}")
+            loggingSys.log(
+                "Error during traveller editing",
+                True,
+                str(e),
+                username=self.userName
+            )
+
 
     def editUser(self, db, role, loggingSys):
         try:
