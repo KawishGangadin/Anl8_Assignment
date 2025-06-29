@@ -24,7 +24,7 @@ class service(userBlueprint):
                         print("Exiting...")
                         time.sleep(0.5)
                         return
-                    elif Validation.passwordValidation(password, self.userName, loggingSys):
+                    elif Validation.passwordValidation(password):
                         data = db.getUserData(self.userName)
                         if data  != None:
                             storedPassword = data[4] 
@@ -46,7 +46,7 @@ class service(userBlueprint):
                         print("Exiting...")
                         time.sleep(0.5)
                         return
-                    elif Validation.passwordValidation(newPassword, self.userName, loggingSys):
+                    elif Validation.passwordValidation(newPassword):
                         result = db.updatePassword(self.id, newPassword)
                         if result == "OK":
                             self.session += 1
@@ -121,7 +121,7 @@ class service(userBlueprint):
                     f"Update {field.replace('_', ' ').title()}",
                     validator,
                     "(hidden)",
-                    user={"username": self.userName},
+                    self.userName,
                     loggingSys=loggingSys
                 )
                 if value == "Q":
@@ -370,28 +370,25 @@ class systemAdministrator(service):
             print("========== Scooter Registration ==========")
             scooter = {}
 
-            scooter["serial_number"] = Utility.get_valid_input("Enter serial number (SC-XXXXXX):",
-                Validation.validateSerialNumber, self.userName, loggingSys, "Serial Number")
-            scooter["brand"] = Utility.get_valid_input("Enter scooter brand:",
-                Validation.validateBrandOrModel, self.userName, loggingSys, "Brand")
-            scooter["model"] = Utility.get_valid_input("Enter scooter model:",
-                Validation.validateBrandOrModel, self.userName, loggingSys, "Model")
-            scooter["top_speed"] = Utility.get_valid_input("Enter top speed (km/h):",
-                lambda v: Validation.validateIntegerInRange(v, 5, 120), self.userName, loggingSys, "Top Speed")
-            scooter["battery_capacity"] = Utility.get_valid_input("Enter battery capacity (Wh):",
-                lambda v: Validation.validateIntegerInRange(v, 100, 2000), self.userName, loggingSys, "Battery Capacity")
-            scooter["state_of_charge"] = Utility.get_valid_input("Enter current charge (0-100):",
-                lambda v: Validation.validateIntegerInRange(v, 0, 100), self.userName, loggingSys, "State of Charge")
-            scooter["target_soc_min"] = Utility.get_valid_input("Enter minimum charge threshold (0-100):",
-                lambda v: Validation.validateIntegerInRange(v, 0, 100), self.userName, loggingSys, "Target SOC Min")
-            scooter["target_soc_max"] = Utility.get_valid_input(f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):',
-                lambda v: Validation.validateIntegerInRange(v, int(scooter["target_soc_min"]), 100), self.userName, loggingSys, "Target SOC Max")
-            scooter["mileage"] = Utility.get_valid_input("Enter current mileage (default 0):",
-                lambda v: Validation.validateIntegerInRange(v, 0, 999999), self.userName, loggingSys, "Mileage")
-            scooter["latitude"] = Utility.get_valid_input("Enter scooter latitude model (e.g. 51.92250):",
-                Validation.validateLatitude, self.userName, loggingSys, "Latitude ")
-            scooter["longtitude"] = Utility.get_valid_input("Enter scooter longtitude model (e.g. 4.47917):",
-                Validation.validateLongitude, self.userName, loggingSys, "Longitude")
+            def ask(field, prompt, validator):
+                val = Utility.get_valid_input(prompt, validator, self.userName, loggingSys, field)
+                if val is None:
+                    print("Cancelled input. Exiting registration.")
+                    raise KeyboardInterrupt  # Exit the flow immediately
+                return val
+
+            scooter["serial_number"] = ask("Serial Number", "Enter serial number (SC-XXXXXX):", Validation.validateSerialNumber)
+            scooter["brand"] = ask("Brand", "Enter scooter brand:", Validation.validateBrandOrModel)
+            scooter["model"] = ask("Model", "Enter scooter model:", Validation.validateBrandOrModel)
+            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Validation.validateIntegerInRange(v, 5, 120))
+            scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Validation.validateIntegerInRange(v, 100, 2000))
+            scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Validation.validateIntegerInRange(v, 0, 100))
+            scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Validation.validateIntegerInRange(v, 0, 100))
+            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):',
+                                            lambda v: Validation.validateIntegerInRange(v, int(scooter["target_soc_min"]), 100))
+            scooter["mileage"] = ask("Mileage", "Enter current mileage (default 0):", lambda v: Validation.validateIntegerInRange(v, 0, 999999))
+            scooter["latitude"] = ask("Latitude", "Enter scooter latitude (e.g. 51.92250):", Validation.validateLatitude)
+            scooter["longitude"] = ask("Longitude", "Enter scooter longitude (e.g. 4.47917):", Validation.validateLongitude)
 
             scooter["in_service_date"] = datetime.today().strftime("%Y-%m-%d")
             scooter["last_maintenance_date"] = scooter["in_service_date"]
@@ -405,9 +402,15 @@ class systemAdministrator(service):
                 print("Failed to register scooter.")
                 loggingSys.log("Scooter registration failed", True, username=self.userName)
 
+        except KeyboardInterrupt:
+            # You can show this if user cancels with 'Q'
+            print("Scooter registration was cancelled.")
+            loggingSys.log("Scooter registration cancelled by user", False, username=self.userName)
+
         except Exception as e:
             print(f"An error occurred: {e}")
             loggingSys.log(f"Scooter creation error: {str(e)}", True, username=self.userName)
+
 
     def createBackup(self, backUpSystem, loggingSys):
         try:
@@ -463,7 +466,7 @@ class systemAdministrator(service):
                     firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
                     if firstName.upper() == 'Q':
                         return
-                    if not Validation.validateName(firstName, self.userName, loggingSys):
+                    if not Validation.validateName(firstName):
                         print("Please enter a valid firstname!!!")
                         loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
                         continue
@@ -474,7 +477,7 @@ class systemAdministrator(service):
                     lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
                     if lastName.upper() == 'Q':
                         return
-                    if not Validation.validateName(lastName, self.userName, loggingSys):
+                    if not Validation.validateName(lastName):
                         print("Please enter a valid lastname!!!")
                         loggingSys.log(f"User tried to create a {roleType} with either an invalid first name or last name", False, username=self.userName)
                         continue
@@ -485,7 +488,7 @@ class systemAdministrator(service):
                     username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
                     if username.upper() == 'Q':
                         return
-                    if not Validation.usernameValidation(username, self.userName, loggingSys):
+                    if not Validation.usernameValidation(username):
                         print("Please insert a valid username...")
                         loggingSys.log(f"User tried to create a {roleType} with an invalid username", False, username=self.userName)
                         continue
@@ -501,7 +504,7 @@ class systemAdministrator(service):
                     data = self.db.getUserData(username)
                     if password.upper() == 'Q':
                         return
-                    if not Validation.passwordValidation(password, self.userName, loggingSys):
+                    if not Validation.passwordValidation(password):
                         print("Please enter a valid password!!!")
                         loggingSys.log(f"User tried to create a {roleType}: with an invalid password", False, username=self.userName)
                         continue
@@ -642,7 +645,7 @@ class systemAdministrator(service):
                         firstName = input(f"Enter the new first name for user or press 'Q' to quit: ").strip()
                         if firstName.upper() == 'Q':
                             return
-                        if not Validation.validateName(firstName, self.userName, loggingSys):
+                        if not Validation.validateName(firstName):
                             print("Invalid first name!")
                         else:
                             break
@@ -651,7 +654,7 @@ class systemAdministrator(service):
                         lastName = input(f"Enter the new last name for user or press 'Q' to quit: ").strip()
                         if lastName.upper() == 'Q':
                             return
-                        if not Validation.validateName(lastName, self.userName, loggingSys):
+                        if not Validation.validateName(lastName):
                             print("Invalid last name!")
                         else:
                             break
@@ -660,7 +663,7 @@ class systemAdministrator(service):
                         username = input(f"Enter the new username for user or press 'Q' to quit: ").strip()
                         if username.upper() == 'Q':
                             return
-                        if not Validation.usernameValidation(username.lower(), self.userName, loggingSys):
+                        if not Validation.usernameValidation(username.lower()):
                             print("Invalid username!")
                         elif db.findUsername(username.lower()):
                             print("Username already exists!")
@@ -716,7 +719,7 @@ class systemAdministrator(service):
                             print("Exiting...")
                             time.sleep(0.5)
                             return
-                        elif Validation.passwordValidation(password, self.userName, loggingSys):
+                        elif Validation.passwordValidation(password):
                             result = db.updatePassword(userID, password, True)
                             
                             if result == "OK":
@@ -755,7 +758,7 @@ class systemAdministrator(service):
                         print("Quitting...")
                         break
 
-                    if not Validation.validateBackup(name, self.userName, loggingSys):
+                    if not Validation.validateBackup(name):
                         print("Please enter a valid backup filename!")
                         continue
 
@@ -780,7 +783,7 @@ class systemAdministrator(service):
                         print("Quitting...")
                         break
 
-                    if not Validation.validateBackup(name, self.userName, loggingSys):
+                    if not Validation.validateBackup(name):
                         print("Please enter a valid backup filename!")
                         continue
 
@@ -856,7 +859,7 @@ class systemAdministrator(service):
                 last_name = input(f"Enter new last name (current: ): ").strip()
                 if last_name.upper() == 'Q':
                     return
-                if not Validation.validateName(last_name, self.userName, loggingsys):
+                if not Validation.validateName(last_name):
                     print("Invalid last name. Please try again.")
                     continue
                 break
@@ -865,7 +868,7 @@ class systemAdministrator(service):
                 username = input(f"Enter new username (current: {self.userName}): ").strip()
                 if username.upper() == 'Q':
                     return
-                if not Validation.usernameValidation(username.lower(), self.userName, loggingsys):
+                if not Validation.usernameValidation(username.lower()):
                     print("Invalid username. Please try again.")
                     continue
                 if db.findUsername(username.lower()):

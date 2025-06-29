@@ -86,7 +86,7 @@ class cryptoUtils:
 
     @staticmethod
     def encryptWithPublicKey(public_key, message):
-        max_chunk_size = 190  # safe chunk size for 2048-bit RSA with SHA256-OAEP
+        max_chunk_size = 190
 
         message_bytes = message.encode('utf-8')
         ciphertext_chunks = []
@@ -122,8 +122,6 @@ class cryptoUtils:
                 )
             )
             plaintext_chunks.append(decrypted_chunk)
-
-        # Decode everything once here
         return b"".join(plaintext_chunks).decode('utf-8')
 
 

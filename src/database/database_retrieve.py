@@ -46,9 +46,22 @@ class DBRetrieve:
             cursor = conn.cursor()
             query = "SELECT code, backup_filename FROM restore_codes WHERE system_admin_id = ?"
             cursor.execute(query, (user_id,))
-            codes = cursor.fetchall()
+            rows = cursor.fetchall()
             cursor.close()
-            return codes
+
+            private_key = cryptoUtils.loadPrivateKey()
+
+            decrypted_codes = []
+            for encrypted_code, backup_filename in rows:
+                try:
+                    decrypted_code = cryptoUtils.decryptWithPrivateKey(private_key, encrypted_code)
+                    decrypted_codes.append((decrypted_code, backup_filename))
+                except Exception as e:
+                    print(f"Failed to decrypt restore code: {e}")
+                    continue 
+
+            return decrypted_codes
+
         except sqlite3.Error as e:
             print("An error occurred while fetching restore codes:", e)
             return []
@@ -94,8 +107,6 @@ class DBRetrieve:
                     decrypted_username = decrypted_username_bytes
                     if decrypted_username == username:
                         return user
-
-                # print(f"User with username {username} not found.")
             return None
 
         except sqlite3.Error as e:

@@ -57,7 +57,7 @@ def main():
                 password = input("Enter your password: \n")
                 attemptedPasswords.append(password)
 
-                if not Validation.usernameValidation(username.lower(), "", loggingSys) or not Validation.passwordValidation(password,"", loggingSys):
+                if not Validation.usernameValidation(username.lower()) or not Validation.passwordValidation(password):
                     maxTries -= 1
                     print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
                     if len(username) < 10:
@@ -108,7 +108,7 @@ def main():
                         print("Exiting the system")
                         exit()
 
-                    elif Validation.passwordValidation(newPassword, username, loggingSys):
+                    elif Validation.passwordValidation(newPassword):
                         respone = dataBase.updatePassword(user.id,newPassword)
                         user.session += 1
                         

@@ -33,7 +33,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
 
             for user in users:
                 decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
-                if decrypted_role == b"superadmin":
+                if decrypted_role == "superadmin":
                     superadmin_exists = True
                     break
 

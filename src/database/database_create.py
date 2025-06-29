@@ -117,7 +117,6 @@ class DBCreate:
     def createTraveller(self, traveller_data):
         conn = None
         try:
-            # Fully validate every field again
             if not (
                 Validation.validateName(traveller_data["first_name"]) and
                 Validation.validateName(traveller_data["last_name"]) and
@@ -186,26 +185,25 @@ class DBCreate:
             if conn:
                 conn.close()
 
-
     def createScooter(self, scooter_data):
         conn = None
         try:
-            in_service_date = scooter_data.get('in_service_date')
-            brand = scooter_data.get('brand')
-            model = scooter_data.get('model')
-            serial_number = scooter_data.get('serial_number')
-            top_speed = scooter_data.get('top_speed')
-            battery_capacity = scooter_data.get('battery_capacity')
-            state_of_charge = scooter_data.get('state_of_charge')
-            target_soc_min = scooter_data.get('target_soc_min')
-            target_soc_max = scooter_data.get('target_soc_max')
-            latitude = scooter_data.get('latitude')
-            longitude = scooter_data.get('longitude')
-            mileage = scooter_data.get('mileage')
-            last_maintenance_date = scooter_data.get('last_maintenance_date')
+            in_service_date = scooter_data['in_service_date']
+            brand = scooter_data['brand']
+            model = scooter_data['model']
+            serial_number = scooter_data['serial_number']
+            top_speed = scooter_data['top_speed']
+            battery_capacity = scooter_data['battery_capacity']
+            state_of_charge = scooter_data['state_of_charge']
+            target_soc_min = scooter_data['target_soc_min']
+            target_soc_max = scooter_data['target_soc_max']
+            latitude = scooter_data['latitude']
+            longitude = scooter_data['longitude']
+            mileage = scooter_data['mileage']
+            last_maintenance_date = scooter_data['last_maintenance_date']
 
-            if not (Validation.validateBrandOrModel(brand, None) and
-                    Validation.validateBrandOrModel(model, None) and
+            if not (Validation.validateBrandOrModel(brand) and 
+                    Validation.validateBrandOrModel(model) and
                     Validation.validateSerialNumber(serial_number) and
                     Validation.validateIntegerInRange(top_speed, 5, 120) and
                     Validation.validateIntegerInRange(battery_capacity, 100, 2000) and
@@ -299,7 +297,8 @@ class DBCreate:
             return ''.join(secrets.choice(chars) for _ in range(length))
 
         restore_code = generate_code()
-
+        public_key = cryptoUtils.loadPublicKey()
+        encrypted_code = cryptoUtils.encryptWithPublicKey(public_key, restore_code)
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -307,7 +306,7 @@ class DBCreate:
                 INSERT INTO restore_codes (system_admin_id, code, backup_filename)
                 VALUES (?, ?, ?)
             """
-            cursor.execute(query, (user_id, restore_code, backup_name))
+            cursor.execute(query, (user_id, encrypted_code, backup_name))
             conn.commit()
             cursor.close()
             print(f"Restore code created: {restore_code}")
