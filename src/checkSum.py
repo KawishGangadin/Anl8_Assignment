@@ -3,22 +3,22 @@ import random
 
 class Checksum:
     def generateMembershipId(db):
-        membership_id = ""
+        traveller_id = ""
         while True:
             current_year = datetime.now().year
             current_year_short = str(current_year)[2:]
 
-            membership_id = current_year_short
+            traveller_id = current_year_short
             for i in range(0, 7):
                 membership_id += str(random.randint(0, 9))
 
-            check_digit = sum(int(digit) for digit in membership_id) % 10
-            membership_id += str(check_digit)
-            if db.findTravellerID(membership_id):
+            check_digit = sum(int(digit) for digit in traveller_id) % 10
+            traveller_id += str(check_digit)
+            if db.findTravellerID(traveller_id):
                 pass
             else:
                 break
             break
-        return membership_id
+        return traveller_id
     
         

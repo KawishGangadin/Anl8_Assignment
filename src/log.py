@@ -50,7 +50,7 @@ class Logger:
                 logs = file.readlines()
                 for log in logs:
                     try:
-                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip())).decode()
+                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
                         print("-"* len(decrypted_log))
                         print(decrypted_log)
                     except Exception as e:
@@ -67,7 +67,7 @@ class Logger:
             with open(self.log_file, 'w') as file:
                 for log in logs:
                     try:
-                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip())).decode()
+                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
                         log_parts = decrypted_log.strip().split('|')
                         if len(log_parts) > 6 and "Checked: False" in log_parts[6]:
                             log_parts[6] = "Checked: True"
@@ -86,7 +86,7 @@ class Logger:
                 logs = file.readlines()
                 for log in logs:
                     try:
-                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip())).decode()
+                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
                         log_parts = decrypted_log.strip().split('|')
                         if len(log_parts) > 5 and "Suspicious: True" in log_parts[5] and "Checked: False" in log_parts[6]:
                             return True

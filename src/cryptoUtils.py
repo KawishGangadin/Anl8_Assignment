@@ -86,27 +86,47 @@ class cryptoUtils:
 
     @staticmethod
     def encryptWithPublicKey(public_key, message):
-        ciphertext = public_key.encrypt(
-            message.encode('utf-8'), 
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
+        max_chunk_size = 190  # safe chunk size for 2048-bit RSA with SHA256-OAEP
+
+        message_bytes = message.encode('utf-8')
+        ciphertext_chunks = []
+
+        for i in range(0, len(message_bytes), max_chunk_size):
+            chunk = message_bytes[i:i+max_chunk_size]
+            encrypted_chunk = public_key.encrypt(
+                chunk,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
             )
-        )
-        return ciphertext
+            ciphertext_chunks.append(encrypted_chunk)
+
+        return b"".join(ciphertext_chunks)
+
 
     @staticmethod
     def decryptWithPrivateKey(private_key, ciphertext):
-        plaintext = private_key.decrypt(
-            ciphertext,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
+        key_size_bytes = private_key.key_size // 8
+        plaintext_chunks = []
+
+        for i in range(0, len(ciphertext), key_size_bytes):
+            chunk = ciphertext[i:i+key_size_bytes]
+            decrypted_chunk = private_key.decrypt(
+                chunk,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
             )
-        )
-        return plaintext
+            plaintext_chunks.append(decrypted_chunk)
+
+        # Decode everything once here
+        return b"".join(plaintext_chunks).decode('utf-8')
+
+
     
     @staticmethod
     def hashPassword(password):

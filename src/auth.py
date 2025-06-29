@@ -17,9 +17,9 @@ class loginAuth:
             if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
                 private_key = cryptoUtils.loadPrivateKey()
                 decrypted_username = cryptoUtils.decryptWithPrivateKey(private_key, data[3]) 
-                decrypted_username = decrypted_username.decode('utf-8')
+                decrypted_username = decrypted_username
                 decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, data[6])
-                decrypted_role=decrypted_role.decode('utf-8')
+                decrypted_role=decrypted_role
                 session_id = data[9]
 
                 user_id = data[0]  

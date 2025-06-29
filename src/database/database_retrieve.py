@@ -91,7 +91,7 @@ class DBRetrieve:
                 private_key = cryptoUtils.loadPrivateKey()
                 for user in users:
                     decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3]) 
-                    decrypted_username = decrypted_username_bytes.decode('utf-8') 
+                    decrypted_username = decrypted_username_bytes
                     if decrypted_username == username:
                         return user
 
@@ -141,10 +141,10 @@ class DBRetrieve:
             if role is not None:
                 for user in users:
                     encrypted_role = user[6]
-                    decrypted_role_bytes = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), encrypted_role).decode('utf-8')
+                    decrypted_role_bytes = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), encrypted_role)
                     if decrypted_role_bytes == role.value:
-                        decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
-                        decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
+                        decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3])
+                        decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6])
                         hiddenPassword = "********"  
                         decryptedUser = (
                             user[0], 
@@ -160,8 +160,8 @@ class DBRetrieve:
                 return userList
 
             for user in users:
-                decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3]).decode('utf-8')
-                decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6]).decode('utf-8')
+                decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3])
+                decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6])
                 hiddenPassword = "********"  
                 decryptedUser = (
                     user[0], 
@@ -190,6 +190,8 @@ class DBRetrieve:
 
             print("\n======= Registered Travellers =======")
             for t in travellers:
+                print(f"Customer ID: {Utility.safe_decrypt(t[0])}")
+                print(f"Registration Date: {Utility.safe_decrypt(t[1])}")
                 print(f"Name: {Utility.safe_decrypt(t[2])} {Utility.safe_decrypt(t[3])}")
                 print(f"Birthdate: {t[4]}")
                 print(f"Gender: {Utility.safe_decrypt(t[5])}")
@@ -214,7 +216,8 @@ class DBRetrieve:
 
             print("\n======= Registered Scooters =======")
             for s in scooters:
-                print(f"ID: {s[1]}")
+                print(f"ID: {s[0]}")
+                print(f"In Service: {s[1]}")
                 print(f"Brand: {s[2]}")
                 print(f"Model: {s[3]}")
                 print(f"Serial Number: {Utility.safe_decrypt(s[4])}")
@@ -432,7 +435,7 @@ class DBRetrieve:
 
                 for member in members:
                     decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
-                    if decrypted_membership_id.decode('utf-8') == traveller_id:
+                    if decrypted_membership_id == traveller_id:
                         return True  
 
                 return False  

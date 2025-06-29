@@ -4,55 +4,34 @@ from datetime import datetime, date
 class Validation:
 
     @staticmethod
-    def validateSerialNumber(serial_number, username=None, loggingSys=None):
-        pattern = r'^[A-Za-z0-9]{10,17}$'
-
-        if not isinstance(serial_number, str):
-            if loggingSys:
-                loggingSys.log("Serial number must be a string.", False, username=username)
-            return False
-
-        if re.fullmatch(pattern, serial_number.strip()):
-            return True
-
-        if loggingSys:
-            loggingSys.log("Invalid serial number format. Must be 10–17 alphanumeric characters.", False, username=username)
-        return False
+    def validateSerialNumber(serial_number):
+        return isinstance(serial_number, str) and bool(re.fullmatch(r'^[A-Za-z0-9]{10,17}$', serial_number.strip()))
 
     @staticmethod
-    def validateIntegerInRange(value, min_val, max_val,username=None, loggingSys=None):
-        if not re.fullmatch(r'^[1-9]\d*$|^0$', value):
-            print(f"'{value}' is not a valid integer format")
-            return False
-
-        number = int(value)
-        if min_val <= number <= max_val:
-            print(f"'{value}' is valid (in range {min_val}-{max_val})")
-            return True
-
-        print(f"'{value}' is not in range {min_val}-{max_val}")
-        return False
+    def validateIntegerInRange(value, min_val, max_val):
+        return isinstance(value, str) and value.isdigit() and min_val <= int(value) <= max_val
 
     @staticmethod
-    def validateBrandOrModel(value, username=None, loggingSys=None):
-        # Allows only alphanumeric characters and hyphens, 2–30 characters long, no spaces
-        pattern = r'^[A-Za-z0-9-]{2,30}$'
-        result = bool(re.fullmatch(pattern, value))
-        print(f"validateBrandOrModel('{value}') = {result}")
-        return result
+    def validateBrandOrModel(value):
+        return isinstance(value, str) and bool(re.fullmatch(r'^[A-Za-z0-9-]{2,30}$', value))
+        
+    @staticmethod
+    def validateLatitude(latitude):
+        if not isinstance(latitude, str):
+            return False
+        if not re.fullmatch(r'^\d{2}\.\d{5}$', latitude):
+            return False
+        lat = float(latitude)
+        return 51.85 <= lat <= 52.05
 
     @staticmethod
-    def validateCoordinates(latitude, longitude,username =None, loggingSys=None):
-        try:
-            lat = float(latitude)
-            lon = float(longitude)
-            if not (51.85 <= lat <= 52.05 and 4.35 <= lon <= 4.55):
-                return False
-            if len(str(lat).split('.')[-1]) != 5 or len(str(lon).split('.')[-1]) != 5:
-                return False
-            return True
-        except ValueError:
+    def validateLongitude(longitude):
+        if not isinstance(longitude, str):
             return False
+        if not re.fullmatch(r'^\d{1,2}\.\d{5}$', longitude):
+            return False
+        lon = float(longitude)
+        return 4.35 <= lon <= 4.55
 
     @staticmethod
     def validate_birthdate(birthdate, username='', loggingSys=None):
@@ -72,16 +51,8 @@ class Validation:
             return False
 
     @staticmethod
-    def validate_driving_license(license_number, username='', loggingSys=None):
-        license_number = license_number.strip().upper()
-        pattern = r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$'
-
-        if re.fullmatch(pattern, license_number):
-            return True
-
-        if loggingSys:
-            loggingSys.log("Invalid driving license number format.", False, username=username)
-        return False
+    def validate_driving_license(license_number):
+        return isinstance(license_number, str) and bool(re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number.strip().upper()))
 
     @staticmethod
     def checkNullByte(input):
@@ -91,230 +62,63 @@ class Validation:
         return False
     
     @staticmethod
-    def usernameValidation(name, username='', loggingSys=None):
-        pattern = r"^[a-zA-Z_][a-zA-Z0-9_.']{7,9}$"
-        
-        if not isinstance(name, str) or not Validation.checkNullByte(name):
-            if loggingSys:
-                loggingSys.log(f'Invalid username format or null byte detected in username:', True, username=username)
-            return False
-        
-        try:
-            if re.match(pattern, name) or name == "super_admin":
-                return True
-            else:
-                if loggingSys:
-                    loggingSys.log(f'Invalid username format (did not match pattern):', False, username=username)
-        except re.error:
-            if loggingSys:
-                loggingSys.log(f'Regex error while validating username:', False, username=username)
-        
-        return False
-        
-    @staticmethod
-    def passwordValidation(password, username='', loggingSys=None):
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_+=`|\\(){}[\]:;'<>,.?/-])[a-zA-Z0-9~!@#$%&_+=`|\\(){}[\]:;'<>,.?/-]{12,30}$"
-        
-        if password == "Admin_123?":
-            return True
-        
-        if not isinstance(password, str) or not Validation.checkNullByte(password):
-            if loggingSys:
-                loggingSys.log(f'Invalid password format or null byte detected in password:', True, username=username)
-            return False
-        
-        try:
-            if re.match(pattern, password):
-                return True
-            else:
-                if loggingSys:
-                    loggingSys.log(f'Invalid password format (did not match pattern):', False, username=username)
-        except re.error:
-            if loggingSys:
-                loggingSys.log(f'Regex error while validating password:', False, username=username)
-        
-        return False
+    def usernameValidation(name):
+        return isinstance(name, str) and (bool(re.fullmatch(r"^[a-zA-Z_][a-zA-Z0-9_.']{7,9}$", name)) or name == "super_admin")
    
     @staticmethod
-    def validateEmail(email, username='', loggingSys=None):
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not isinstance(email, str) or not Validation.checkNullByte(email):
-            if loggingSys:
-                loggingSys.log(f'Invalid email format or null byte detected in email:', True, username=username)
+    def passwordValidation(password):
+        if password == "Admin_123?":
+            return True
+        if not isinstance(password, str):
             return False
-        
-        try: 
-            if re.match(pattern, email):
-                return True
-            else: 
-                if loggingSys:
-                    loggingSys.log(f'Invalid email format (did not match pattern):', False, username=username)
-        except re.error:
-            if loggingSys:
-                loggingSys.log(f'Regex error while validating email:', False, username=username)
-        return False 
+        return bool(re.fullmatch(
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-])[a-zA-Z0-9~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-]{12,30}$",
+            password))
+
+    @staticmethod
+    def validateEmail(email):
+        return isinstance(email, str) and bool(re.fullmatch(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email))
     
     @staticmethod
-    def validateAge(age, username='', loggingSys=None):
-        try:
-            age = int(age)
-            if 1 <= age <= 100:
-                return True
-        except ValueError:
-            if not isinstance(age, str) or not Validation.checkNullByte(age):
-                if loggingSys:
-                    loggingSys.log(f'Invalid age format or null byte etected in age:', True, username=username)
-            elif loggingSys:
-                loggingSys.log(f'Invalid age format (string found) in age:', False, username=username)
-            return False
-        return False
+    def validateHousenumber(housenumber):
+        return isinstance(housenumber, str) and housenumber.isdigit() and 1 <= int(housenumber) <= 9999
+
+    @staticmethod
+    def validateZipcode(zip_code):
+        return isinstance(zip_code, str) and len(zip_code) == 6 and zip_code[:4].isdigit() and zip_code[4:].isalpha()
+
+    @staticmethod
+    def validateName(name):
+        return isinstance(name, str) and bool(re.fullmatch(r"^[A-Za-z]+(['-][A-Za-z]+)*$", name)) and len(name) <= 35
     
     @staticmethod
-    def validateHousenumber(housenumber, username='', loggingSys=None):
-        try:
-            housenumber = int(housenumber)
-            if 1 <= housenumber <= 9999:
-                return True
-        except ValueError:
-            if not isinstance(housenumber, str) or not Validation.checkNullByte(housenumber):
-                if loggingSys:
-                    loggingSys.log(f'Invalid housenumber format (non-string) or null byte detected in housenumber.', True, username=username)
-            elif loggingSys:
-                loggingSys.log(f'Invalid housenumber format (string found) in housenumber', False, username=username)
-        return False
-
-    @staticmethod
-    def validateZipcode(zip_code, username='', loggingSys=None):
-        if not isinstance(zip_code, str) or not Validation.checkNullByte(zip_code):
-            if loggingSys:
-                loggingSys.log(f'Invalid zip code format (non-string) or null byte detected in zip code.', True, username=username)
-            return False
-        if len(zip_code) == 6 and zip_code[:4].isdigit() and zip_code[4:].isalpha():
-            return True
-        return False
-
-    @staticmethod
-    def validateName(name, username='', loggingSys=None):
-        pattern = r"^[A-Za-z]+(['-][A-Za-z]+)*$"
-
-        if not isinstance(name, str) or not Validation.checkNullByte(name):
-            if loggingSys:
-                loggingSys.log(f"Invalid name format (non-string) or null-byte detected in name.", True, username=username)
-            return False
-
-        if re.match(pattern, name) and len(name) <= 35:
-            return True
-        else:
-            if loggingSys:
-                loggingSys.log(f"Invalid name format (did not match pattern).", False, username=username)
-            return False
-    
-    @staticmethod
-    def validateMobileNumber(mobile_number, username='', loggingSys=None):
-        try: 
-            mobile_number = str(mobile_number)
-            if len(mobile_number) == 8 and mobile_number.isdigit():
-                return True
-        except ValueError:
-            if not isinstance(mobile_number, str) or not Validation.checkNullByte(mobile_number):
-                if loggingSys:
-                    loggingSys.log(f"Invalid mobile number format or null byte detected in mobile number.", True, username=username)
-            else:
-                if loggingSys:
-                    loggingSys.log(f"Invalid mobile number entered.", False, username=username)
-        return False
-
-    @staticmethod
-    def convertableToInt(s):
-        try:
-            int(s)
-            return True
-        except ValueError:
-            return False
+    def validateMobileNumber(mobile_number):
+        return isinstance(mobile_number, str) and mobile_number.isdigit() and len(mobile_number) == 8
         
     @staticmethod
-    def validateMembershipID(membershipID, username='', loggingSys=None):
-        if (Validation.convertableToInt(membershipID)):
-            try:
-                membershipID = int(membershipID)
-                if 999999999 < membershipID < 10000000000:
-                    return True
-            except ValueError:
-                if not isinstance(membershipID, str) or not Validation.checkNullByte(str(membershipID)):
-                    if loggingSys:
-                        loggingSys.log(f"Invalid membership ID format or null byte detected in membership ID", True, username=username)
-                    return False
-                else:
-                    if loggingSys:
-                        loggingSys.log(f"Invalid membership ID format (string found)", False, username=username)
-                    return False
-        else:
-            return False
+    def validateMembershipID(membershipID):
+        return isinstance(membershipID, str) and membershipID.isdigit() and 999999999 < int(membershipID) < 10000000000
     
     @staticmethod
-    def validateAddress(address, username='', loggingSys=None):
-        pattern = r"^[A-Za-z0-9]+([ '-][A-Za-z0-9]+)*$" # regex pattern voor straatnaam: aplhanum characters, spaces, hyphens, and apostrophes
-
-        if not isinstance(address, str) or not Validation.checkNullByte(address):
-            if loggingSys:
-                loggingSys.log(f"Invalid street name format or null byte detected in address.", True, username=username)
-            return False
-
-        if re.match(pattern, address) and len(address) <= 35:
-            return True
-        else:
-            if loggingSys:
-                loggingSys.log(f"Invalid street name format (did not match pattern)", False, username=username)
-            return False
+    def validateAddress(address):
+        return isinstance(address, str) and bool(re.fullmatch(r"^[A-Za-z0-9]+([ '-][A-Za-z0-9]+)*$", address)) and len(address) <= 35
 
     @staticmethod
-    def validateCity(city, username='', loggingSys=None):
+    def validateCity(city):
         allowed_cities = {
             'Amsterdam', 'Rotterdam', 'The Hague', 'Utrecht', 
             'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 
             'Breda', 'Nijmegen'
         }
-
-        if not isinstance(city, str) or not Validation.checkNullByte(city):
-            if loggingSys:
-                loggingSys.log(f"Invalid city format or null byte detected in city name.", True, username=username)
-            return False
-        
-        if city.strip().title() in allowed_cities:
-            return True
-        else:
-            if loggingSys:
-                loggingSys.log(f"Invalid city format (not in allowed cities)", False, username=username)
-
-        return False
+        return isinstance(city, str) and city in allowed_cities
     
     @staticmethod
-    def validateBackup(backupName, username='', loggingSys=None):
-        pattern = r'^backup([1-9][0-9]*)\.zip$'
-        if not isinstance(backupName, str) or not Validation.checkNullByte(backupName):
-            if loggingSys:
-                loggingSys.log(f'Invalid username format or null byte detected in backup input:', True, username=username)
-            return False
-        
-        try:
-            if re.match(pattern, backupName):
-                return True
-            else:
-                if loggingSys:
-                    loggingSys.log(f'Invalid backup input format (did not match pattern):', False, username=username)
-        except re.error:
-            if loggingSys:
-                loggingSys.log(f'Regex error while validating username:', False, username=username)
-        
-        return False
+    def validateBackup(backupName):
+        return isinstance(backupName, str) and bool(re.fullmatch(r'^backup([1-9][0-9]*)\.zip$', backupName))
     
     @staticmethod
-    def validateGender(gender,username='', loggingSys=None):
-        if gender.lower() in ["male","female","other"]:
-            return True
-        if loggingSys:
-            loggingSys.log(f'Invalid gender format:', False, username=username)
-        return False
+    def validateGender(gender):
+        return isinstance(gender, str) and gender.lower() in ["male", "female", "other"]
 
     @staticmethod
     def validateMultipleInputs(**kwargs):
@@ -322,17 +126,17 @@ class Validation:
             'username': Validation.usernameValidation,
             'password': Validation.passwordValidation,
             'email': Validation.validateEmail,
-            'age': Validation.validateAge,
-            'housenumber': Validation.validateHousenumber,
-            'postalCode': Validation.validateZipcode,
+            # 'age': Validation.validateAge,
+            # 'housenumber': Validation.validateHousenumber,
+            # 'postalCode': Validation.validateZipcode,
             'first_name': Validation.validateName,
             'last_name': Validation.validateName,
-            'mobile': Validation.validateMobileNumber,
-            'membershipID': Validation.validateMembershipID,
-            'address': Validation.validateAddress,
-            'city': Validation.validateCity,
-            'backup': Validation.validateBackup,
-            'gender': Validation.validateGender,
+        #     'mobile': Validation.validateMobileNumber,
+        #     'membershipID': Validation.validateMembershipID,
+        #     'address': Validation.validateAddress,
+        #     'city': Validation.validateCity,
+        #     'backup': Validation.validateBackup,
+        #     'gender': Validation.validateGender,
         }
 
         for key, value in kwargs.items():

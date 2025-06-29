@@ -77,7 +77,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
 
                 for user in users:
                     decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
-                    if decrypted_role.decode('utf-8') == role.value:
+                    if decrypted_role == role.value:
                         if user[0] == user_id:
                             return True 
 
@@ -98,7 +98,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             records = cursor.fetchall()
             private_key = cryptoUtils.loadPrivateKey()
             for record in records:
-                decrypted = cryptoUtils.decryptWithPrivateKey(private_key, record[0]).decode()
+                decrypted = cryptoUtils.decryptWithPrivateKey(private_key, record[0])
                 if decrypted == license_number:
                     return True
             return False
@@ -150,7 +150,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                 
                 for user in users:
                     decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3])
-                    decrypted_username = decrypted_username_bytes.decode('utf-8') 
+                    decrypted_username = decrypted_username_bytes
                     
                     if decrypted_username == username:
                         return True
@@ -176,7 +176,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
 
             for encrypted_cust_id, in travellers:
                 try:
-                    decrypted_id = cryptoUtils.decryptWithPrivateKey(private_key, encrypted_cust_id).decode()
+                    decrypted_id = cryptoUtils.decryptWithPrivateKey(private_key, encrypted_cust_id)
                     if decrypted_id == customer_id:
                         return True
                 except Exception:

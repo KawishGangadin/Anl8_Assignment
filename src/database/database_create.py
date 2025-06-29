@@ -114,8 +114,7 @@ class DBCreate:
             if conn:
                 conn.close()
     
-    def createTraveller(self, customer_id, registration_date, first_name, last_name, birthdate,
-                    gender, street, house_number, city, zip_code, email, mobile, license_number):
+    def createTraveller(self, customer_id, registration_date, first_name, last_name, birthdate, gender, street, house_number, city, zip_code, email, mobile, license_number):
         conn = None
         try:
             # Defensive validation
@@ -197,7 +196,6 @@ class DBCreate:
             mileage = scooter_data.get('mileage')
             last_maintenance_date = scooter_data.get('last_maintenance_date')
 
-            # Validate fields
             if not (Validation.validateBrandOrModel(brand, None) and
                     Validation.validateBrandOrModel(model, None) and
                     Validation.validateSerialNumber(serial_number) and
@@ -207,7 +205,8 @@ class DBCreate:
                     Validation.validateIntegerInRange(target_soc_min, 0, 100) and
                     Validation.validateIntegerInRange(target_soc_max, 0, 100) and
                     Validation.validateIntegerInRange(mileage, 0, 999999) and
-                    Validation.validateCoordinates(latitude, longitude)):
+                    Validation.validateLatitude(latitude) and
+                    Validation.validateLongitude(longitude)):
                 print("Validation failed.")
                 return "FAIL"
 

@@ -296,10 +296,10 @@ class systemAdministrator(service):
                     result = db.deleteUser(Id, role)
                     if result == "OK":
                         print("User deleted.")
-                        loggingSys.log("User deleted", False, f"User '{deletedUsername.decode('utf-8')}' has been deleted.", self.userName)
+                        loggingSys.log("User deleted", False, f"User '{deletedUsername}' has been deleted.", self.userName)
                     else:
                         print("An error occurred while deleting the user.")
-                        loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername.decode('utf-8')}.", self.userName)
+                        loggingSys.log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername}.", self.userName)
                     time.sleep(1)
 
             if isinstance(self, superAdministrator):
@@ -386,44 +386,37 @@ class systemAdministrator(service):
             scooter = {}
 
             scooter["serial_number"] = Utility.get_valid_input("Enter serial number (SC-XXXXXX):",
-                Validation.validateSerialNumber, {"username": self.userName}, loggingSys)
-
+                Validation.validateSerialNumber, self.userName, loggingSys, "Serial Number")
             scooter["brand"] = Utility.get_valid_input("Enter scooter brand:",
-                Validation.validateBrandOrModel, {"username": self.userName}, loggingSys)
-
+                Validation.validateBrandOrModel, self.userName, loggingSys, "Brand")
             scooter["model"] = Utility.get_valid_input("Enter scooter model:",
-                Validation.validateBrandOrModel, {"username": self.userName}, loggingSys)
-
+                Validation.validateBrandOrModel, self.userName, loggingSys, "Model")
             scooter["top_speed"] = Utility.get_valid_input("Enter top speed (km/h):",
-                lambda v, u, l: Validation.validateIntegerInRange(v, 5, 120), {"username": self.userName}, loggingSys)
-
+                lambda v: Validation.validateIntegerInRange(v, 5, 120), self.userName, loggingSys, "Top Speed")
             scooter["battery_capacity"] = Utility.get_valid_input("Enter battery capacity (Wh):",
-                lambda v, u, l: Validation.validateIntegerInRange(v, 100, 2000), {"username": self.userName}, loggingSys)
-
+                lambda v: Validation.validateIntegerInRange(v, 100, 2000), self.userName, loggingSys, "Battery Capacity")
             scooter["state_of_charge"] = Utility.get_valid_input("Enter current charge (0-100):",
-                lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100), {"username": self.userName}, loggingSys)
-
+                lambda v: Validation.validateIntegerInRange(v, 0, 100), self.userName, loggingSys, "State of Charge")
             scooter["target_soc_min"] = Utility.get_valid_input("Enter minimum charge threshold (0-100):",
-                lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100), {"username": self.userName}, loggingSys)
-
+                lambda v: Validation.validateIntegerInRange(v, 0, 100), self.userName, loggingSys, "Target SOC Min")
             scooter["target_soc_max"] = Utility.get_valid_input(f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):',
-                lambda v, u, l: Validation.validateIntegerInRange(v, int(scooter["target_soc_min"]), 100), {"username": self.userName}, loggingSys)
-
-
+                lambda v: Validation.validateIntegerInRange(v, int(scooter["target_soc_min"]), 100), self.userName, loggingSys, "Target SOC Max")
             scooter["mileage"] = Utility.get_valid_input("Enter current mileage (default 0):",
-                lambda v, u, l: Validation.validateIntegerInRange(v, 0, 999999), {"username": self.userName}, loggingSys)
+                lambda v: Validation.validateIntegerInRange(v, 0, 999999), self.userName, loggingSys, "Mileage")
+            scooter["latitude"] = Utility.get_valid_input("Enter scooter latitude model (e.g. 51.92250):",
+                Validation.validateLatitude, self.userName, loggingSys, "Latitude ")
+            scooter["longtitude"] = Utility.get_valid_input("Enter scooter longtitude model (e.g. 4.47917):",
+                Validation.validateLongitude, self.userName, loggingSys, "Longitude")
 
-            # Coordinates
             latitude = input("Enter latitude (e.g. 51.92250): ").strip()
             longitude = input("Enter longitude (e.g. 4.47917): ").strip()
 
-            if not Validation.validateCoordinates(latitude, longitude, {"username": self.userName}, loggingSys):
+            if not Validation.validateCoordinates(latitude, longitude):
                 print("Invalid GPS coordinates.")
                 return
             scooter["latitude"] = latitude
             scooter["longitude"] = longitude
 
-            # Dates
             scooter["in_service_date"] = datetime.today().strftime("%Y-%m-%d")
             scooter["last_maintenance_date"] = scooter["in_service_date"]
 
@@ -916,6 +909,7 @@ class systemAdministrator(service):
             loggingsys.log(f"Error occurred during account edit: {str(e)}", True, username=self.userName)
         
 class superAdministrator(systemAdministrator):
+
     def generateRestoreCode(self, db,backupSys,loggingSys):
         try:
             self.displayUsers(db, roles.ADMIN)

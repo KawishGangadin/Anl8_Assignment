@@ -22,7 +22,7 @@ class DBDelete:
                 private_key = cryptoUtils.loadPrivateKey() 
                 decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
                 
-                if decrypted_role.decode('utf-8') == role.value:
+                if decrypted_role == role.value:
                     delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
                     cursor.execute(delete_query, (user_id, user[6]))
                     conn.commit()
