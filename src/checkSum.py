@@ -10,7 +10,7 @@ class Checksum:
 
             traveller_id = current_year_short
             for i in range(0, 7):
-                membership_id += str(random.randint(0, 9))
+                traveller_id += str(random.randint(0, 9))
 
             check_digit = sum(int(digit) for digit in traveller_id) % 10
             traveller_id += str(check_digit)

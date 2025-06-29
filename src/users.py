@@ -326,28 +326,24 @@ class systemAdministrator(service):
             print("========== Traveller Registration ==========")
             traveller = {}
 
-            traveller["first_name"] = Utility.get_valid_input("Enter traveller's first name:",
-                Validation.validateName, self.userName, loggingSys, "First Name")
-            traveller["last_name"] = Utility.get_valid_input("Enter traveller's last name:",
-                Validation.validateName, self.userName, loggingSys, "Last Name")
-            traveller["birthdate"] = Utility.get_valid_input("Enter traveller's birthdate (YYYY-MM-DD):",
-                Validation.validate_birthdate, self.userName, loggingSys, "Birthdate")
-            traveller["gender"] = Utility.get_valid_input("Enter traveller's gender (male/female/other):",
-                Validation.validateGender, self.userName, loggingSys, "Gender")
-            traveller["street"] = Utility.get_valid_input("Enter traveller's street name:",
-                Validation.validateAddress, self.userName, loggingSys, "Street")
-            traveller["house_number"] = Utility.get_valid_input("Enter traveller's house number:",
-                Validation.validateHousenumber, self.userName, loggingSys, "House Number")
-            traveller["city"] = Utility.get_valid_input("Enter traveller's city:",
-                Validation.validateCity, self.userName, loggingSys, "City")
-            traveller["zip_code"] = Utility.get_valid_input("Enter traveller's zip code (e.g. 1234AB):",
-                Validation.validateZipcode, self.userName, loggingSys, "Zip Code")
-            traveller["email"] = Utility.get_valid_input("Enter traveller's email:",
-                Validation.validateEmail, self.userName, loggingSys, "Email")
-            traveller["mobile"] = Utility.get_valid_input("Enter traveller's mobile number (8 digits):",
-                Validation.validateMobileNumber, self.userName, loggingSys, "Mobile Number")
-            traveller["license_number"] = Utility.get_valid_input("Enter traveller's license number:",
-                Validation.validate_driving_license, self.userName, loggingSys, "License Number")
+            def ask(field, prompt, validator):
+                val = Utility.get_valid_input(prompt, validator, self.userName, loggingSys, field)
+                if val == None:
+                    print("Cancelled input. Exiting registration.")
+                    raise KeyboardInterrupt
+                return val
+
+            traveller["first_name"] = ask("First Name", "Enter traveller's first name: ", Validation.validateName)
+            traveller["last_name"] = ask("Last Name", "Enter traveller's last name: ", Validation.validateName)
+            traveller["birthdate"] = ask("Birthdate","Enter traveller's birthdate: ",Validation.validate_birthdate)
+            traveller["gender"] = ask("Gender", "Enter traveller's gender (male/female/other): ",Validation.validateGender)
+            traveller["street"] = ask("Street","Enter traveller's street name: ",Validation.validateAddress)
+            traveller["house_number"] = ask("House number","Enter traveller's house number: ",Validation.validateHousenumber)
+            traveller["city"] = ask("City","Enter traveller's city: ",Validation.validateCity)
+            traveller["zip_code"] = ask("Zipcode","Enter traveller's zipcode: ",Validation.validateZipcode)
+            traveller["email"] = ask("Email","Enter traveller's email",Validation.validateEmail)
+            traveller["mobile"] = ask("Mobile number","Enter traveller's mobile number : +316-",Validation.validateMobileNumber)
+            traveller["license_number"] = ask("License number","Enter traveller's license number: ",Validation.validate_driving_license)
 
             traveller["registration_date"] = date.today().strftime("%Y-%m-%d")
             traveller["customer_id"] = Checksum.generateMembershipId(db)
@@ -360,6 +356,10 @@ class systemAdministrator(service):
             else:
                 print("Failed to register traveller.")
                 loggingSys.log("Failed to register traveller", True, username=self.userName)
+
+        except KeyboardInterrupt:
+            print("Traveller registration was cancelled.")
+            loggingSys.log("Traveller registration cancelled by user", False, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -374,7 +374,7 @@ class systemAdministrator(service):
                 val = Utility.get_valid_input(prompt, validator, self.userName, loggingSys, field)
                 if val is None:
                     print("Cancelled input. Exiting registration.")
-                    raise KeyboardInterrupt  # Exit the flow immediately
+                    raise KeyboardInterrupt
                 return val
 
             scooter["serial_number"] = ask("Serial Number", "Enter serial number (SC-XXXXXX):", Validation.validateSerialNumber)
@@ -384,8 +384,7 @@ class systemAdministrator(service):
             scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Validation.validateIntegerInRange(v, 100, 2000))
             scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Validation.validateIntegerInRange(v, 0, 100))
             scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Validation.validateIntegerInRange(v, 0, 100))
-            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):',
-                                            lambda v: Validation.validateIntegerInRange(v, int(scooter["target_soc_min"]), 100))
+            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):', lambda v: Validation.validateIntegerInRange(v, int(scooter["target_soc_min"]), 100))
             scooter["mileage"] = ask("Mileage", "Enter current mileage (default 0):", lambda v: Validation.validateIntegerInRange(v, 0, 999999))
             scooter["latitude"] = ask("Latitude", "Enter scooter latitude (e.g. 51.92250):", Validation.validateLatitude)
             scooter["longitude"] = ask("Longitude", "Enter scooter longitude (e.g. 4.47917):", Validation.validateLongitude)
@@ -403,7 +402,6 @@ class systemAdministrator(service):
                 loggingSys.log("Scooter registration failed", True, username=self.userName)
 
         except KeyboardInterrupt:
-            # You can show this if user cancels with 'Q'
             print("Scooter registration was cancelled.")
             loggingSys.log("Scooter registration cancelled by user", False, username=self.userName)
 
