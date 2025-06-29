@@ -104,13 +104,15 @@ class service(userBlueprint):
                 "target_soc_min": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
                 "target_soc_max": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 100),
                 "mileage": lambda v, u, l: Validation.validateIntegerInRange(v, 0, 999999),
-                "last_maintenance_date": lambda v, u, l: Validation.validate_birthdate(v)
+                "last_maintenance_date": lambda v, u, l: Validation.validate_birthdate(v),
+                "longitude": Validation.validateLongitude,
+                 "latitude": Validation.validateLatitude
             }
 
             if self.role == roles.SERVICE:
                 allowed = {"state_of_charge", "target_soc_min", "target_soc_max", "mileage", "last_maintenance_date"}
             else:
-                allowed = set(editable_fields.keys()).union({"latitude", "longitude"})
+                allowed = editable_fields.keys()
 
             updated = {}
 
@@ -129,28 +131,6 @@ class service(userBlueprint):
                     return
                 elif value != "(hidden)":
                     updated[field] = value
-
-            if "latitude" in allowed and "longitude" in allowed:
-                while True:
-                    lat = input("Enter new latitude or leave empty to keep current (or Q to quit): ").strip()
-                    if lat.upper() == "Q":
-                        print("Cancelled editing.")
-                        return
-
-                    lon = input("Enter new longitude or leave empty to keep current (or Q to quit): ").strip()
-                    if lon.upper() == "Q":
-                        print("Cancelled editing.")
-                        return
-
-                    if not lat and not lon:
-                        break
-
-                    if Validation.validateCoordinates(lat, lon, self.userName, loggingSys):
-                        updated["latitude"] = lat
-                        updated["longitude"] = lon
-                        break
-                    else:
-                        print("Invalid coordinates. Try again or leave both empty.")
 
             if updated:
                 if db.updateScooter(scooter_id, updated) == "OK":
