@@ -323,57 +323,42 @@ class systemAdministrator(service):
 
     def createTraveller(self, db, role, loggingSys):
         try:
-            print("======= Traveller Registration =======")
+            print("========== Traveller Registration ==========")
+            traveller = {}
 
-            inputs = {
-            "first_name": ("Enter traveller's first name", Validation.validateName),
-            "last_name": ("Enter traveller's last name", Validation.validateName),
-            "birthdate": ("Enter traveller's birthdate (YYYY-MM-DD)", Validation.validate_birthdate),
-            "gender": ("Enter traveller's gender (male/female/other)", Validation.validateGender),
-            "street": ("Enter traveller's street name", Validation.validateAddress),
-            "house_number": ("Enter traveller's house number", Validation.validateHousenumber),
-            "zip_code": ("Enter traveller's zip code (e.g. 1234AB)", Validation.validateZipcode),
-            "city": ("Enter traveller's city", Validation.validateCity),
-            "email": ("Enter traveller's email", Validation.validateEmail),
-            "mobile": ("Enter traveller's mobile number (8 digits)", Validation.validateMobileNumber),
-             }
+            traveller["first_name"] = Utility.get_valid_input("Enter traveller's first name:",
+                Validation.validateName, self.userName, loggingSys, "First Name")
+            traveller["last_name"] = Utility.get_valid_input("Enter traveller's last name:",
+                Validation.validateName, self.userName, loggingSys, "Last Name")
+            traveller["birthdate"] = Utility.get_valid_input("Enter traveller's birthdate (YYYY-MM-DD):",
+                Validation.validate_birthdate, self.userName, loggingSys, "Birthdate")
+            traveller["gender"] = Utility.get_valid_input("Enter traveller's gender (male/female/other):",
+                Validation.validateGender, self.userName, loggingSys, "Gender")
+            traveller["street"] = Utility.get_valid_input("Enter traveller's street name:",
+                Validation.validateAddress, self.userName, loggingSys, "Street")
+            traveller["house_number"] = Utility.get_valid_input("Enter traveller's house number:",
+                Validation.validateHousenumber, self.userName, loggingSys, "House Number")
+            traveller["city"] = Utility.get_valid_input("Enter traveller's city:",
+                Validation.validateCity, self.userName, loggingSys, "City")
+            traveller["zip_code"] = Utility.get_valid_input("Enter traveller's zip code (e.g. 1234AB):",
+                Validation.validateZipcode, self.userName, loggingSys, "Zip Code")
+            traveller["email"] = Utility.get_valid_input("Enter traveller's email:",
+                Validation.validateEmail, self.userName, loggingSys, "Email")
+            traveller["mobile"] = Utility.get_valid_input("Enter traveller's mobile number (8 digits):",
+                Validation.validateMobileNumber, self.userName, loggingSys, "Mobile Number")
+            traveller["license_number"] = Utility.get_valid_input("Enter traveller's license number:",
+                Validation.validate_driving_license, self.userName, loggingSys, "License Number")
 
-            values = {}
-            for key, (prompt, validator) in inputs.items():
-                value = Utility.get_valid_input(f"{prompt} or Q to quit:", validator, {'username': self.userName}, loggingSys)
-                if value is None:
-                    return
-                values[key] = value
+            traveller["registration_date"] = date.today().strftime("%Y-%m-%d")
+            traveller["customer_id"] = Checksum.generateMembershipId(db)
 
-            license_number = input("Enter traveller's driving license number or Q to quit: ").strip()
-            if license_number.upper() == "Q":
-                return
-
-            registration_date = date.today().strftime("%Y-%m-%d")
-            customer_id = Checksum.generateMembershipId(db)
-            
-            result = db.createTraveller(
-            customer_id,
-            registration_date,
-            values["first_name"],
-            values["last_name"],
-            values["birthdate"],
-            values["gender"],
-            values["street"],
-            int(values["house_number"]),
-            values["city"],
-            values["zip_code"],
-            values["email"],
-            values["mobile"],
-            license_number
-            )
-
+            result = db.createTraveller(traveller)
 
             if result == "OK":
                 print("Traveller registered successfully.")
-                loggingSys.log("Traveller registered", False, f"Traveller with ID {customer_id} registered.", self.userName)
+                loggingSys.log("Traveller registered", False, f"Traveller with ID {traveller['customer_id']} registered.", self.userName)
             else:
-                print("An error occurred while registering the traveller.")
+                print("Failed to register traveller.")
                 loggingSys.log("Failed to register traveller", True, username=self.userName)
 
         except Exception as e:
@@ -407,15 +392,6 @@ class systemAdministrator(service):
                 Validation.validateLatitude, self.userName, loggingSys, "Latitude ")
             scooter["longtitude"] = Utility.get_valid_input("Enter scooter longtitude model (e.g. 4.47917):",
                 Validation.validateLongitude, self.userName, loggingSys, "Longitude")
-
-            latitude = input("Enter latitude (e.g. 51.92250): ").strip()
-            longitude = input("Enter longitude (e.g. 4.47917): ").strip()
-
-            if not Validation.validateCoordinates(latitude, longitude):
-                print("Invalid GPS coordinates.")
-                return
-            scooter["latitude"] = latitude
-            scooter["longitude"] = longitude
 
             scooter["in_service_date"] = datetime.today().strftime("%Y-%m-%d")
             scooter["last_maintenance_date"] = scooter["in_service_date"]
@@ -870,8 +846,9 @@ class systemAdministrator(service):
                 first_name = input(f"Enter new first name (current: ): ").strip()
                 if first_name.upper() == 'Q':
                     return
-                if not Validation.validateName(first_name, self.userName, loggingsys):
+                if not Validation.validateName(first_name):
                     print("Invalid first name. Please try again.")
+                    loggingsys.log(f"Invalid first name during account edit: {first_name}", False, username=self.userName)
                     continue
                 break
 

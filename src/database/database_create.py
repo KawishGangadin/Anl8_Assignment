@@ -114,33 +114,38 @@ class DBCreate:
             if conn:
                 conn.close()
     
-    def createTraveller(self, customer_id, registration_date, first_name, last_name, birthdate, gender, street, house_number, city, zip_code, email, mobile, license_number):
+    def createTraveller(self, traveller_data):
         conn = None
         try:
-            # Defensive validation
-            if not (Validation.validateName(first_name)
-                    and Validation.validateName(last_name)
-                    and Validation.validateHousenumber(str(house_number))
-                    and Validation.validateZipcode(zip_code)
-                    and Validation.validateCity(city)
-                    and Validation.validateEmail(email)
-                    and Validation.validateMobileNumber(mobile)):
-                print("Validation failed during backend traveller creation.")
+            # Fully validate every field again
+            if not (
+                Validation.validateName(traveller_data["first_name"]) and
+                Validation.validateName(traveller_data["last_name"]) and
+                Validation.validate_birthdate(traveller_data["birthdate"]) and
+                Validation.validateGender(traveller_data["gender"]) and
+                Validation.validateAddress(traveller_data["street"]) and
+                Validation.validateHousenumber(str(traveller_data["house_number"])) and
+                Validation.validateCity(traveller_data["city"]) and
+                Validation.validateZipcode(traveller_data["zip_code"]) and
+                Validation.validateEmail(traveller_data["email"]) and
+                Validation.validateMobileNumber(traveller_data["mobile"]) and
+                Validation.validate_driving_license(traveller_data["license_number"])
+            ):
+                print("Validation failed at database level.")
                 return "FAIL"
 
             public_key = cryptoUtils.loadPublicKey()
 
-            encrypted_first_name = cryptoUtils.encryptWithPublicKey(public_key, first_name)
-            encrypted_last_name = cryptoUtils.encryptWithPublicKey(public_key, last_name)
-            encrypted_house_number = cryptoUtils.encryptWithPublicKey(public_key, str(house_number))
-            encrypted_street_name = cryptoUtils.encryptWithPublicKey(public_key, str(street))
-            encrypted_license_number = cryptoUtils.encryptWithPublicKey(public_key, str(license_number))
-            encrypted_zip = cryptoUtils.encryptWithPublicKey(public_key, zip_code)
-            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, city)
-            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, email)
-            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, mobile)
+            encrypted_first_name = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["first_name"])
+            encrypted_last_name = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["last_name"])
+            encrypted_house_number = cryptoUtils.encryptWithPublicKey(public_key, str(traveller_data["house_number"]))
+            encrypted_street_name = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["street"])
+            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["city"])
+            encrypted_zip = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["zip_code"])
+            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["email"])
+            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["mobile"])
+            encrypted_license = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["license_number"])
 
-            # Open connection and insert
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
 
@@ -150,21 +155,23 @@ class DBCreate:
                     gender, street_name, house_number, city, zip_code, email, mobile, license_number
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
+
             cursor.execute(query, (
-                customer_id,
-                registration_date,
+                traveller_data["customer_id"],
+                traveller_data["registration_date"],
                 encrypted_first_name,
                 encrypted_last_name,
-                birthdate,
-                gender,
+                traveller_data["birthdate"],
+                traveller_data["gender"],
                 encrypted_street_name,
                 encrypted_house_number,
                 encrypted_city,
                 encrypted_zip,
                 encrypted_email,
                 encrypted_mobile,
-                encrypted_license_number
+                encrypted_license
             ))
+
             conn.commit()
             cursor.close()
             return "OK"
@@ -178,6 +185,7 @@ class DBCreate:
         finally:
             if conn:
                 conn.close()
+
 
     def createScooter(self, scooter_data):
         conn = None
