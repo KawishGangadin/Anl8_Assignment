@@ -82,6 +82,39 @@ class DBUpdate:
                 print("No fields to update.")
                 return "OK"
 
+            # Validation map (same as in editScooter)
+            validators = {
+                "brand":                Validation.validateBrandOrModel,
+                "model":                Validation.validateBrandOrModel,
+                "serial_number":        Validation.validateSerialNumber,
+                "top_speed":            lambda v: Validation.validateIntegerInRange(v, 5, 120),
+                "battery_capacity":     lambda v: Validation.validateIntegerInRange(v, 100, 2000),
+                "state_of_charge":      lambda v: Validation.validateIntegerInRange(v, 0, 100),
+                "target_soc_min":       lambda v: Validation.validateIntegerInRange(v, 0, 100),
+                "target_soc_max":       lambda v: Validation.validateIntegerInRange(v, 0, 100),
+                "mileage":              lambda v: Validation.validateIntegerInRange(v, 0, 999999),
+                "last_maintenance_date": Validation.validateDate,
+                "latitude":             Validation.validateLatitude,
+                "longitude":            Validation.validateLongitude,
+            }
+
+            allowed_fields = set(validators.keys())
+
+            # Remove any field not allowed
+            validated_updates = {k: v for k, v in updates.items() if k in allowed_fields}
+            if not validated_updates:
+                print("No valid fields provided.")
+                return "FAIL"
+
+            # Perform backend validation
+            for field, value in validated_updates.items():
+                validator = validators.get(field)
+                if not validator:
+                    return "FAIL"
+                if not validator(value):
+                    print(f"Validation failed for field '{field}' with value '{value}'")
+                    return "FAIL"
+
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
 
@@ -90,21 +123,10 @@ class DBUpdate:
                 print("Scooter not found.")
                 return "FAIL"
 
-            allowed_fields = [
-                "brand", "model", "serial_number", "top_speed", "battery_capacity",
-                "state_of_charge", "target_soc_min", "target_soc_max", "latitude",
-                "longitude", "mileage", "last_maintenance_date"
-            ]
-
-            updates = {k: v for k, v in updates.items() if k in allowed_fields}
-            if not updates:
-                print("No valid fields provided.")
-                return "FAIL"
-
             public_key = cryptoUtils.loadPublicKey()
             encrypted_updates = {}
 
-            for key, value in updates.items():
+            for key, value in validated_updates.items():
                 if key in ["serial_number", "latitude", "longitude"]:
                     encrypted_updates[key] = cryptoUtils.encryptWithPublicKey(public_key, str(value))
                 else:
@@ -116,6 +138,7 @@ class DBUpdate:
 
             cursor.execute(query, parameters)
             conn.commit()
+
             return "OK" if cursor.rowcount > 0 else "FAIL"
 
         except sqlite3.Error as e:
@@ -125,12 +148,37 @@ class DBUpdate:
             if conn:
                 conn.close()
 
+
     def updateTraveller(self, traveller_id, updates: dict):
         conn = None
         try:
             if not updates:
                 print("No fields to update.")
                 return "OK"
+
+            validators = {
+                "first_name":     Validation.validateName,
+                "last_name":      Validation.validateName,
+                "birthday":       Validation.validate_birthdate,
+                "gender":         Validation.validateGender,
+                "street_name":    Validation.validateAddress,
+                "house_number":   Validation.validateHousenumber,
+                "city":           Validation.validateCity,
+                "zip_code":       Validation.validateZipcode,
+                "email":          Validation.validateEmail,
+                "mobile":         Validation.validateMobileNumber,
+                "license_number": Validation.validate_driving_license,
+            }
+
+            updates = {k: v for k, v in updates.items() if k in validators}
+            if not updates:
+                print("No valid fields provided.")
+                return "FAIL"
+
+            for field, value in updates.items():
+                if not validators[field](value):
+                    print(f"Validation failed for field '{field}' with value '{value}'")
+                    return "FAIL"
 
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()

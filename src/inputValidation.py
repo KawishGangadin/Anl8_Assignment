@@ -25,6 +25,14 @@ class Validation:
         return 51.85 <= lat <= 52.05
 
     @staticmethod
+    def validateDate(date_str):
+        try:
+            datetime.strptime(date_str, "%Y-%m-%d")
+            return True
+        except ValueError:
+            return False
+        
+    @staticmethod
     def validateLongitude(longitude):
         if not isinstance(longitude, str):
             return False
@@ -52,12 +60,6 @@ class Validation:
     def validate_driving_license(license_number):
         return isinstance(license_number, str) and bool(re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number.strip().upper()))
 
-    @staticmethod
-    def checkNullByte(input):
-        pattern = r'^[\x20-\x7E]+$' 
-        if re.match(pattern, input):
-            return True
-        return False
     
     @staticmethod
     def usernameValidation(name):

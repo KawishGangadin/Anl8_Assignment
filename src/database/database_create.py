@@ -254,8 +254,6 @@ class DBCreate:
             if conn:
                 conn.close()
 
-
-
     def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
         conn = None
         try:

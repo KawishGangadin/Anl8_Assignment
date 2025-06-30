@@ -276,6 +276,9 @@ class DBRetrieve:
     def getTravellerById(self, traveller_id):
         conn = None
         try:
+            if not Validation.validateMembershipID(traveller_id):
+                print("Invalid traveller ID format.")
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM travellers WHERE customer_id = ?", (traveller_id,))

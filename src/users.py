@@ -80,7 +80,6 @@ class service(userBlueprint):
         try:
             db.displayAllScooters()
 
-            # 1) Select the scooter
             while True:
                 scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ").strip()
                 if scooter_id.upper() == 'Q':
@@ -97,7 +96,6 @@ class service(userBlueprint):
                 else:
                     print("Scooter ID not found.")
 
-            # 3) Define editable fields & validators
             editable_fields = {
                 "brand":               Validation.validateBrandOrModel,
                 "model":               Validation.validateBrandOrModel,
@@ -108,12 +106,11 @@ class service(userBlueprint):
                 "target_soc_min":      lambda v: Validation.validateIntegerInRange(v, 0, 100),
                 "target_soc_max":      lambda v: Validation.validateIntegerInRange(v, 0, 100),
                 "mileage":             lambda v: Validation.validateIntegerInRange(v, 0, 999999),
-                "last_maintenance_date":Validation.validate_birthdate,
+                "last_maintenance_date":Validation.validateDate,
                 "latitude":            Validation.validateLatitude,
                 "longitude":           Validation.validateLongitude,
             }
 
-            # 4) Determine which fields are allowed
             if self.role == roles.SERVICE:
                 allowed = {
                     "state_of_charge", "target_soc_min", "target_soc_max",
@@ -122,7 +119,6 @@ class service(userBlueprint):
             else:
                 allowed = set(editable_fields.keys())
 
-            # 5) Prompt for updates, showing each field's current value
             updates = {}
             for field, validator in editable_fields.items():
                 if field not in allowed:
@@ -172,7 +168,6 @@ class service(userBlueprint):
                 str(e),
                 username=self.userName
             )
-
 
     def searchScooter(self, db, loggingSys):
         try:
