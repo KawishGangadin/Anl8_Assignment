@@ -4,6 +4,10 @@ from datetime import datetime, date
 class Validation:
 
     @staticmethod
+    def detectBadInput(input_string):
+        return any(ord(c) < 32 or ord(c) == 127 for c in input_string)
+
+    @staticmethod
     def validateSerialNumber(serial_number):
         return isinstance(serial_number, str) and bool(re.fullmatch(r'^[A-Za-z0-9]{10,17}$', serial_number.strip()))
 

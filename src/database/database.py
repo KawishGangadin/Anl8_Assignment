@@ -1,17 +1,11 @@
 from datetime import date
 import sqlite3
-from sqlite3 import Error
-from roles import roles
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 from .database_create import DBCreate
 from .database_update import DBUpdate
 from .database_delete import DBDelete
 from .database_retrieve import DBRetrieve
-import secrets
-import string
-import os
-import time
 
 
 class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):

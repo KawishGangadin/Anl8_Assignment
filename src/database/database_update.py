@@ -40,7 +40,7 @@ class DBUpdate:
                 cursor = conn.cursor()
                 query = """
                 UPDATE users
-                SET first_name = ?, last_name = ?, username = ?
+                SET first_name = ?, last_name = ?, username = ?, session_id = session_id + 1
                 WHERE id = ?
                 """
             
@@ -49,7 +49,7 @@ class DBUpdate:
                 else:
                     encrypted_username = None
                 
-                parameters = (firstName, lastName, encrypted_username, userId)
+                parameters = (firstName, lastName, encrypted_username,userId)
 
                 cursor.execute(query, parameters)
                 
@@ -82,7 +82,6 @@ class DBUpdate:
                 print("No fields to update.")
                 return "OK"
 
-            # Validation map (same as in editScooter)
             validators = {
                 "brand":                Validation.validateBrandOrModel,
                 "model":                Validation.validateBrandOrModel,
@@ -100,13 +99,11 @@ class DBUpdate:
 
             allowed_fields = set(validators.keys())
 
-            # Remove any field not allowed
             validated_updates = {k: v for k, v in updates.items() if k in allowed_fields}
             if not validated_updates:
                 print("No valid fields provided.")
                 return "FAIL"
 
-            # Perform backend validation
             for field, value in validated_updates.items():
                 validator = validators.get(field)
                 if not validator:

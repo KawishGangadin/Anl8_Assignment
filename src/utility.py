@@ -1,4 +1,5 @@
 from cryptoUtils import cryptoUtils
+from inputValidation import Validation
 
 class Utility:
     @staticmethod
@@ -7,12 +8,17 @@ class Utility:
             value = input(f"{prompt} ").strip()
             if value.upper() == 'Q':
                 return None
-            elif validator(value):
-                return value
-            else:
-                print("Invalid input! Please try again.")
+            elif not Validation.detectBadInput(value):
+                if validator(value):
+                    return value
+                else:
+                    print("Invalid input! Please try again.")
+                    if loggingSys:
+                        loggingSys.log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+            else: 
+                print("Input contains invalid characters! Please try again.")
                 if loggingSys:
-                    loggingSys.log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+                    loggingSys.log(f"Bad input found '({value})' for field: {fieldName}", True, username)
 
 
     @staticmethod
@@ -21,14 +27,19 @@ class Utility:
             value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ").strip()
             if value.upper() == 'Q':
                 return "Q"
-            if value == '':
+            elif value == '':
                 return current_value
-            if validator(value):
-                return value
+            elif not Validation.detectBadInput(value):
+                if validator(value):
+                    return value
+                else:
+                    print("Invalid input! Please try again.")
+                    if loggingSys:
+                        loggingSys.log(f"Invalid input ({value}) for field: {fieldName}", False, username)
             else:
-                print("Invalid input! Please try again.")
+                print("Input contains invalid characters! Please try again.")
                 if loggingSys:
-                    loggingSys.log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+                    loggingSys.log(f"Bad input found '({value})' for field: {fieldName}", True, username)
 
 
     

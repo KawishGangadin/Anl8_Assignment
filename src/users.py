@@ -138,7 +138,6 @@ class service(userBlueprint):
                 if new_val != current_val:
                     updates[field] = new_val
 
-            # 6) Apply updates
             if not updates:
                 print("No changes were made.")
                 return
@@ -221,6 +220,7 @@ class systemAdministrator(service):
                     return
                 if not traveller_id.isdigit():
                     print("Invalid ID format.")
+                    loggingSys.log("Invalid ID format entered for traveller deletion", True,f"Input: {traveller_id}" ,username=self.userName)
                     continue
 
                 traveller_id = int(traveller_id)
@@ -251,21 +251,21 @@ class systemAdministrator(service):
                     print("Invalid ID format.")
                     continue
 
-                scootetraveller_idr_id = int(scooter_id)
+                scooter_id = int(scooter_id)
                 if db.getScooterById(scooter_id):
                     break
                 else:
                     print("Scooter ID not found.")
             
             if db.deleteScooter(scooter_id, self)  == "OK":
-                print("Traveller deleted successfully.")
-                loggingSys.log("Traveller deleted", False, f"Traveller ID {scooter_id} deleted.", self.userName)
+                print("Scooter deleted successfully.")
+                loggingSys.log("Scooter deleted", False, f"scooter ID {scooter_id} deleted.", self.userName)
             else:
-                print("Failed to delete traveller.")
-                loggingSys.log("Traveller deletion failed", True, f"Traveller ID {scooter_id} deletion failed.", self.userName)
+                print("Failed to delete scooter.")
+                loggingSys.log("Scooter deletion failed", True, f"Scooter ID {scooter_id} deletion failed.", self.userName)
         except Exception as e:
-            print(f"An error occurred while deleting traveller: {str(e)}")
-            loggingSys.log(f"Error occurred during traveller deletion: {str(e)}", True, username=self.userName)
+            print(f"An error occurred while deleting scooter: {str(e)}")
+            loggingSys.log(f"Error occurred during Scooter deletion: {str(e)}", True, username=self.userName)
 
     def deletion(self, db, role, loggingSys):
         try:
@@ -293,7 +293,6 @@ class systemAdministrator(service):
                         time.sleep(0.5)
 
                 if validID:
-                    privateKey = cryptoUtils.loadPrivateKey()
                     deletedUsername = db.getUsernameByID(Id)
                     db.deleteUserRestoreCodes(Id,self)
                     result = db.deleteUser(Id, role)
@@ -317,8 +316,10 @@ class systemAdministrator(service):
                     print("Unauthorized request.")
             elif isinstance(self, service):
                 print("You are not authorized to delete any users.")
+                loggingSys.log("Unauthorized deletion attempt by service user", True, username=self.userName)
             else:
                 print("Unauthorized access...")
+                loggingSys.log("Unauthorized access attempt", True, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -532,7 +533,6 @@ class systemAdministrator(service):
             allUsers = db.getUsers(role)
             title = "user" if role is None else f"{role.value}"
             print(f"======== List of {title}s ====================================================================================================")
-            privateKey = cryptoUtils.loadPrivateKey()
             if allUsers is None or allUsers == []:
                 print("No users found.")
             else:
@@ -569,25 +569,21 @@ class systemAdministrator(service):
 
     def editTraveller(self, db, loggingSys):
         try:
-            # 1) Show all travellers and pick one
             db.displayAllTravellers()
             while True:
                 traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ").strip()
                 if traveller_id.upper() == 'Q':
                     return
-                # assume getTravellerById now returns a dict of decrypted fields or None
                 traveller_data = db.getTravellerById(traveller_id)
                 if traveller_data:
                     break
                 print("Traveller ID not found.")
 
-            # 2) Display current values
             print("\nCurrent traveller data:")
             for field, val in traveller_data.items():
                 print(f"  {field.replace('_', ' ').title()}: {val}")
             print()
 
-            # 3) Fields & validators
             editable_fields = {
                 "first_name":     Validation.validateName,
                 "last_name":      Validation.validateName,
@@ -602,7 +598,6 @@ class systemAdministrator(service):
                 "license_number": Validation.validate_driving_license,
             }
 
-            # 4) Prompt for updates
             updates = {}
             for field, validator in editable_fields.items():
                 current = traveller_data.get(field, "")
@@ -620,7 +615,6 @@ class systemAdministrator(service):
                 if new_val != current:
                     updates[field] = new_val
 
-            # 5) Apply or skip
             if not updates:
                 print("No changes were made.")
                 return
@@ -753,10 +747,11 @@ class systemAdministrator(service):
                             
                             if result == "OK":
                                 print("Password updated successfully.")
+                                loggingSys.log("Password successfully reset", False, username=userID)
                                 return
                             else:
                                 print("Failed to update password.")
-                                
+                                loggingSys.log("Password reset failed", True, username=userID)
                         else:
                             print("Please enter a valid password!")
             
@@ -772,6 +767,7 @@ class systemAdministrator(service):
                     print("Unauthorized request.")
             else:
                 print("Unauthorized access.")
+                loggingSys.log("Unauthorized access attempt to reset password", True, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred while resetting password: {str(e)}")
@@ -908,6 +904,7 @@ class systemAdministrator(service):
 
             result = db.updateUser(self.id, first_name, last_name, username.lower())
             if result == "OK":
+                self.session += 1
                 print("Account updated successfully.")
                 loggingsys.log("Account updated", False, f"User {self.userName} updated their account.", self.userName)
             else:
@@ -921,6 +918,7 @@ class superAdministrator(systemAdministrator):
 
     def generateRestoreCode(self, db,backupSys,loggingSys):
         try:
+            backupSys.listBackupNames()
             self.displayUsers(db, roles.ADMIN)
 
             while True:
@@ -959,7 +957,7 @@ class superAdministrator(systemAdministrator):
             if codes != "FAIL":
                 print("======== List of Restore Codes ====================================================================================================")
                 for code in codes:
-                    print(f"| Code: {code[0]} | Backup File: {code[1]} | System Admin ID: {code[2]} | Creation Date: {code[3]} |\n")
+                    print(f"| ID: {code[0]} | System Admin ID: {code[1]} | Code: {Utility.safe_decrypt(code[2])} | Backup File: {code[3]} |\n")
                 print("=============================================================================================================================")
                 print("Press the id of the restore code you want to delete or press 'Q' to quit:")
                 while True:

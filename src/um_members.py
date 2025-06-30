@@ -6,11 +6,9 @@ from auth import loginAuth
 from inputValidation import Validation
 from backup import backup
 from users import roles
-from dependencies import Dependencies
 from cryptoUtils import cryptoUtils
 import time
 
-# Dependencies.dependenciesInstaller()
 def main():
     def initDB():
         dbPath = os.path.join(os.path.dirname(__file__), 'urbanMobility.db')
@@ -61,9 +59,9 @@ def main():
                     maxTries -= 1
                     print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
                     if len(username) < 10:
-                        loggingSys.log("Unsuccessful Login attempt", "False", f"username: '{username}' is used for a login attempt with a wrong password")
+                        loggingSys.log("Unsuccessful Login attempt", False, f"username: '{username}' is used for a login attempt with a wrong password")
                     else:
-                        loggingSys.log("Unsuccessful Login attempt", "False", "A login attempt was made with a unsupported username")
+                        loggingSys.log("Unsuccessful Login attempt", False, "A login attempt was made with a unsupported username")
 
                     time.sleep(1)
                     continue
@@ -115,6 +113,7 @@ def main():
                         if respone == "OK":
                             loggingSys.log(f"Successfully changed {username}'s password!",False)
                             print("Password has succefully been changed")
+                            loggingSys.log("User changed temporary password", False, username=username)
                             time.sleep(0.5)
                             isTemp = None
                             break
@@ -122,6 +121,7 @@ def main():
                         else:
                             loggingSys.log(f"Something went wrong trying to change {username}'s password...",False)
                             print("Something went wrong trying to change the password...")
+                            loggingSys.log("User tried to change temporary password but failed", False, username=username)
                             print("Try again later! \n Exiting...")
                             exit()
 
