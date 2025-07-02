@@ -95,6 +95,7 @@ class DBUpdate:
                 "last_maintenance_date": Validation.validateDate,
                 "latitude":             Validation.validateLatitude,
                 "longitude":            Validation.validateLongitude,
+                "out_of_service":           Validation.validateStatus
             }
 
             allowed_fields = set(validators.keys())

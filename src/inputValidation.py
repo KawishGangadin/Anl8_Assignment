@@ -13,7 +13,7 @@ class Validation:
 
     @staticmethod
     def validateIntegerInRange(value, min_val, max_val):
-        return isinstance(value, str) and value.isdigit() and min_val <= int(value) <= max_val
+        return isinstance(value, str) and len(value) <= 10 and value.isdigit() and min_val <= int(value) <= max_val
 
     @staticmethod
     def validateBrandOrModel(value):
@@ -27,35 +27,35 @@ class Validation:
             return False
         lat = float(latitude)
         return 51.85 <= lat <= 52.05
+    
+    def validateStatus(oos_status):
+        return len(oos_status) <= 5 and oos_status.lower() in ["true", "false"]
 
     @staticmethod
     def validateDate(date_str):
         try:
             datetime.strptime(date_str, "%Y-%m-%d")
-            return True
+            if len(date_str) <= 10:
+                return True
         except ValueError:
             return False
+        return False
         
     @staticmethod
     def validateLongitude(longitude):
-        if not isinstance(longitude, str):
-            return False
-        if not re.fullmatch(r'^\d{1,2}\.\d{5}$', longitude):
-            return False
-        lon = float(longitude)
-        return 4.35 <= lon <= 4.55
+        if isinstance(longitude, str) and re.fullmatch(r'^\d{1,2}\.\d{5}$', longitude) and 4.35 <= float(longitude) <= 4.55:
+            return True
 
     @staticmethod
     def validate_birthdate(birthdate):
         try:
+            birthdate_str = birthdate
             birthdate = birthdate.strip()
             birthdate = datetime.strptime(birthdate, "%Y-%m-%d").date()
-            if birthdate > date.today():
-                return False
 
             today = date.today()
             age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
-            return age >= 18
+            return len(birthdate_str) <= 12 and birthdate < date.today() and age >= 18
 
         except ValueError as e:
             return False
@@ -64,6 +64,9 @@ class Validation:
     def validate_driving_license(license_number):
         return isinstance(license_number, str) and bool(re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number.strip().upper()))
 
+    @staticmethod
+    def validateScooterID(scooter_id):
+        return isinstance(scooter_id, str) and len(scooter_id) < 10 and scooter_id.isdigit() and (0 <= int(scooter_id) <= 10000)
     
     @staticmethod
     def usernameValidation(name):
@@ -73,9 +76,7 @@ class Validation:
     def passwordValidation(password):
         if password == "Admin_123?":
             return True
-        if not isinstance(password, str):
-            return False
-        return bool(re.fullmatch(
+        return isinstance(password, str) and bool(re.fullmatch(
             r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-])[a-zA-Z0-9~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-]{12,30}$",
             password))
 
@@ -85,7 +86,7 @@ class Validation:
     
     @staticmethod
     def validateHousenumber(housenumber):
-        return isinstance(housenumber, str) and housenumber.isdigit() and 1 <= int(housenumber) <= 9999
+        return isinstance(housenumber, str) and len(housenumber) <= 10 and housenumber.isdigit() and 1 <= int(housenumber) <= 9999
 
     @staticmethod
     def validateZipcode(zip_code):
@@ -101,7 +102,7 @@ class Validation:
         
     @staticmethod
     def validateMembershipID(membershipID):
-        return isinstance(membershipID, str) and membershipID.isdigit() and 999999999 < int(membershipID) < 10000000000
+        return isinstance(membershipID, str) and len(membershipID) <= 10 and membershipID.isdigit() and 999999999 < int(membershipID) < 10000000000
     
     @staticmethod
     def validateAddress(address):
@@ -114,7 +115,7 @@ class Validation:
             'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 
             'Breda', 'Nijmegen'
         }
-        return isinstance(city, str) and city in allowed_cities
+        return isinstance(city, str) and city.lower() in allowed_cities
     
     @staticmethod
     def validateBackup(backupName):
@@ -139,9 +140,9 @@ class Validation:
                 validation_func = validation_mapping[key]
                 result = validation_func(value)
                 
-                if not result:
-                    return False
+                if result:
+                    return True
             else:
                 return False
 
-        return True
+        return False

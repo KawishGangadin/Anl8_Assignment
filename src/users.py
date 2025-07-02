@@ -84,7 +84,7 @@ class service(userBlueprint):
                 scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ").strip()
                 if scooter_id.upper() == 'Q':
                     return
-                if not scooter_id.isdigit():
+                if not Validation.validateScooterID(scooter_id):
                     print("Invalid ID format.")
                     continue
 
@@ -109,12 +109,13 @@ class service(userBlueprint):
                 "last_maintenance_date":Validation.validateDate,
                 "latitude":            Validation.validateLatitude,
                 "longitude":           Validation.validateLongitude,
+                "out_of_service":          Validation.validateStatus
             }
 
             if self.role == roles.SERVICE:
                 allowed = {
                     "state_of_charge", "target_soc_min", "target_soc_max",
-                    "mileage", "last_maintenance_date"
+                    "mileage", "last_maintenance_date", "out_of_service"
                 }
             else:
                 allowed = set(editable_fields.keys())
@@ -171,18 +172,22 @@ class service(userBlueprint):
     def searchScooter(self, db, loggingSys):
         try:
             search_term = input("Enter the search key: ")
-            result = db.searchScooter(search_term)
+            if not Validation.detectBadInput(search_term) and len(search_term) <= 35:
+                result = db.searchScooter(search_term)
             
-            if result:
-                print("Search Results:")
-                print("----------------")
-                for row in result:
-                    print(f"Scooter ID: {row[0]} | In Service Date: {row[1]} | Brand: {row[2]} | Model: {row[3]} | Serial Number: {row[4]} | Top Speed: {row[5]} km/h | Battery Capacity: {row[6]} Wh | State of Charge: {row[7]}% | Target SOC Min: {row[8]}% | Target SOC Max: {row[9]}% | Latitude: {row[10]} | Longitude: {row[11]} | Out of service: {row[12]} | Mileage: {row[13]} km | Last Maintenance Date: {row[14]}")
+                if result:
+                    print("Search Results:")
                     print("----------------")
-            else:
-                print("No results found.")
+                    for row in result:
+                        print(f"Scooter ID: {row[0]} | In Service Date: {row[1]} | Brand: {row[2]} | Model: {row[3]} | Serial Number: {row[4]} | Top Speed: {row[5]} km/h | Battery Capacity: {row[6]} Wh | State of Charge: {row[7]}% | Target SOC Min: {row[8]}% | Target SOC Max: {row[9]}% | Latitude: {row[10]} | Longitude: {row[11]} | Out of service: {row[12]} | Mileage: {row[13]} km | Last Maintenance Date: {row[14]}")
+                        print("----------------")
+                else:
+                    print("No results found.")
             
-            input("Press any key to continue...")
+                input("Press any key to continue...")
+            else:
+                print("Invalid search key")
+                return
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -193,18 +198,22 @@ class systemAdministrator(service):
     def searchTraveller(self, db, loggingSys):
         try:
             search_term = input("Enter the search key: ")
-            result = db.searchTraveller(search_term)
+            if not Validation.detectBadInput(search_term) and len(search_term) <= 35:
+                result = db.searchTraveller(search_term)
             
-            if result:
-                print("Search Results:")
-                print("----------------")
-                for row in result:
-                    print(f"Customer ID: {row[0]} | Registration Date: {row[1]} | First Name: {row[2]} | Last Name: {row[3]} | Birthdate: {row[4]} | Gender: {row[5]} | Street: {row[6]} | House Number: {row[7]} | City: {row[8]} | Zip Code: {row[9]} | Email: {row[10]} | Mobile: {row[11]} | License Number: {row[12]}")
+                if result:
+                    print("Search Results:")
                     print("----------------")
-            else:
-                print("No results found.")
+                    for row in result:
+                        print(f"Customer ID: {row[0]} | Registration Date: {row[1]} | First Name: {row[2]} | Last Name: {row[3]} | Birthdate: {row[4]} | Gender: {row[5]} | Street: {row[6]} | House Number: {row[7]} | City: {row[8]} | Zip Code: {row[9]} | Email: {row[10]} | Mobile: {row[11]} | License Number: {row[12]}")
+                        print("----------------")
+                else:
+                    print("No results found.")
             
-            input("Press any key to continue...")
+                input("Press any key to continue...")
+            else:
+                print("Invalid search key")
+                return
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -218,7 +227,7 @@ class systemAdministrator(service):
                 traveller_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
                 if traveller_id.upper() == 'Q':
                     return
-                if not traveller_id.isdigit():
+                if not Validation.validateMembershipID(traveller_id):
                     print("Invalid ID format.")
                     loggingSys.log("Invalid ID format entered for traveller deletion", True,f"Input: {traveller_id}" ,username=self.userName)
                     continue
@@ -247,7 +256,7 @@ class systemAdministrator(service):
                 scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
                 if scooter_id.upper() == 'Q':
                     return
-                if not scooter_id.isdigit():
+                if not Validation.validateScooterID(scooter_id):
                     print("Invalid ID format.")
                     continue
 
@@ -279,7 +288,7 @@ class systemAdministrator(service):
                     if Id.upper() == "Q":
                         return
 
-                    if not Id.isdigit():
+                    if not Validation.validateScooterID(Id):
                         print("ID is invalid!")
                         time.sleep(0.5)
                         continue
@@ -381,7 +390,7 @@ class systemAdministrator(service):
                     raise KeyboardInterrupt
                 return val
 
-            scooter["serial_number"] = ask("Serial Number", "Enter serial number (SC-XXXXXX):", Validation.validateSerialNumber)
+            scooter["serial_number"] = ask("Serial Number", "Enter serial number:", Validation.validateSerialNumber)
             scooter["brand"] = ask("Brand", "Enter scooter brand:", Validation.validateBrandOrModel)
             scooter["model"] = ask("Model", "Enter scooter model:", Validation.validateBrandOrModel)
             scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Validation.validateIntegerInRange(v, 5, 120))
@@ -574,7 +583,10 @@ class systemAdministrator(service):
                 traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ").strip()
                 if traveller_id.upper() == 'Q':
                     return
-                traveller_data = db.getTravellerById(traveller_id)
+                if not Validation.validateMembershipID(traveller_id):
+                    print("Invalid ID")
+                    continue
+                traveller_data = db.getTravellerById(traveller_id) # validation is done at the start of the db func
                 if traveller_data:
                     break
                 print("Traveller ID not found.")
@@ -656,11 +668,12 @@ class systemAdministrator(service):
                     userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
                     if userID.upper() == "Q":
                         return
-                    elif userID.isdigit() and db.findUserID(int(userID), role):
-                        validID = True
-                        break
+                    elif Validation.validateScooterID(userID):
+                        if db.findUserID(int(userID), role):
+                            validID = True
+                            break
                     else:
-                        print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
+                        print("ID not found in the database!" if Validation.validateScooterID(userID) else "ID is invalid!")
                         time.sleep(0.5)
 
                 if validID:
@@ -727,11 +740,12 @@ class systemAdministrator(service):
                     
                     if userID.upper() == "Q":
                         return
-                    elif userID.isdigit() and db.findUserID(int(userID), role):
-                        validID = True
-                        break
+                    elif Validation.validateScooterID(userID):
+                        if db.findUserID(int(userID), role):
+                            validID = True
+                            break
                     else:
-                        print("ID not found in the database!" if userID.isdigit() else "ID is invalid!")
+                        print("ID not found in the database!" if Validation.validateScooterID(userID) else "ID is invalid!")
                         time.sleep(0.5)
                 
                 if validID:
@@ -925,7 +939,7 @@ class superAdministrator(systemAdministrator):
                 admin_id = input("Enter the ID of the System Administrator to generate a restore code for, or press Q to quit: ").strip()
                 if admin_id.upper() == "Q":
                     return
-                if admin_id.isdigit() and db.findUserID(int(admin_id), roles.ADMIN):
+                if Validation.validateScooterID(admin_id) and db.findUserID(int(admin_id), roles.ADMIN):
                     admin_id = int(admin_id)
                     break
                 else:
