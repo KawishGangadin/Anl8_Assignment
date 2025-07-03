@@ -111,9 +111,9 @@ class Validation:
     @staticmethod
     def validateCity(city):
         allowed_cities = {
-            'Amsterdam', 'Rotterdam', 'The Hague', 'Utrecht', 
-            'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 
-            'Breda', 'Nijmegen'
+            'amsterdam', 'rotterdam', 'the hague', 'utrecht', 
+            'eindhoven', 'tilburg', 'groningen', 'almere', 
+            'breda', 'nijmegen'
         }
         return isinstance(city, str) and city.lower() in allowed_cities
     
