@@ -16,8 +16,12 @@ class Validation:
         return isinstance(value, str) and len(value) <= 10 and value.isdigit() and min_val <= int(value) <= max_val
 
     @staticmethod
+    def validateNumericInput(input):
+        return bool(re.fullmatch(r'(0|[1-9][0-9]{0,9})', input))
+    
+    @staticmethod
     def validateBrandOrModel(value):
-        return isinstance(value, str) and bool(re.fullmatch(r'^[A-Za-z0-9-]{2,30}$', value))
+        return bool(re.fullmatch(r'^[A-Za-z0-9](?:[A-Za-z0-9-]{0,28}[A-Za-z0-9])?$', value))
         
     @staticmethod
     def validateLatitude(latitude):
@@ -146,3 +150,9 @@ class Validation:
                 return False
 
         return False
+    
+
+print(Validation.validateNumericInput("asdasd6-asd"))
+print(Validation.validateNumericInput("6\x006"))
+print(Validation.validateNumericInput("66"))
+print(Validation.validateNumericInput("0066"))

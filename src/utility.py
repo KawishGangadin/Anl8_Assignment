@@ -5,7 +5,7 @@ class Utility:
     @staticmethod
     def get_valid_input(prompt, validator, username="", loggingSys=None, fieldName=None):
         while True:
-            value = input(f"{prompt} ").strip()
+            value = input(f"{prompt} ")
             if value.upper() == 'Q':
                 return None
             elif not Validation.detectBadInput(value):
@@ -24,7 +24,7 @@ class Utility:
     @staticmethod
     def get_optional_update(prompt, validator, current_value, username="", loggingSys=None, fieldName= None):
         while True:
-            value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ").strip()
+            value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ")
             if value.upper() == 'Q':
                 return "Q"
             elif value == '':
@@ -54,3 +54,10 @@ class Utility:
             print("Decryption failed. Returning original value.")
             
 
+    @staticmethod
+    def validateAndParseLongitude():
+        pass
+
+    @staticmethod
+    def validateAndParseLatitude():
+        pass

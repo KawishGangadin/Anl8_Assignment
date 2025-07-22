@@ -3,38 +3,36 @@ from users import service
 from users import systemAdministrator
 from users import superAdministrator
 from cryptoUtils import cryptoUtils
-import sqlite3
 
 class loginAuth:
     def __init__(self, db):
         self.db = db
 
-    def loginFunc(self, encrypted_username, password):
-        data = self.db.getUserData(encrypted_username)
-        if data:
-            storedPassword = data[4] 
-            storedSalt = data[8]  
-            if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
-                private_key = cryptoUtils.loadPrivateKey()
-                decrypted_username = cryptoUtils.decryptWithPrivateKey(private_key, data[3]) 
-                decrypted_username = decrypted_username
-                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, data[6])
-                decrypted_role=decrypted_role
-                session_id = data[9]
+    def loginFunc(self, username, password):
+        """Logging in with a user
 
-                user_id = data[0]  
+        In deze functie kan de user worden ingelogd,
+        deze wordt aangeroepen binnen de main file nadat de user 
+        een username en een password heeft ingevoerd.
+        Is het correct? Een class wordt gereturned van die specifieke user type
+        """
+        try:
+            user = self.db.verifyUserLogin(username,password)
 
-                roleType = roles(decrypted_role)
-
-                if roleType == roles.SERVICE:
-                    return service(user_id, roles.SERVICE,decrypted_username, self.db, session_id) 
-                elif roleType == roles.ADMIN:
-                    return systemAdministrator(user_id,roles.ADMIN ,decrypted_username, self.db, session_id) 
-                elif roleType == roles.SUPERADMIN:
-                    return superAdministrator(user_id, roles.SUPERADMIN, decrypted_username, self.db, session_id) 
-                else:
-                    raise ValueError("Unknown role detected.")
-        else:
+            roleType = user["role"]
+            print(roleType)
+            print(roles.SUPERADMIN)
+            if roleType == roles.SERVICE.value:
+                return service(user["id"], roles.SERVICE, user["username"], self.db, user["sessionID"])
+            elif roleType == roles.ADMIN.value:
+                return systemAdministrator(user["id"], roles.ADMIN, user["username"], self.db, user["sessionID"])
+            elif roleType == roles.SUPERADMIN.value:
+                return superAdministrator(user["id"], roles.SUPERADMIN, user["username"], self.db, user["sessionID"])
+            else:
+                print("Unknown role detected")
+                return None
+        except Exception as e:
             print("User not found.")
+            return None
 
-        return None
+help(loginAuth)

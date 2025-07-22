@@ -1,5 +1,6 @@
 from datetime import date
 import sqlite3
+from utility import Utility
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 from .database_create import DBCreate
@@ -203,3 +204,35 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
         finally:
             if conn:
                 conn.close()
+
+    def verifyUserLogin(self,username, password):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM users"
+            cursor.execute(query)
+            users = cursor.fetchall()
+            verifiedUser = None
+            for user in users:
+                if Utility.safe_decrypt(user[3]) == username and cryptoUtils.verifyPassword(password,user[4],user[8]):
+                    verifiedUser = user
+                    break
+
+            decryptedRole = Utility.safe_decrypt(verifiedUser[6])
+            decryptedUsername = Utility.safe_decrypt(verifiedUser[3])
+            decryptedUser = {
+                'id': verifiedUser[0], #ID
+                'role': decryptedRole, #Role
+                'username': decryptedUsername, #Username
+                'sessionID': verifiedUser[9],#SessionID
+            }
+            return decryptedUser     
+        except sqlite3.Error as e:
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def verifyAccountStatus():
+        pass
