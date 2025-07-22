@@ -234,5 +234,20 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def verifyAccountStatus():
-        pass
+    def verifyAccountStatus(self,userID, sessionID):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM users WHERE id = ?"
+            cursor.execute(query,(userID,))
+            user = cursor.fetchone()
+
+            if user:
+                decryptedSessionID = Utility.safe_decrypt(user[9])
+                if str(sessionID) == decryptedSessionID:
+                     return user[7] == 1
+            return None
+        except Exception as e:
+            print(f"Something went wrong while verifying the account status: {e}")
+            return None

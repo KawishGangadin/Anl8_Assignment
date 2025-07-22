@@ -66,73 +66,67 @@ def main():
                     time.sleep(1)
                     continue
                 else:
-                    data = dataBase.getUserData(username.lower())
+                    user = logIn_System.loginFunc(username.lower(), password)
                 
-                if data:
-                    storedPassword = data[4]
-                    storedSalt = data[8] 
-
-                    if cryptoUtils.verifyPassword(password, storedPassword, storedSalt):
-                        print("Successfully logged in!")
-                        loggedIn = True
-                        user = logIn_System.loginFunc(username.lower(), password)
-                        loggingSys.log("User successfully logged into Unique Meal", False, username=username.lower())
-                        time.sleep(1)
-                        break
-
-                    else:
-                        print("Invalid username or password. Please try again.")
-                        time.sleep(1)
-                        maxTries -= 1
-
+                if user:
+                    loggedIn = True
+                    loggingSys.log("User successfully logged into Unique Meal", False, username=username.lower())
+                    time.sleep(1)
+                    break
                 else:
                     print("Invalid username or password. Please try again.")
                     time.sleep(1)
                     maxTries -= 1
         
         while loggedIn:
-            if not data:
+            if not user:
                 loggedIn = False
                 break
 
-            isTemp = data[7]
+            isTemp = dataBase.verifyAccountStatus(user.id,user.session)
+            
+            if isTemp != None:
+                while isTemp == True:
+                    print("You current password is temporary or press Q to exit the system...")
+                    while True:
+                        newPassword = input("Enter your new password...")
 
-            while isTemp == True:
-                print("You current password is temporary or press Q to exit the system...")
-                while True:
-                    newPassword = input("Enter your new password...")
-
-                    if newPassword.upper() == "Q":
-                        print("Exiting the system")
-                        exit()
-
-                    elif Validation.passwordValidation(newPassword):
-                        respone = dataBase.updatePassword(user.id,newPassword)
-                        user.session += 1
-                        
-                        if respone == "OK":
-                            loggingSys.log(f"Successfully changed {username}'s password!",False)
-                            print("Password has succefully been changed")
-                            loggingSys.log("User changed temporary password", False, username=username)
-                            time.sleep(0.5)
-                            isTemp = None
-                            break
-
-                        else:
-                            loggingSys.log(f"Something went wrong trying to change {username}'s password...",False)
-                            print("Something went wrong trying to change the password...")
-                            loggingSys.log("User tried to change temporary password but failed", False, username=username)
-                            print("Try again later! \n Exiting...")
+                        if newPassword.upper() == "Q":
+                            print("Exiting the system")
                             exit()
 
-                    else:
-                        print("Please enter a valid password!!!")
-                        
-            userInterface.clearScreen()
-            print("Logged In")
-            time.sleep(1)
-            username, password, newPassword, data = None, None, None, None
-            userInterface.optionMenu(user,dataBase,loggingSys,backupSys)
+                        elif Validation.passwordValidation(newPassword):
+                            respone = dataBase.updatePassword(user.id,newPassword)
+                            user.session += 1
+                            
+                            if respone == "OK":
+                                loggingSys.log(f"Successfully changed {username}'s password!",False)
+                                print("Password has succefully been changed")
+                                loggingSys.log("User changed temporary password", False, username=username)
+                                time.sleep(0.5)
+                                isTemp = None
+                                break
+
+                            else:
+                                loggingSys.log(f"Something went wrong trying to change {username}'s password...",False)
+                                print("Something went wrong trying to change the password...")
+                                loggingSys.log("User tried to change temporary password but failed", False, username=username)
+                                print("Try again later! \n Exiting...")
+                                exit()
+
+                        else:
+                            print("Please enter a valid password!!!")
+                
+                userInterface.clearScreen()
+                print("Logged In")
+                time.sleep(1)
+                loggedInUser = user
+                username, password, newPassword, user = None, None, None, None
+                userInterface.optionMenu(loggedInUser,dataBase,loggingSys,backupSys)
+            else:
+                loggingSys.log(f"Something went wrong trying to verify {username}'s account status...",True)
+                print("Something went wrong trying to verify your account's status... Try again later!!! \n Exiting...")
+                exit()
 
 if __name__ == '__main__':
     main()

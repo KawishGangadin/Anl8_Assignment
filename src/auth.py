@@ -34,5 +34,3 @@ class loginAuth:
         except Exception as e:
             print("User not found.")
             return None
-
-help(loginAuth)
