@@ -1,5 +1,7 @@
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
+import base64
+import secrets
 
 class Utility:
     @staticmethod
@@ -53,6 +55,15 @@ class Utility:
         except:
             print("Decryption failed. Returning original value.")
             
+    @staticmethod
+    def generate_session_id(length: int = 32) -> str:
+        """
+        Generates a secure, URL-safe session ID.
+        - `length` is the number of bytes before encoding (default 32 = 256-bit key).
+        """
+        random_bytes = secrets.token_bytes(length)
+        session_id = base64.urlsafe_b64encode(random_bytes).rstrip(b'=').decode('utf-8')
+        return session_id
 
     @staticmethod
     def validateAndParseLongitude():

@@ -32,7 +32,6 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
 
     def optionMenu(self, user, db, loggingSys, backupSys):
         while user is not None:
-            private_key = cryptoUtils.loadPrivateKey()
             time.sleep(1)
             if isinstance(user, superAdministrator):
                 self.clearScreen()
@@ -47,6 +46,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
 
                 logoutResult = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
+                    db.clearSession(user.id,user.session)
                     user = None
                     break
 
@@ -63,6 +63,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
 
                 logoutResult = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
+                    db.clearSession(user.id,user.session)
                     user = None
                     break
 
@@ -79,6 +80,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
 
                 logoutResult = self.service_Menu(user, db, loggingSys)
                 if logoutResult is True:
+                    db.clearSession(user.id,user.session)
                     user = None
                     break
 

@@ -88,7 +88,6 @@ class service(userBlueprint):
                     print("Invalid ID format.")
                     continue
 
-                scooter_id = int(scooter_id)
                 scooter_data = db.getScooterById(scooter_id)
                 if scooter_data:
                     

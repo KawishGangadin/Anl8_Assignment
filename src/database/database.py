@@ -110,15 +110,16 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if str(user_id).isdigit():
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
-                query = "SELECT * FROM users WHERE session_id = ? AND id = ?"
-                cursor.execute(query, (session_id,user_id))
-                users = cursor.fetchone()
+                query = "SELECT * FROM users WHERE id = ?"
+                cursor.execute(query, (user_id,))
+                user = cursor.fetchone()
                 cursor.close()
 
-                if users:
-                    return True
-                else:
-                    return False
+                if user:
+                    decryptedSessionID = Utility.safe_decrypt(user[9])
+                    if decryptedSessionID == str(session_id):
+                        return True
+                return False
 
             return False  
 
@@ -219,15 +220,26 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                     verifiedUser = user
                     break
 
-            decryptedRole = Utility.safe_decrypt(verifiedUser[6])
-            decryptedUsername = Utility.safe_decrypt(verifiedUser[3])
-            decryptedUser = {
-                'id': verifiedUser[0], #ID
-                'role': decryptedRole, #Role
-                'username': decryptedUsername, #Username
-                'sessionID': verifiedUser[9],#SessionID
-            }
-            return decryptedUser     
+            if verifiedUser:
+                new_session_id = Utility.generate_session_id()
+                encrypted_session_id = cryptoUtils.encryptWithPublicKey(cryptoUtils.loadPublicKey(),new_session_id)
+
+                # Step 3: Update session ID in DB
+                update_query = "UPDATE users SET session_id = ? WHERE id = ?"
+                cursor.execute(update_query, (encrypted_session_id, verifiedUser[0]))
+
+                # Step 4: Check if update was successful
+                if cursor.rowcount == 1:
+                    conn.commit()
+                    # Step 5: Return decrypted user
+                    return {
+                        'id': verifiedUser[0],
+                        'role': Utility.safe_decrypt(verifiedUser[6]),
+                        'username': Utility.safe_decrypt(verifiedUser[3]),
+                        'sessionID': new_session_id  # Plaintext session ID for current session
+                    }
+
+            return None 
         except sqlite3.Error as e:
             return None
         finally:
@@ -251,3 +263,30 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
         except Exception as e:
             print(f"Something went wrong while verifying the account status: {e}")
             return None
+        finally:
+            if conn:
+                conn.close()
+    
+    def clearSession(self, userID,sessionID):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM users WHERE id = ?"
+            cursor.execute(query,(userID,))
+            user = cursor.fetchone()
+            if Utility.safe_decrypt(user[9]) == sessionID:
+                update_query = "UPDATE users SET session_id = NULL WHERE id = ?"
+                cursor.execute(update_query, (userID,))
+
+                if cursor.rowcount == 1:
+                    conn.commit()
+                    print("Session ID cleared!!!")
+                    return "OK"
+            return None
+        except Exception as e:
+            print(f"Something went wrong while clearing sessionID")
+            return None
+        finally:
+            if conn:
+                conn.close()

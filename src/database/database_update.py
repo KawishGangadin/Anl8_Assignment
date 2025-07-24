@@ -4,7 +4,7 @@ import sqlite3
 
 class DBUpdate:
     
-    def updatePassword(self, userId, newPassword, temp=False):
+    def updatePassword(self, userId, newPassword, temp=False, session=False):
         conn = None
         try:
             if Validation.passwordValidation(newPassword):
@@ -208,3 +208,4 @@ class DBUpdate:
         finally:
             if conn:
                 conn.close()
+    

@@ -8,8 +8,23 @@ from backup import backup
 from users import roles
 from cryptoUtils import cryptoUtils
 import time
+import signal
+import sys
+
 
 def main():
+    def graceful_exit(sig=None, frame=None):
+        try:
+            if 'loggedInUser' in locals() and loggedInUser is not None:
+                loggingSys.log("User forcefully logged out (Ctrl+C)", True, username=loggedInUser.userName)
+                dataBase.clearSession(loggedInUser.id,loggedInUser.session)
+                print("ID: ",loggedInUser.id, " Session: ",loggedInUser.session)
+        except Exception as e:
+            print(f"Cleanup error: {e}")
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, graceful_exit)
+
     def initDB():
         dbPath = os.path.join(os.path.dirname(__file__), 'urbanMobility.db')
         dbInitialization = DB(dbPath)

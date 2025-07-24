@@ -100,7 +100,7 @@ class DBCreate:
             role TEXT NOT NULL,
             temp BOOLEAN NOT NULL,
             salt TEXT NOT NULL,
-            session_id INTEGER NOT NULL DEFAULT 0
+            session_id TEXT
         )
         """
         try:
