@@ -511,7 +511,7 @@ class systemAdministrator(service):
 
                 while not validPassword:
                     password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
-                    data = self.db.getUserData(username)
+                    data = db.getUserData(username)
                     if password.upper() == 'Q':
                         return
                     if not Validation.passwordValidation(password):
@@ -523,7 +523,7 @@ class systemAdministrator(service):
                         break
 
                 creationDate = date.today().strftime("%Y-%m-%d")
-                result = self.db.createUser(firstName, lastName, username, password, creationDate, role, False)
+                result = db.createUser(firstName, lastName, username, password, creationDate, role, False)
                 if result == "OK":
                     print(f"{roleType} created successfully.")
                     loggingSys.log(f"User has created a {roleType}", False, username=self.userName)
@@ -802,6 +802,7 @@ class systemAdministrator(service):
 
                     print("Restoring backup as Super Administrator...")
                     backUpSystem.restoreBackup(name, username=self.userName)
+                    db.clearAllSessions()
                     break
                 return
             elif isinstance(self, systemAdministrator):
