@@ -9,7 +9,7 @@ from inputValidation import Validation
 from checkSum import Checksum
 from roles import roles
 from userBlueprint import userBlueprint
-from utility import Utility
+from utility import Utility 
 
 
 class service(userBlueprint):
@@ -49,7 +49,7 @@ class service(userBlueprint):
                     elif Validation.passwordValidation(newPassword):
                         result = db.updatePassword(self.id, newPassword)
                         if result == "OK":
-                            self.session += 1
+                            self.updateSession(db,loggingSys)
                             print("Password has been successfully changed!")
                             loggingSys.log("Password has been successfully changed.", False, username=self.userName)
                         else:
@@ -81,7 +81,7 @@ class service(userBlueprint):
             db.displayAllScooters()
 
             while True:
-                scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ").strip()
+                scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ")
                 if scooter_id.upper() == 'Q':
                     return
                 if not Validation.validateScooterID(scooter_id):
@@ -223,7 +223,7 @@ class systemAdministrator(service):
             db.displayAllTravellers()
 
             while True:
-                traveller_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
+                traveller_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ")
                 if traveller_id.upper() == 'Q':
                     return
                 if not Validation.validateMembershipID(traveller_id):
@@ -252,7 +252,7 @@ class systemAdministrator(service):
             db.displayAllScooters()
 
             while True:
-                scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ").strip()
+                scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ")
                 if scooter_id.upper() == 'Q':
                     return
                 if not Validation.validateScooterID(scooter_id):
@@ -283,7 +283,7 @@ class systemAdministrator(service):
 
                 validID = False
                 while True:
-                    Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ").strip()
+                    Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ")
                     if Id.upper() == "Q":
                         return
 
@@ -579,7 +579,7 @@ class systemAdministrator(service):
         try:
             db.displayAllTravellers()
             while True:
-                traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ").strip()
+                traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ")
                 if traveller_id.upper() == 'Q':
                     return
                 if not Validation.validateMembershipID(traveller_id):
@@ -664,7 +664,7 @@ class systemAdministrator(service):
                 validID = False
                 userID = ""
                 while True:
-                    userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
+                    userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ")
                     if userID.upper() == "Q":
                         return
                     elif Validation.validateScooterID(userID):
@@ -677,7 +677,7 @@ class systemAdministrator(service):
 
                 if validID:
                     while True:
-                        firstName = input(f"Enter the new first name for user or press 'Q' to quit: ").strip()
+                        firstName = input(f"Enter the new first name for user or press 'Q' to quit: ")
                         if firstName.upper() == 'Q':
                             return
                         if not Validation.validateName(firstName):
@@ -686,7 +686,7 @@ class systemAdministrator(service):
                             break
 
                     while True:
-                        lastName = input(f"Enter the new last name for user or press 'Q' to quit: ").strip()
+                        lastName = input(f"Enter the new last name for user or press 'Q' to quit: ")
                         if lastName.upper() == 'Q':
                             return
                         if not Validation.validateName(lastName):
@@ -695,7 +695,7 @@ class systemAdministrator(service):
                             break
 
                     while True:
-                        username = input(f"Enter the new username for user or press 'Q' to quit: ").strip()
+                        username = input(f"Enter the new username for user or press 'Q' to quit: ")
                         if username.upper() == 'Q':
                             return
                         if not Validation.usernameValidation(username.lower()):
@@ -735,7 +735,7 @@ class systemAdministrator(service):
                 userID = ""
                 
                 while True:
-                    userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ").strip()
+                    userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ")
                     
                     if userID.upper() == "Q":
                         return
@@ -749,7 +749,7 @@ class systemAdministrator(service):
                 
                 if validID:
                     while True:
-                        password = input("Enter the new temporary password for the user or press Q to quit: ").strip()
+                        password = input("Enter the new temporary password for the user or press Q to quit: ")
                         
                         if password.upper() == "Q":
                             print("Exiting...")
@@ -778,9 +778,8 @@ class systemAdministrator(service):
                     processReset(role)
                 else:
                     print("Unauthorized request.")
-            else:
-                print("Unauthorized access.")
-                loggingSys.log("Unauthorized access attempt to reset password", True, username=self.userName)
+            print("Unauthorized access.")
+            loggingSys.log("Unauthorized access attempt to reset password", True, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred while resetting password: {str(e)}")
@@ -791,7 +790,7 @@ class systemAdministrator(service):
             backUpSystem.listBackupNames()
             if isinstance(self, superAdministrator):
                 while True:
-                    name = input("Enter the name of the backup file to restore or press Q to quit: ").strip()
+                    name = input("Enter the name of the backup file to restore or press Q to quit: ")
                     if name.upper() == "Q":
                         print("Quitting...")
                         break
@@ -817,7 +816,7 @@ class systemAdministrator(service):
                 print()
 
                 while True:
-                    name = input("Enter the name of the backup file to restore or press Q to quit: ").strip()
+                    name = input("Enter the name of the backup file to restore or press Q to quit: ")
                     if name.upper() == "Q":
                         print("Quitting...")
                         break
@@ -826,7 +825,7 @@ class systemAdministrator(service):
                         print("Please enter a valid backup filename!")
                         continue
 
-                    code = input("Enter your restore code or press Q to quit: ").strip()
+                    code = input("Enter your restore code or press Q to quit: ")
                     if code.upper() == "Q":
                         print("Quitting...")
                         break
@@ -857,9 +856,7 @@ class systemAdministrator(service):
             )
 
             while True:
-                confirmation = input(
-                    f"To confirm account deletion, please type the following phrase exactly:\n'{randomPhrase}'\nOr type 'Q' to quit: "
-                ).strip()
+                confirmation = input(f"To confirm account deletion, please type the following phrase exactly:\n'{randomPhrase}'\nOr type 'Q' to quit: ")
 
                 if confirmation == randomPhrase:
                     print("Confirmation successful. Proceeding with account deletion...")
@@ -885,7 +882,7 @@ class systemAdministrator(service):
             print("Press 'Q' at any time to quit.")
 
             while True:
-                first_name = input(f"Enter new first name (current: ): ").strip()
+                first_name = input(f"Enter new first name (current: ): ")
                 if first_name.upper() == 'Q':
                     return
                 if not Validation.validateName(first_name):
@@ -895,7 +892,7 @@ class systemAdministrator(service):
                 break
 
             while True:
-                last_name = input(f"Enter new last name (current: ): ").strip()
+                last_name = input(f"Enter new last name (current: ): ")
                 if last_name.upper() == 'Q':
                     return
                 if not Validation.validateName(last_name):
@@ -904,7 +901,7 @@ class systemAdministrator(service):
                 break
 
             while True:
-                username = input(f"Enter new username (current: {self.userName}): ").strip()
+                username = input(f"Enter new username (current: {self.userName}): ")
                 if username.upper() == 'Q':
                     return
                 if not Validation.usernameValidation(username.lower()):
@@ -918,7 +915,7 @@ class systemAdministrator(service):
 
             result = db.updateUser(self.id, first_name, last_name, username.lower())
             if result == "OK":
-                self.session += 1
+                self.updateSession(db,loggingsys)
                 print("Account updated successfully.")
                 loggingsys.log("Account updated", False, f"User {self.userName} updated their account.", self.userName)
             else:
@@ -936,7 +933,7 @@ class superAdministrator(systemAdministrator):
             self.displayUsers(db, roles.ADMIN)
 
             while True:
-                admin_id = input("Enter the ID of the System Administrator to generate a restore code for, or press Q to quit: ").strip()
+                admin_id = input("Enter the ID of the System Administrator to generate a restore code for, or press Q to quit: ")
                 if admin_id.upper() == "Q":
                     return
                 if Validation.validateScooterID(admin_id) and db.findUserID(int(admin_id), roles.ADMIN):
@@ -946,7 +943,7 @@ class superAdministrator(systemAdministrator):
                     print("Invalid ID or not a System Administrator!")
                     time.sleep(0.5)
 
-            backup_name = input("Enter the exact name of the backup file (e.g., backup_20240601_1700.zip) or press Q to quit: ").strip()
+            backup_name = input("Enter the exact name of the backup file (e.g., backup_20240601_1700.zip) or press Q to quit: ")
             if backup_name.upper() == "Q":
                 return
         
@@ -975,7 +972,7 @@ class superAdministrator(systemAdministrator):
                 print("=============================================================================================================================")
                 print("Press the id of the restore code you want to delete or press 'Q' to quit:")
                 while True:
-                    code_id = input().strip()
+                    code_id = input()
                     if code_id.upper() == "Q":
                         return
                     if code_id.isdigit():

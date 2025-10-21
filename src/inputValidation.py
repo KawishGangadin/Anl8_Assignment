@@ -8,8 +8,12 @@ class Validation:
         return any(ord(c) < 32 or ord(c) == 127 for c in input_string)
 
     @staticmethod
+    def validate(input):
+        return bool(re.fullmatch(r"[A-Za-z0-9 !\"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]{1,35}", input))
+
+    @staticmethod
     def validateSerialNumber(serial_number):
-        return isinstance(serial_number, str) and bool(re.fullmatch(r'^[A-Za-z0-9]{10,17}$', serial_number.strip()))
+        return bool(re.fullmatch(r'^[A-Za-z0-9]{10,17}$', serial_number))
 
     @staticmethod
     def validateIntegerInRange(value, min_val, max_val):
@@ -25,12 +29,7 @@ class Validation:
         
     @staticmethod
     def validateLatitude(latitude):
-        if not isinstance(latitude, str):
-            return False
-        if not re.fullmatch(r'^\d{2}\.\d{5}$', latitude):
-            return False
-        lat = float(latitude)
-        return 51.85 <= lat <= 52.05
+        return bool(re.fullmatch(r'^\d{2}\.\d{5}$', latitude))
     
     def validateStatus(oos_status):
         return len(oos_status) <= 5 and oos_status.lower() in ["true", "false"]
@@ -47,26 +46,15 @@ class Validation:
         
     @staticmethod
     def validateLongitude(longitude):
-        if isinstance(longitude, str) and re.fullmatch(r'^\d{1,2}\.\d{5}$', longitude) and 4.35 <= float(longitude) <= 4.55:
-            return True
-
+        return bool(re.fullmatch(r'^\d{1,2}\.\d{5}$', longitude))
+                                                                        
     @staticmethod
     def validate_birthdate(birthdate):
-        try:
-            birthdate_str = birthdate
-            birthdate = birthdate.strip()
-            birthdate = datetime.strptime(birthdate, "%Y-%m-%d").date()
-
-            today = date.today()
-            age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
-            return len(birthdate_str) <= 12 and birthdate < date.today() and age >= 18
-
-        except ValueError as e:
-            return False
+        return bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", birthdate))
 
     @staticmethod
     def validate_driving_license(license_number):
-        return isinstance(license_number, str) and bool(re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number.strip().upper()))
+        return bool(re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number))
 
     @staticmethod
     def validateScooterID(scooter_id):
@@ -74,15 +62,13 @@ class Validation:
     
     @staticmethod
     def usernameValidation(name):
-        return isinstance(name, str) and (bool(re.fullmatch(r"^[a-zA-Z_][a-zA-Z0-9_.']{7,9}$", name)) or name == "super_admin")
+        return bool(re.fullmatch(r"^[a-zA-Z_][a-zA-Z0-9_.']{7,9}$", name) or name == "super_admin")
    
     @staticmethod
     def passwordValidation(password):
         if password == "Admin_123?":
             return True
-        return isinstance(password, str) and bool(re.fullmatch(
-            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-])[a-zA-Z0-9~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-]{12,30}$",
-            password))
+        return bool(re.fullmatch(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-])[a-zA-Z0-9~!@#$%&_+=`|\\(){}\[\]:;'<>,.?/-]{12,30}$",password))
 
     @staticmethod
     def validateEmail(email):
@@ -90,44 +76,44 @@ class Validation:
     
     @staticmethod
     def validateHousenumber(housenumber):
-        return isinstance(housenumber, str) and len(housenumber) <= 10 and housenumber.isdigit() and 1 <= int(housenumber) <= 9999
+        return  bool(re.fullmatch(r"[1-9]\d{0,3}", housenumber))
 
     @staticmethod
     def validateZipcode(zip_code):
-        return isinstance(zip_code, str) and len(zip_code) == 6 and zip_code[:4].isdigit() and zip_code[4:].isalpha()
+        return bool(re.fullmatch(r'\d{4}[A-Za-z]{2}', zip_code))
 
     @staticmethod
     def validateName(name):
-        return isinstance(name, str) and bool(re.fullmatch(r"^[A-Za-z]+(['-][A-Za-z]+)*$", name)) and len(name) <= 35
+        return bool(re.fullmatch(r"[A-Za-z](['-]?[A-Za-z]){0,34}", name))
     
     @staticmethod
     def validateMobileNumber(mobile_number):
-        return isinstance(mobile_number, str) and mobile_number.isdigit() and len(mobile_number) == 8
+        return bool(re.fullmatch(r"\d{8}", mobile_number))
         
     @staticmethod
     def validateMembershipID(membershipID):
-        return isinstance(membershipID, str) and len(membershipID) <= 10 and membershipID.isdigit() and 999999999 < int(membershipID) < 10000000000
+        return bool(re.fullmatch(r'[1-9]\d{9}', membershipID))
     
     @staticmethod
     def validateAddress(address):
-        return isinstance(address, str) and bool(re.fullmatch(r"^[A-Za-z0-9]+([ '-][A-Za-z0-9]+)*$", address)) and len(address) <= 35
+        return bool(re.fullmatch(r"^[A-Za-z0-9][A-Za-z0-9 '-]{0,34}$", address))
 
     @staticmethod
     def validateCity(city):
         allowed_cities = {
-            'amsterdam', 'rotterdam', 'the hague', 'utrecht', 
-            'eindhoven', 'tilburg', 'groningen', 'almere', 
-            'breda', 'nijmegen'
+            'Amsterdam', 'Rotterdam', 'The Hague', 'Utrecht', 
+            'Eindhoven', 'Tilburg', 'Groningen', 'Almere', 
+            'Breda', 'Nijmegen'
         }
-        return isinstance(city, str) and city.lower() in allowed_cities
+        return city in allowed_cities
     
     @staticmethod
     def validateBackup(backupName):
-        return isinstance(backupName, str) and bool(re.fullmatch(r'^backup([1-9][0-9]*)\.zip$', backupName))
+        return re.fullmatch(r'^backup([1-9][0-9]*)\.zip$', backupName)
     
     @staticmethod
     def validateGender(gender):
-        return isinstance(gender, str) and gender.lower() in ["male", "female", "other"]
+        return gender in ["Male", "Female", "Other"]
 
     @staticmethod
     def validateMultipleInputs(**kwargs):
@@ -151,8 +137,6 @@ class Validation:
 
         return False
     
-
-print(Validation.validateNumericInput("asdasd6-asd"))
-print(Validation.validateNumericInput("6\x006"))
-print(Validation.validateNumericInput("66"))
-print(Validation.validateNumericInput("0066"))
+print(Validation.validateName("'Jan'piere'LeCrec"))
+print(Validation.detectBadInput("9asd~\x00asd"))
+print(Validation.validate_birthdate("2004-09-05"))

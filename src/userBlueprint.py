@@ -1,8 +1,7 @@
 class userBlueprint:
-    def __init__(self, id, role, userName, db, session):
+    def __init__(self, id, role, userName, session):
         self._id = id
         self._userName = userName
-        self._db = db
         self._role = role
         self.session = session
 
@@ -17,7 +16,11 @@ class userBlueprint:
     @property
     def userName(self):
         return self._userName
-
-    @property
-    def db(self):
-        return self._db
+    
+    def updateSession(self, db,loggingSys):
+        try:
+            result = db.updateSession(self.id,self.session)
+            if result:
+                self.session = result
+        except Exception as e:
+            pass

@@ -245,7 +245,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
         finally:
             if conn:
                 conn.close()
-
+        
     def verifyAccountStatus(self,userID, sessionID):
         conn = None
         try:
@@ -297,15 +297,13 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
 
-            # Set all session IDs to NULL
             update_query = "UPDATE users SET session_id = NULL"
             cursor.execute(update_query)
 
             conn.commit()
-            print("✅ All session IDs cleared.")
             return "OK"
         except Exception as e:
-            print(f"❌ Something went wrong while clearing all session IDs: {e}")
+            print(f"Something went wrong while clearing all session IDs: {e}")
             return None
         finally:
             if conn:

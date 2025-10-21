@@ -2,15 +2,13 @@ from userInterface import UI
 import os
 from database.database import DB
 from log import Logger
-from auth import loginAuth
+from authentication import loginAuth
 from inputValidation import Validation
 from backup import backup
-from users import roles
-from cryptoUtils import cryptoUtils
 import time
 import signal
+from utility import Utility
 import sys
-
 
 def main():
     def graceful_exit(sig=None, frame=None):
@@ -112,7 +110,7 @@ def main():
 
                         elif Validation.passwordValidation(newPassword):
                             respone = dataBase.updatePassword(user.id,newPassword)
-                            user.session += 1
+                            user.updateSession(dataBase,loggingSys)
                             
                             if respone == "OK":
                                 loggingSys.log(f"Successfully changed {username}'s password!",False)
@@ -145,3 +143,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

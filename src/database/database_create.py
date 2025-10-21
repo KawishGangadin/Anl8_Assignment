@@ -4,7 +4,7 @@ from roles import roles
 import sqlite3
 import secrets
 import string
-import os
+
 class DBCreate:
 
     def createTravellersTable(self):

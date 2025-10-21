@@ -124,8 +124,6 @@ class cryptoUtils:
             plaintext_chunks.append(decrypted_chunk)
         return b"".join(plaintext_chunks).decode('utf-8')
 
-
-    
     @staticmethod
     def hashPassword(password):
         salt = secrets.token_bytes(32)

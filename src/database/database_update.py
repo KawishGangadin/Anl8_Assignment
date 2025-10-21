@@ -1,4 +1,5 @@
 from cryptoUtils import cryptoUtils
+from utility import Utility
 from inputValidation import Validation
 import sqlite3
 
@@ -14,7 +15,7 @@ class DBUpdate:
                 hashed_password, salt = cryptoUtils.hashPassword(newPassword)
 
                 temp_flag = 1 if temp else 0
-                query = "UPDATE users SET password_hash = ?, temp = ?, salt = ?, session_id = session_id +1 WHERE id = ?"
+                query = "UPDATE users SET password_hash = ?, temp = ?, salt = ? WHERE id = ?"
                 parameters = (hashed_password, temp_flag, salt, userId)
 
                 cursor.execute(query, parameters)
@@ -40,7 +41,7 @@ class DBUpdate:
                 cursor = conn.cursor()
                 query = """
                 UPDATE users
-                SET first_name = ?, last_name = ?, username = ?, session_id = session_id + 1
+                SET first_name = ?, last_name = ?, username = ?
                 WHERE id = ?
                 """
             
@@ -209,3 +210,32 @@ class DBUpdate:
             if conn:
                 conn.close()
     
+    def updateSession(self, userID,sessionID):
+        conn = None
+        try:
+            
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM users WHERE id = ?"
+            cursor.execute(query,(userID,))
+            user = cursor.fetchone()
+
+            if user:
+                decryptedSessionID = Utility.safe_decrypt(user[9])
+                if str(sessionID) == decryptedSessionID:
+                    new_session_id = Utility.generate_session_id()
+                    encrypted_session_id = cryptoUtils.encryptWithPublicKey(cryptoUtils.loadPublicKey(),new_session_id)
+
+                    # Step 3: Update session ID in DB
+                    update_query = "UPDATE users SET session_id = ? WHERE id = ?"
+                    cursor.execute(update_query, (encrypted_session_id, userID))
+                    if cursor.rowcount == 1:
+                        conn.commit()
+                        return new_session_id
+            return None
+        except Exception as e:
+            print(f"Something went wrong while verifying the account status: {e}")
+            return None
+        finally:
+            if conn:
+                conn.close()

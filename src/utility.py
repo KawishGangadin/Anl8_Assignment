@@ -2,6 +2,7 @@ from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 import base64
 import secrets
+import sys
 
 class Utility:
     @staticmethod
@@ -10,7 +11,7 @@ class Utility:
             value = input(f"{prompt} ")
             if value.upper() == 'Q':
                 return None
-            elif not Validation.detectBadInput(value):
+            elif not Validation.detectBadInput(value) and isinstance(str,value):
                 if validator(value):
                     return value
                 else:
@@ -31,7 +32,7 @@ class Utility:
                 return "Q"
             elif value == '':
                 return current_value
-            elif not Validation.detectBadInput(value):
+            elif not Validation.detectBadInput(value) and isinstance(str,value):
                 if validator(value):
                     return value
                 else:
@@ -54,9 +55,10 @@ class Utility:
             return str(value)
         except:
             print("Decryption failed. Returning original value.")
+            return None
             
     @staticmethod
-    def generate_session_id(length: int = 32) -> str:
+    def generate_session_id(length: int = 32):
         """
         Generates a secure, URL-safe session ID.
         - `length` is the number of bytes before encoding (default 32 = 256-bit key).

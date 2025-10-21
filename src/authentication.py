@@ -23,11 +23,11 @@ class loginAuth:
             print(roleType)
             print(roles.SUPERADMIN)
             if roleType == roles.SERVICE.value:
-                return service(user["id"], roles.SERVICE, user["username"], self.db, user["sessionID"])
+                return service(user["id"], roles.SERVICE, user["username"], user["sessionID"])
             elif roleType == roles.ADMIN.value:
-                return systemAdministrator(user["id"], roles.ADMIN, user["username"], self.db, user["sessionID"])
+                return systemAdministrator(user["id"], roles.ADMIN, user["username"],  user["sessionID"])
             elif roleType == roles.SUPERADMIN.value:
-                return superAdministrator(user["id"], roles.SUPERADMIN, user["username"], self.db, user["sessionID"])
+                return superAdministrator(user["id"], roles.SUPERADMIN, user["username"], user["sessionID"])
             else:
                 print("Unknown role detected")
                 return None
