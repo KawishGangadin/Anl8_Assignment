@@ -1,36 +1,71 @@
+from roles import roles
+
+
 class Authorization:
+
     @staticmethod
-    def validatePrivileges(user, intendedRole, db, logger=None):
-        if user is None:
-            if logger:
-                logger.log("Authorization failed: user is None", True)
-            return False
-
+    def IsAuthorized(userContext, database):
         try:
-            sessionValid = db.validateSession(user.id, user.session)
-        except Exception as e:
-            if logger:
-                logger.log(f"Authorization failed: session validation error ({e})", True, username=getattr(user, "userName", None))
+            result = database.validateSession(userContext.id, userContext.session, userContext.role)
+            return bool(result)
+        except:
             return False
 
-        if not sessionValid:
-            if logger:
-                logger.log("Authorization failed: invalid or expired session", True, username=getattr(user, "userName", None))
+    @staticmethod
+    def AuthorizeAction(userContext, requiredRole, database):
+        try:
+            if Authorization.IsAuthorized(userContext, database):
+                return userContext.role == requiredRole
+            return False
+        except:
             return False
 
-        userRole = getattr(user, "role", None)
-        if hasattr(userRole, "name"):
-            userRole = userRole.name
-        elif hasattr(userRole, "value"):
-            userRole = userRole.value
-
-        intendedRoleValue = getattr(intendedRole, "name", None) or getattr(intendedRole, "value", None) or str(intendedRole)
-
-        if str(userRole).upper() != str(intendedRoleValue).upper():
-            if logger:
-                logger.log(f"Authorization failed: insufficient role (have: {userRole}, need: {intendedRoleValue})", True, username=getattr(user, "userName", None))
+    @staticmethod
+    def AuthorizeAny(userContext, allowedRoles, database):
+        try:
+            if not Authorization.IsAuthorized(userContext, database):
+                return False
+            return userContext.role in set(allowedRoles or [])
+        except:
             return False
 
-        if logger:
-            logger.log(f"Authorization success for role {intendedRoleValue}", False, username=getattr(user, "userName", None))
-        return True
+    @staticmethod
+    def AuthorizeManage(userContext, targetRole, database):
+        try:
+            if not Authorization.IsAuthorized(userContext, database):
+                return False
+            if userContext.role == roles.SUPER_ADMIN:
+                return targetRole in [roles.ADMIN, roles.SERVICE]
+            if userContext.role == roles.ADMIN:
+                return targetRole == roles.SERVICE
+            return False
+
+        except:
+            return False
+
+    @staticmethod
+    def AuthorizeRestore(userContext, database, backupFileName=None, restoreCode=None):
+        try:
+            if not Authorization.IsAuthorized(userContext, database):
+                return False
+            if userContext.role == roles.SUPER_ADMIN:
+                return True
+            if userContext.role == roles.SERVICE:
+                return False
+            if userContext.role == roles.ADMIN:
+                restoreCodePairs = database.getRestoreCodesByUser(userContext.id)
+                if not restoreCodePairs:
+                    return False
+
+                for storedCode, storedFileName in restoreCodePairs:
+                    if storedCode == restoreCode and storedFileName == backupFileName:
+                        if hasattr(database, "isRestoreCodeUsed") and database.isRestoreCodeUsed(userContext.id, storedCode):
+                            return False
+                        return True
+
+                return False
+
+            return False
+
+        except:
+            return False

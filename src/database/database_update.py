@@ -5,7 +5,7 @@ import sqlite3
 
 class DBUpdate:
     
-    def updatePassword(self, userId, newPassword, temp=False, session=False):
+    def updatePassword(self, userId, newPassword, userContext, temp=False, session=False,):
         conn = None
         try:
             if Validation.passwordValidation(newPassword):
@@ -31,11 +31,11 @@ class DBUpdate:
             if conn:
                 conn.close()
 
-    def updateUser(self, userId, firstName, lastName, username):
+    def updateUser(self, userId, firstName, lastName, username, userContext):
         conn = None
         try:
             validationData = { "first_name": firstName, "last_name": lastName, "username": username }
-            if Validation.validateMultipleInputs(**validationData):
+            if Validation.validateUserInformation(**validationData):
                 conn = sqlite3.connect(self.databaseFile)
                 publicKey = cryptoUtils.loadPublicKey()
                 cursor = conn.cursor()
@@ -76,7 +76,7 @@ class DBUpdate:
             if conn:
                 conn.close()
     
-    def updateScooter(self, scooter_id, updates: dict):
+    def updateScooter(self, scooter_id, updates: dict, userContext):
         conn = None
         try:
             if not updates:
@@ -93,7 +93,7 @@ class DBUpdate:
                 "target_soc_min":       lambda v: Validation.validateIntegerInRange(v, 0, 100),
                 "target_soc_max":       lambda v: Validation.validateIntegerInRange(v, 0, 100),
                 "mileage":              lambda v: Validation.validateIntegerInRange(v, 0, 999999),
-                "last_maintenance_date": Validation.validateDate,
+                "last_maintenance_date": Utility.ValidateBirthdate,
                 "latitude":             Validation.validateLatitude,
                 "longitude":            Validation.validateLongitude,
                 "out_of_service":           Validation.validateStatus
@@ -148,7 +148,7 @@ class DBUpdate:
                 conn.close()
 
 
-    def updateTraveller(self, traveller_id, updates: dict):
+    def updateTraveller(self, traveller_id, updates: dict, userContext):
         conn = None
         try:
             if not updates:
@@ -158,7 +158,7 @@ class DBUpdate:
             validators = {
                 "first_name":     Validation.validateName,
                 "last_name":      Validation.validateName,
-                "birthday":       Validation.validate_birthdate,
+                "birthday":       Utility.ValidateBirthdate,
                 "gender":         Validation.validateGender,
                 "street_name":    Validation.validateAddress,
                 "house_number":   Validation.validateHousenumber,
@@ -210,7 +210,7 @@ class DBUpdate:
             if conn:
                 conn.close()
     
-    def updateSession(self, userID,sessionID):
+    def updateSession(self, userID,sessionID, userContext):
         conn = None
         try:
             

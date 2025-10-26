@@ -6,7 +6,7 @@ import sqlite3
 
 class DBDelete:
     
-    def deleteUser(self, user_id, role):
+    def deleteUser(self, user_id, role, userContext):
         conn = None
         try:
             if str(user_id).isdigit() and role.value in [roles.ADMIN.value, roles.SERVICE.value]:
@@ -46,7 +46,7 @@ class DBDelete:
             if conn:
                 conn.close()
     
-    def deleteScooter(self, scooter_id, user):
+    def deleteScooter(self, scooter_id, user, userContext):
         conn = None
         try:
             if isinstance(user, users.systemAdministrator):
@@ -80,7 +80,7 @@ class DBDelete:
             if conn:
                 conn.close()
 
-    def deleteTraveller(self, traveller_id, user):
+    def deleteTraveller(self, traveller_id, user, userContext):
         conn = None
         try:
             if isinstance(user, users.systemAdministrator):
@@ -114,7 +114,7 @@ class DBDelete:
             if conn:
                 conn.close()
 
-    def deleteRestoreCode(self,user,code):
+    def deleteRestoreCode(self,user,code, userContext):
         conn = None
         try:
             if isinstance(user, users.superAdministrator):
@@ -143,7 +143,7 @@ class DBDelete:
             if conn:
                 conn.close()
 
-    def deleteUserRestoreCodes(self, user_id, user):
+    def deleteUserRestoreCodes(self, user_id, user, userContext):
         conn = None
         try:
             if isinstance(user, users.systemAdministrator):

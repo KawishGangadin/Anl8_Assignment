@@ -5,6 +5,8 @@ import sqlite3
 import secrets
 import string
 
+from utility import Utility
+
 class DBCreate:
 
     def createTravellersTable(self):
@@ -114,13 +116,13 @@ class DBCreate:
             if conn:
                 conn.close()
     
-    def createTraveller(self, traveller_data):
+    def createTraveller(self, traveller_data, userContext):
         conn = None
         try:
             if not (
                 Validation.validateName(traveller_data["first_name"]) and
                 Validation.validateName(traveller_data["last_name"]) and
-                Validation.validate_birthdate(traveller_data["birthdate"]) and
+                Utility.ValidateBirthdate(traveller_data["birthdate"]) and
                 Validation.validateGender(traveller_data["gender"]) and
                 Validation.validateAddress(traveller_data["street"]) and
                 Validation.validateHousenumber(str(traveller_data["house_number"])) and
@@ -185,7 +187,7 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createScooter(self, scooter_data):
+    def createScooter(self, scooter_data, userContext):
         conn = None
         try:
             in_service_date = scooter_data['in_service_date']
@@ -254,12 +256,12 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createUser(self, first_name, last_name, username, password, registration_date, role, temp):
+    def createUser(self, first_name, last_name, username, password, registration_date, role, temp, userContext):
         conn = None
         try:
             public_key = cryptoUtils.loadPublicKey()
             validationData = { "first_name": first_name, "last_name": last_name, "username": username, "password": password }
-            if Validation.validateMultipleInputs( **validationData) and role in [roles.ADMIN, roles.SERVICE] and temp in [False,True] :
+            if Validation.validateUserInformation( **validationData) and role in [roles.ADMIN, roles.SERVICE] and temp in [False,True] :
                 conn = sqlite3.connect(self.databaseFile)
                 hashed_password, salt = cryptoUtils.hashPassword(password)
                 encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,role.value)
@@ -281,7 +283,7 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createRestoreCode(self, user_id, backup_name,backupSys, required_role=roles.ADMIN):
+    def createRestoreCode(self, user_id, backup_name,backupSys,userContext,required_role=roles.ADMIN):
         if not self.findUserID(user_id, required_role):
             print("User ID is invalid or does not have the required role.")
             return "FAIL"

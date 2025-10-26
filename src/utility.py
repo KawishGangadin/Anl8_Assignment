@@ -1,3 +1,4 @@
+from datetime import datetime
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 import base64
@@ -11,29 +12,28 @@ class Utility:
             value = input(f"{prompt} ")
             if value.upper() == 'Q':
                 return None
-            elif not Validation.detectBadInput(value) and isinstance(str,value):
-                if validator(value):
+            if not Validation.detectBadInput(value):
+                if bool(validator(value)):
                     return value
                 else:
                     print("Invalid input! Please try again.")
                     if loggingSys:
                         loggingSys.log(f"Invalid input ({value}) for field: {fieldName}", False, username)
-            else: 
+            else:
                 print("Input contains invalid characters! Please try again.")
                 if loggingSys:
                     loggingSys.log(f"Bad input found '({value})' for field: {fieldName}", True, username)
 
-
     @staticmethod
-    def get_optional_update(prompt, validator, current_value, username="", loggingSys=None, fieldName= None):
+    def get_optional_update(prompt, validator, current_value, username="", loggingSys=None, fieldName=None):
         while True:
             value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ")
             if value.upper() == 'Q':
                 return "Q"
-            elif value == '':
+            if value == '':
                 return current_value
-            elif not Validation.detectBadInput(value) and isinstance(str,value):
-                if validator(value):
+            if not Validation.detectBadInput(value):
+                if bool(validator(value)):
                     return value
                 else:
                     print("Invalid input! Please try again.")
@@ -54,7 +54,7 @@ class Utility:
                 return cryptoUtils.decryptWithPrivateKey(private_key, value)
             return str(value)
         except:
-            print("Decryption failed. Returning original value.")
+            print("Decryption failed.")
             return None
             
     @staticmethod
@@ -68,9 +68,19 @@ class Utility:
         return session_id
 
     @staticmethod
-    def validateAndParseLongitude():
+    def ValidateLongtitude():
         pass
 
     @staticmethod
-    def validateAndParseLatitude():
+    def ValidateLatitude():
         pass
+
+    @staticmethod
+    def ValidateBirthdate(Birthdate: str) -> bool:
+        if not Validation.ValidateDateFormat(Birthdate):
+            return False
+        try:
+            datetime.strptime(Birthdate, "%Y-%m-%d")
+            return True
+        except ValueError:
+            return False

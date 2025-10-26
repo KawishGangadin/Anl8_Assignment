@@ -4,6 +4,7 @@ import os
 import random
 import string
 import time
+from authorization import Authorization
 from cryptoUtils import cryptoUtils
 from inputValidation import Validation
 from checkSum import Checksum
@@ -25,7 +26,7 @@ class service(userBlueprint):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(password):
-                        data = db.getUserData(self.userName)
+                        data = db.getUserData(self.userName,self.GetUserContext())
                         if data  != None:
                             storedPassword = data[4] 
                             storedSalt = data[8]  
@@ -47,7 +48,7 @@ class service(userBlueprint):
                         time.sleep(0.5)
                         return
                     elif Validation.passwordValidation(newPassword):
-                        result = db.updatePassword(self.id, newPassword)
+                        result = db.updatePassword(self.id, newPassword, self.GetUserContext())
                         if result == "OK":
                             self.updateSession(db,loggingSys)
                             print("Password has been successfully changed!")
@@ -67,7 +68,6 @@ class service(userBlueprint):
             elif isinstance(self, systemAdministrator):
                 processChangePW()
             elif isinstance(self, service):
-                role = roles.SERVICE
                 processChangePW()
             else:
                 print("Unauthorized access...")
@@ -78,7 +78,7 @@ class service(userBlueprint):
 
     def editScooter(self, db, loggingSys):
         try:
-            db.displayAllScooters()
+            db.displayAllScooters(self.GetUserContext())
 
             while True:
                 scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ")
@@ -88,7 +88,7 @@ class service(userBlueprint):
                     print("Invalid ID format.")
                     continue
 
-                scooter_data = db.getScooterById(scooter_id)
+                scooter_data = db.getScooterById(scooter_id,self.GetUserContext())
                 if scooter_data:
                     
                     break
@@ -142,7 +142,7 @@ class service(userBlueprint):
                 print("No changes were made.")
                 return
 
-            if db.updateScooter(scooter_id, updates) == "OK":
+            if db.updateScooter(scooter_id, updates,self.GetUserContext()) == "OK":
                 print("Scooter updated successfully.")
                 loggingSys.log(
                     "Scooter edited",
@@ -172,7 +172,7 @@ class service(userBlueprint):
         try:
             search_term = input("Enter the search key: ")
             if not Validation.detectBadInput(search_term) and len(search_term) <= 35:
-                result = db.searchScooter(search_term)
+                result = db.searchScooter(search_term,self.GetUserContext())
             
                 if result:
                     print("Search Results:")
@@ -198,7 +198,7 @@ class systemAdministrator(service):
         try:
             search_term = input("Enter the search key: ")
             if not Validation.detectBadInput(search_term) and len(search_term) <= 35:
-                result = db.searchTraveller(search_term)
+                result = db.searchTraveller(search_term,self.GetUserContext())
             
                 if result:
                     print("Search Results:")
@@ -220,7 +220,7 @@ class systemAdministrator(service):
 
     def deleteTraveller(self, db, loggingSys):
         try:
-            db.displayAllTravellers()
+            db.displayAllTravellers(self.GetUserContext())
 
             while True:
                 traveller_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ")
@@ -237,7 +237,7 @@ class systemAdministrator(service):
                 else:
                     print("Scooter ID not found.")
             
-            if db.deleteTraveller(traveller_id, self)  == "OK":
+            if db.deleteTraveller(traveller_id, self,self.GetUserContext())  == "OK":
                 print("Traveller deleted successfully.")
                 loggingSys.log("Traveller deleted", False, f"Traveller ID {traveller_id} deleted.", self.userName)
             else:
@@ -249,7 +249,7 @@ class systemAdministrator(service):
 
     def deleteScooter(self, db, loggingSys):
         try:
-            db.displayAllScooters()
+            db.displayAllScooters(self.GetUserContext())
 
             while True:
                 scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ")
@@ -260,12 +260,12 @@ class systemAdministrator(service):
                     continue
 
                 scooter_id = int(scooter_id)
-                if db.getScooterById(scooter_id):
+                if db.getScooterById(scooter_id,self.GetUserContext()):
                     break
                 else:
                     print("Scooter ID not found.")
             
-            if db.deleteScooter(scooter_id, self)  == "OK":
+            if db.deleteScooter(scooter_id, self,self.GetUserContext())  == "OK":
                 print("Scooter deleted successfully.")
                 loggingSys.log("Scooter deleted", False, f"scooter ID {scooter_id} deleted.", self.userName)
             else:
@@ -287,7 +287,7 @@ class systemAdministrator(service):
                     if Id.upper() == "Q":
                         return
 
-                    if not Validation.validateScooterID(Id):
+                    if not Validation.validateNumericInput(Id):
                         print("ID is invalid!")
                         time.sleep(0.5)
                         continue
@@ -302,8 +302,8 @@ class systemAdministrator(service):
 
                 if validID:
                     deletedUsername = db.getUsernameByID(Id)
-                    db.deleteUserRestoreCodes(Id,self)
-                    result = db.deleteUser(Id, role)
+                    db.deleteUserRestoreCodes(Id,self,self.GetUserContext())
+                    result = db.deleteUser(Id, role,self.GetUserContext())
                     if result == "OK":
                         print("User deleted.")
                         loggingSys.log("User deleted", False, f"User '{deletedUsername}' has been deleted.", self.userName)
@@ -347,7 +347,7 @@ class systemAdministrator(service):
 
             traveller["first_name"] = ask("First Name", "Enter traveller's first name: ", Validation.validateName)
             traveller["last_name"] = ask("Last Name", "Enter traveller's last name: ", Validation.validateName)
-            traveller["birthdate"] = ask("Birthdate","Enter traveller's birthdate: ",Validation.validate_birthdate)
+            traveller["birthdate"] = ask("Birthdate","Enter traveller's birthdate: ",Utility.ValidateBirthdate)
             traveller["gender"] = ask("Gender", "Enter traveller's gender (male/female/other): ",Validation.validateGender)
             traveller["street"] = ask("Street","Enter traveller's street name: ",Validation.validateAddress)
             traveller["house_number"] = ask("House number","Enter traveller's house number: ",Validation.validateHousenumber)
@@ -356,11 +356,10 @@ class systemAdministrator(service):
             traveller["email"] = ask("Email","Enter traveller's email",Validation.validateEmail)
             traveller["mobile"] = ask("Mobile number","Enter traveller's mobile number : +316-",Validation.validateMobileNumber)
             traveller["license_number"] = ask("License number","Enter traveller's license number: ",Validation.validate_driving_license)
-
             traveller["registration_date"] = date.today().strftime("%Y-%m-%d")
             traveller["customer_id"] = Checksum.generateTravellerID(db)
 
-            result = db.createTraveller(traveller)
+            result = db.createTraveller(traveller,self.GetUserContext())
 
             if result == "OK":
                 print("Traveller registered successfully.")
@@ -404,7 +403,7 @@ class systemAdministrator(service):
             scooter["in_service_date"] = datetime.today().strftime("%Y-%m-%d")
             scooter["last_maintenance_date"] = scooter["in_service_date"]
 
-            result = db.createScooter(scooter)
+            result = db.createScooter(scooter,self.GetUserContext())
 
             if result == "OK":
                 print("Scooter registered successfully.")
@@ -511,7 +510,7 @@ class systemAdministrator(service):
 
                 while not validPassword:
                     password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
-                    data = db.getUserData(username)
+                    data = db.getUserData(username,self.GetUserContext())
                     if password.upper() == 'Q':
                         return
                     if not Validation.passwordValidation(password):
@@ -523,7 +522,7 @@ class systemAdministrator(service):
                         break
 
                 creationDate = date.today().strftime("%Y-%m-%d")
-                result = db.createUser(firstName, lastName, username, password, creationDate, role, False)
+                result = db.createUser(firstName, lastName, username, password, creationDate, role, False,self.GetUserContext())
                 if result == "OK":
                     print(f"{roleType} created successfully.")
                     loggingSys.log(f"User has created a {roleType}", False, username=self.userName)
@@ -537,8 +536,9 @@ class systemAdministrator(service):
         processCreation()
 
     def displayUsers(self, db, role=None):
+        print(Authorization.IsAuthorized(self.GetUserContext(),db))
         try:
-            allUsers = db.getUsers(role)
+            allUsers = db.getUsers(self.GetUserContext(),role)
             title = "user" if role is None else f"{role.value}"
             print(f"======== List of {title}s ====================================================================================================")
             if allUsers is None or allUsers == []:
@@ -577,7 +577,7 @@ class systemAdministrator(service):
 
     def editTraveller(self, db, loggingSys):
         try:
-            db.displayAllTravellers()
+            db.displayAllTravellers(self.GetUserContext())
             while True:
                 traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ")
                 if traveller_id.upper() == 'Q':
@@ -585,7 +585,7 @@ class systemAdministrator(service):
                 if not Validation.validateMembershipID(traveller_id):
                     print("Invalid ID")
                     continue
-                traveller_data = db.getTravellerById(traveller_id) # validation is done at the start of the db func
+                traveller_data = db.getTravellerById(traveller_id,self.GetUserContext())
                 if traveller_data:
                     break
                 print("Traveller ID not found.")
@@ -598,7 +598,7 @@ class systemAdministrator(service):
             editable_fields = {
                 "first_name":     Validation.validateName,
                 "last_name":      Validation.validateName,
-                "birthday":       Validation.validate_birthdate,
+                "birthday":       Utility.ValidateBirthdate,
                 "gender":         Validation.validateGender,
                 "street_name":    Validation.validateAddress,
                 "house_number":   Validation.validateHousenumber,
@@ -630,7 +630,7 @@ class systemAdministrator(service):
                 print("No changes were made.")
                 return
 
-            if db.updateTraveller(traveller_id, updates) == "OK":
+            if db.updateTraveller(traveller_id, updates,self.GetUserContext()) == "OK":
                 print("Traveller updated successfully.")
                 loggingSys.log(
                     "Traveller edited",
@@ -667,12 +667,12 @@ class systemAdministrator(service):
                     userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ")
                     if userID.upper() == "Q":
                         return
-                    elif Validation.validateScooterID(userID):
+                    elif Validation.validateNumericInput(userID):
                         if db.findUserID(int(userID), role):
                             validID = True
                             break
                     else:
-                        print("ID not found in the database!" if Validation.validateScooterID(userID) else "ID is invalid!")
+                        print("ID not found in the database!" if Validation.validateNumericInput(userID) else "ID is invalid!")
                         time.sleep(0.5)
 
                 if validID:
@@ -704,7 +704,7 @@ class systemAdministrator(service):
                             print("Username already exists!")
                         else:
                             break
-                    result = db.updateUser(userID, firstName, lastName, username.lower())
+                    result = db.updateUser(userID, firstName, lastName, username.lower(),self.GetUserContext())
                     if result == "OK":
                         print("User information updated successfully.")
                     else:
@@ -739,12 +739,12 @@ class systemAdministrator(service):
                     
                     if userID.upper() == "Q":
                         return
-                    elif Validation.validateScooterID(userID):
+                    elif Validation.validateNumericInput(userID):
                         if db.findUserID(int(userID), role):
                             validID = True
                             break
                     else:
-                        print("ID not found in the database!" if Validation.validateScooterID(userID) else "ID is invalid!")
+                        print("ID not found in the database!" if Validation.validateNumericInput(userID) else "ID is invalid!")
                         time.sleep(0.5)
                 
                 if validID:
@@ -756,7 +756,7 @@ class systemAdministrator(service):
                             time.sleep(0.5)
                             return
                         elif Validation.passwordValidation(password):
-                            result = db.updatePassword(userID, password, True)
+                            result = db.updatePassword(userID, password,self.GetUserContext() ,True)
                             
                             if result == "OK":
                                 print("Password updated successfully.")
@@ -805,7 +805,7 @@ class systemAdministrator(service):
                     break
                 return
             elif isinstance(self, systemAdministrator):
-                codes = db.getRestoreCodesByUser(self.id)
+                codes = db.getRestoreCodesByUser(self.id,self.GetUserContext())
                 if not codes:
                     print("No restore codes found for your account.")
                     return
@@ -866,8 +866,8 @@ class systemAdministrator(service):
                     return
                 else:
                     print("Incorrect phrase. Please try again or type 'Q' to cancel.")
-            db.deleteUserRestoreCodes(self.id,self)
-            db.deleteUser(self.id,self.role)
+            db.deleteUserRestoreCodes(self.id,self,self.GetUserContext())
+            db.deleteUser(self.id,self.role,self.GetUserContext())
             print("Account deleted successfully.")
             loggingSys.log("Account deleted successfully", False, username=self.userName)
 
@@ -913,7 +913,7 @@ class systemAdministrator(service):
                 break
 
 
-            result = db.updateUser(self.id, first_name, last_name, username.lower())
+            result = db.updateUser(self.id, first_name, last_name, username.lower(),self.GetUserContext())
             if result == "OK":
                 self.updateSession(db,loggingsys)
                 print("Account updated successfully.")
@@ -936,7 +936,7 @@ class superAdministrator(systemAdministrator):
                 admin_id = input("Enter the ID of the System Administrator to generate a restore code for, or press Q to quit: ")
                 if admin_id.upper() == "Q":
                     return
-                if Validation.validateScooterID(admin_id) and db.findUserID(int(admin_id), roles.ADMIN):
+                if Validation.validateNumericInput(admin_id) and db.findUserID(int(admin_id), roles.ADMIN):
                     admin_id = int(admin_id)
                     break
                 else:
@@ -950,7 +950,7 @@ class superAdministrator(systemAdministrator):
             if not backupSys.doesBackupExist(backup_name):
                 return
 
-            code = db.createRestoreCode(admin_id, backup_name,backupSys)
+            code = db.createRestoreCode(admin_id, backup_name,backupSys,self.GetUserContext())
             if code != "FAIL":
                 print(f"Restore code generated successfully: {code}")
                 loggingSys.log("Restore code generated", False, f"Restore code for backup '{backup_name}' assigned to user ID {admin_id}.", self.userName)
@@ -964,7 +964,7 @@ class superAdministrator(systemAdministrator):
 
     def manageRestoreCodes(self, db, loggingSys):
         try:
-            codes = db.getAllRestoreCodes(self)
+            codes = db.getAllRestoreCodes(self,self.GetUserContext())
             if codes != "FAIL":
                 print("======== List of Restore Codes ====================================================================================================")
                 for code in codes:
@@ -977,7 +977,7 @@ class superAdministrator(systemAdministrator):
                         return
                     if code_id.isdigit():
                         code_id = int(code_id)
-                        if db.deleteRestoreCode(self,code_id):
+                        if db.deleteRestoreCode(self,code_id,self.GetUserContext()):
                             print(f"Restore code {code_id} deleted successfully.")
                             loggingSys.log(f"Restore code {code_id} deleted successfully.", False, username=self.userName)
                             return

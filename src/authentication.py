@@ -9,13 +9,6 @@ class loginAuth:
         self.db = db
 
     def loginFunc(self, username, password):
-        """Logging in with a user
-
-        In deze functie kan de user worden ingelogd,
-        deze wordt aangeroepen binnen de main file nadat de user 
-        een username en een password heeft ingevoerd.
-        Is het correct? Een class wordt gereturned van die specifieke user type
-        """
         try:
             user = self.db.verifyUserLogin(username,password)
 

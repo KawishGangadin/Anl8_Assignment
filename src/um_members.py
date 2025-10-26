@@ -111,7 +111,7 @@ def main():
                             exit()
 
                         elif Validation.passwordValidation(newPassword):
-                            respone = dataBase.updatePassword(user.id,newPassword)
+                            respone = dataBase.updatePassword(user.id,newPassword,user.GetUserContext())
                             user.updateSession(dataBase,loggingSys)
                             
                             if respone == "OK":

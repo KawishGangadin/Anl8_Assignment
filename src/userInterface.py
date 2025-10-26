@@ -37,7 +37,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
                 self.clearScreen()
                 self.displayLogo()
 
-                if not db.validateSession(user.id, user.session):
+                if not db.validateSession(user.id, user.session,user.role):
                     print("You will now be logged out of the system...")
                     loggingSys.log("Logged out", True,"User ID associated with role Super Admin not found.",f"{user.userName}")
                     user = None
@@ -54,7 +54,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
                 self.clearScreen()
                 self.displayLogo()
 
-                if not db.validateSession(user.id, user.session):
+                if not db.validateSession(user.id, user.session,user.role):
                     print("You will now be logged out of the system...")
                     loggingSys.log("Logged out", False,"User ID associated with role Admin not found ",f"{user.userName}")
                     user = None
@@ -71,7 +71,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
                 self.clearScreen()
                 self.displayLogo()
 
-                if not db.validateSession(user.id, user.session):
+                if not db.validateSession(user.id, user.session,user.role):
                     print("You will now be logged out of the system...")
                     loggingSys.log("Logged out", False,"User ID associated with role SERVICE not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
                     user = None

@@ -7,7 +7,7 @@ import time
 
 class DBRetrieve:
 
-    def getAllTravellers(self):
+    def getAllTravellers(self, userContext):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -23,7 +23,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getAllScooters(self):
+    def getAllScooters(self, userContext):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -39,7 +39,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def getRestoreCodesByUser(self, user_id):
+    def getRestoreCodesByUser(self, user_id, userContext):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -69,7 +69,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getAllRestoreCodes(self, user):
+    def getAllRestoreCodes(self, user, userContext):
         conn = None
         try:
             if isinstance(user, users.superAdministrator):
@@ -90,7 +90,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def getUserData(self, username):
+    def getUserData(self, username, userContext):
         conn = None
         try:
             if Validation.usernameValidation(username):
@@ -116,7 +116,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getUsernameByID(self, user_id):
+    def getUsernameByID(self, user_id, userContext):
         conn = None
         try:
             if(str(user_id).isdigit()):
@@ -135,7 +135,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def getUsers(self, role=None):
+    def getUsers(self, userContext ,role=None):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -195,7 +195,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def displayAllTravellers(self):
+    def displayAllTravellers(self, userContext):
         try:
             travellers = self.getAllTravellers()
 
@@ -216,7 +216,7 @@ class DBRetrieve:
         except Exception as e:
             print("An error occurred while displaying travellers:", e)
 
-    def displayAllScooters(self):
+    def displayAllScooters(self, userContext):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -248,7 +248,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getScooterById(self, scooter_id):
+    def getScooterById(self, scooter_id, userContext):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -273,7 +273,7 @@ class DBRetrieve:
                 conn.close()
 
 
-    def getTravellerById(self, traveller_id):
+    def getTravellerById(self, traveller_id, userContext):
         conn = None
         try:
             if not Validation.validateMembershipID(traveller_id):
@@ -299,7 +299,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def searchTraveller(self, search_term):
+    def searchTraveller(self, search_term, userContext):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -373,7 +373,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def searchScooter(self, search_term):
+    def searchScooter(self, search_term, userContext):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -453,7 +453,7 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def findTravellerID(self, traveller_id):
+    def findTravellerID(self, traveller_id, userContext):
         conn = None
         private_key = cryptoUtils.loadPrivateKey() 
         try:

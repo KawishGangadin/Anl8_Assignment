@@ -104,7 +104,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def validateSession(self, user_id,session_id):
+    def validateSession(self, user_id,session_id,user_role):
         conn = None
         try:
             if str(user_id).isdigit():
@@ -116,8 +116,9 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                 cursor.close()
 
                 if user:
+                    decryptedUserRole = Utility.safe_decrypt(user[6])
                     decryptedSessionID = Utility.safe_decrypt(user[9])
-                    if decryptedSessionID == str(session_id):
+                    if decryptedSessionID == str(session_id) and decryptedUserRole == user_role.value:
                         return True
                 return False
 
