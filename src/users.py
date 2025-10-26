@@ -358,7 +358,7 @@ class systemAdministrator(service):
             traveller["license_number"] = ask("License number","Enter traveller's license number: ",Validation.validate_driving_license)
 
             traveller["registration_date"] = date.today().strftime("%Y-%m-%d")
-            traveller["customer_id"] = Checksum.generateMembershipId(db)
+            traveller["customer_id"] = Checksum.generateTravellerID(db)
 
             result = db.createTraveller(traveller)
 

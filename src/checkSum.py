@@ -2,23 +2,23 @@ from datetime import datetime
 import random
 
 class Checksum:
-    def generateMembershipId(db):
-        traveller_id = ""
+    def generateTravellerID(db):
+        travellerID = ""
         while True:
-            current_year = datetime.now().year
-            current_year_short = str(current_year)[2:]
+            currentYear = datetime.now().year
+            currentYearShort = str(currentYear)[2:]
 
-            traveller_id = current_year_short
+            travellerID = currentYearShort
             for i in range(0, 7):
-                traveller_id += str(random.randint(0, 9))
+                travellerID += str(random.randint(0, 9))
 
-            check_digit = sum(int(digit) for digit in traveller_id) % 10
-            traveller_id += str(check_digit)
-            if db.findTravellerID(traveller_id):
+            checkDigit = sum(int(digit) for digit in travellerID) % 10
+            travellerID += str(checkDigit)
+            if db.findTravellerID(travellerID):
                 pass
             else:
                 break
             break
-        return traveller_id
+        return travellerID
     
         

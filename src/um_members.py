@@ -105,7 +105,9 @@ def main():
                         newPassword = input("Enter your new password...")
 
                         if newPassword.upper() == "Q":
+                            dataBase.clearSession(user.id, user.session)
                             print("Exiting the system")
+
                             exit()
 
                         elif Validation.passwordValidation(newPassword):

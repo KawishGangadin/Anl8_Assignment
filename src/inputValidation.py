@@ -17,7 +17,7 @@ class Validation:
 
     @staticmethod
     def validateIntegerInRange(value, min_val, max_val):
-        return isinstance(value, str) and len(value) <= 10 and value.isdigit() and min_val <= int(value) <= max_val
+        return len(value) <= 10 and value.isdigit() and min_val <= int(value) <= max_val
 
     @staticmethod
     def validateNumericInput(input):
@@ -58,7 +58,7 @@ class Validation:
 
     @staticmethod
     def validateScooterID(scooter_id):
-        return isinstance(scooter_id, str) and len(scooter_id) < 10 and scooter_id.isdigit() and (0 <= int(scooter_id) <= 10000)
+        return len(scooter_id) < 10 and scooter_id.isdigit() and (0 <= int(scooter_id) <= 10000)
     
     @staticmethod
     def usernameValidation(name):
@@ -72,7 +72,7 @@ class Validation:
 
     @staticmethod
     def validateEmail(email):
-        return isinstance(email, str) and bool(re.fullmatch(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email))
+        return bool(re.fullmatch(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email))
     
     @staticmethod
     def validateHousenumber(housenumber):
@@ -136,7 +136,3 @@ class Validation:
                 return False
 
         return False
-    
-print(Validation.validateName("'Jan'piere'LeCrec"))
-print(Validation.detectBadInput("9asd~\x00asd"))
-print(Validation.validate_birthdate("2004-09-05"))
