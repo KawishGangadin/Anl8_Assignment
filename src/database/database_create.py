@@ -1,5 +1,5 @@
-from cryptoUtils import cryptoUtils
-from inputValidation import Validation
+from cryptoUtils import CryptoUtils
+from inputValidation import InputValidation
 from roles import roles
 import sqlite3
 import secrets
@@ -9,7 +9,7 @@ from utility import Utility
 
 class DBCreate:
 
-    def createTravellersTable(self):
+    def CreateTravellersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS travellers (
             customer_id TEXT PRIMARY KEY,
@@ -38,7 +38,7 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createScootersTable(self):
+    def CreateScootersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS scooters (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,7 +69,7 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createBackupsTable(self):
+    def CreateBackupsTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS restore_codes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,7 +90,7 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createUsersTable(self):
+    def CreateUsersTable(self):
         create_query = """
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,36 +116,38 @@ class DBCreate:
             if conn:
                 conn.close()
     
-    def createTraveller(self, traveller_data, userContext):
+    def CreateTraveller(self, traveller_data, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
             if not (
-                Validation.validateName(traveller_data["first_name"]) and
-                Validation.validateName(traveller_data["last_name"]) and
+                InputValidation.ValidateName(traveller_data["first_name"]) and
+                InputValidation.ValidateName(traveller_data["last_name"]) and
                 Utility.ValidateBirthdate(traveller_data["birthdate"]) and
-                Validation.validateGender(traveller_data["gender"]) and
-                Validation.validateAddress(traveller_data["street"]) and
-                Validation.validateHousenumber(str(traveller_data["house_number"])) and
-                Validation.validateCity(traveller_data["city"]) and
-                Validation.validateZipcode(traveller_data["zip_code"]) and
-                Validation.validateEmail(traveller_data["email"]) and
-                Validation.validateMobileNumber(traveller_data["mobile"]) and
-                Validation.validate_driving_license(traveller_data["license_number"])
+                InputValidation.ValidateGender(traveller_data["gender"]) and
+                InputValidation.ValidateAddress(traveller_data["street"]) and
+                InputValidation.ValidateHousenumber(str(traveller_data["house_number"])) and
+                InputValidation.ValidateCity(traveller_data["city"]) and
+                InputValidation.ValidateZipcode(traveller_data["zip_code"]) and
+                InputValidation.ValidateEmailAddress(traveller_data["email"]) and
+                InputValidation.ValidateMobileNumber(traveller_data["mobile"]) and
+                InputValidation.ValidateDrivingLicense(traveller_data["license_number"])
             ):
                 print("Validation failed at database level.")
                 return "FAIL"
 
-            public_key = cryptoUtils.loadPublicKey()
+            public_key = CryptoUtils.LoadPublicKey()
 
-            encrypted_first_name = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["first_name"])
-            encrypted_last_name = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["last_name"])
-            encrypted_house_number = cryptoUtils.encryptWithPublicKey(public_key, str(traveller_data["house_number"]))
-            encrypted_street_name = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["street"])
-            encrypted_city = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["city"])
-            encrypted_zip = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["zip_code"])
-            encrypted_email = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["email"])
-            encrypted_mobile = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["mobile"])
-            encrypted_license = cryptoUtils.encryptWithPublicKey(public_key, traveller_data["license_number"])
+            encrypted_first_name = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["first_name"])
+            encrypted_last_name = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["last_name"])
+            encrypted_house_number = CryptoUtils.EncryptWithPublicKey(public_key, str(traveller_data["house_number"]))
+            encrypted_street_name = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["street"])
+            encrypted_city = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["city"])
+            encrypted_zip = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["zip_code"])
+            encrypted_email = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["email"])
+            encrypted_mobile = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["mobile"])
+            encrypted_license = CryptoUtils.EncryptWithPublicKey(public_key, traveller_data["license_number"])
 
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -187,9 +189,11 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createScooter(self, scooter_data, userContext):
+    def CreateScooter(self, scooter_data, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
             in_service_date = scooter_data['in_service_date']
             brand = scooter_data['brand']
             model = scooter_data['model']
@@ -204,25 +208,25 @@ class DBCreate:
             mileage = scooter_data['mileage']
             last_maintenance_date = scooter_data['last_maintenance_date']
 
-            if not (Validation.validateBrandOrModel(brand) and 
-                    Validation.validateBrandOrModel(model) and
-                    Validation.validateSerialNumber(serial_number) and
-                    Validation.validateIntegerInRange(top_speed, 5, 120) and
-                    Validation.validateIntegerInRange(battery_capacity, 100, 2000) and
-                    Validation.validateIntegerInRange(state_of_charge, 0, 100) and
-                    Validation.validateIntegerInRange(target_soc_min, 0, 100) and
-                    Validation.validateIntegerInRange(target_soc_max, 0, 100) and
-                    Validation.validateIntegerInRange(mileage, 0, 999999) and
-                    Validation.validateLatitude(latitude) and
-                    Validation.validateLongitude(longitude)):
+            if not (InputValidation.ValidateBrandOrModel(brand) and 
+                    InputValidation.ValidateBrandOrModel(model) and
+                    InputValidation.ValidateSerialNumber(serial_number) and
+                    InputValidation.ValidateIntegerInRange(top_speed, 5, 120) and
+                    InputValidation.ValidateIntegerInRange(battery_capacity, 100, 2000) and
+                    InputValidation.ValidateIntegerInRange(state_of_charge, 0, 100) and
+                    InputValidation.ValidateIntegerInRange(target_soc_min, 0, 100) and
+                    InputValidation.ValidateIntegerInRange(target_soc_max, 0, 100) and
+                    InputValidation.ValidateIntegerInRange(mileage, 0, 999999) and
+                    InputValidation.ValidateLatitude(latitude) and
+                    InputValidation.ValidateLongitude(longitude)):
                 print("Validation failed.")
                 return "FAIL"
 
-            public_key = cryptoUtils.loadPublicKey()
+            public_key = CryptoUtils.LoadPublicKey()
 
-            encrypted_serial = cryptoUtils.encryptWithPublicKey(public_key, serial_number)
-            encrypted_lat = cryptoUtils.encryptWithPublicKey(public_key, latitude)
-            encrypted_lon = cryptoUtils.encryptWithPublicKey(public_key, longitude)
+            encrypted_serial = CryptoUtils.EncryptWithPublicKey(public_key, serial_number)
+            encrypted_lat = CryptoUtils.EncryptWithPublicKey(public_key, latitude)
+            encrypted_lon = CryptoUtils.EncryptWithPublicKey(public_key, longitude)
 
             query = """
             INSERT INTO scooters (
@@ -256,16 +260,18 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createUser(self, first_name, last_name, username, password, registration_date, role, temp, userContext):
+    def CreateUser(self, first_name, last_name, username, password, registration_date, role, temp, userContext):
         conn = None
         try:
-            public_key = cryptoUtils.loadPublicKey()
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+            public_key = CryptoUtils.LoadPublicKey()
             validationData = { "first_name": first_name, "last_name": last_name, "username": username, "password": password }
-            if Validation.validateUserInformation( **validationData) and role in [roles.ADMIN, roles.SERVICE] and temp in [False,True] :
+            if InputValidation.ValidateUserInformation( **validationData) and role in [roles.ADMIN, roles.SERVICE] and temp in [False,True] :
                 conn = sqlite3.connect(self.databaseFile)
-                hashed_password, salt = cryptoUtils.hashPassword(password)
-                encryptedRole = cryptoUtils.encryptWithPublicKey(public_key,role.value)
-                encryptedUsername = cryptoUtils.encryptWithPublicKey(public_key,username.lower())
+                hashed_password, salt = CryptoUtils.HashPassword(password)
+                encryptedRole = CryptoUtils.EncryptWithPublicKey(public_key,role.value)
+                encryptedUsername = CryptoUtils.EncryptWithPublicKey(public_key,username.lower())
                 query = "INSERT INTO users (first_name, last_name, username, password_hash, registration_date, role, temp, salt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 parameters = (first_name, last_name, encryptedUsername, hashed_password, registration_date, encryptedRole, temp, salt)
                 cursor = conn.cursor()
@@ -283,22 +289,24 @@ class DBCreate:
             if conn:
                 conn.close()
 
-    def createRestoreCode(self, user_id, backup_name,backupSys,userContext,required_role=roles.ADMIN):
-        if not self.findUserID(user_id, required_role):
+    def CreateRestoreCode(self, user_id, backup_name,backupSys,userContext,required_role=roles.ADMIN):
+        if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+        if not self.FindUserID(user_id, required_role):
             print("User ID is invalid or does not have the required role.")
             return "FAIL"
 
-        if not backupSys.doesBackupExist(backup_name):
+        if not backupSys.DoesBackupExist(backup_name):
             print("Backup file does not exist.")
             return "FAIL"
 
-        def generate_code(length=16):
+        def GenerateCode(length=16):
             chars = string.ascii_letters + string.digits
             return ''.join(secrets.choice(chars) for _ in range(length))
 
-        restore_code = generate_code()
-        public_key = cryptoUtils.loadPublicKey()
-        encrypted_code = cryptoUtils.encryptWithPublicKey(public_key, restore_code)
+        restore_code = GenerateCode()
+        public_key = CryptoUtils.LoadPublicKey()
+        encrypted_code = CryptoUtils.EncryptWithPublicKey(public_key, restore_code)
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()

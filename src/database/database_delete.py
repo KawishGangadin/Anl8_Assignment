@@ -1,14 +1,16 @@
-from cryptoUtils import cryptoUtils
-from inputValidation import Validation
+from cryptoUtils import CryptoUtils
+from inputValidation import InputValidation
 from roles import roles
 import users
 import sqlite3
 
 class DBDelete:
     
-    def deleteUser(self, user_id, role, userContext):
+    def DeleteUser(self, user_id, role, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
             if str(user_id).isdigit() and role.value in [roles.ADMIN.value, roles.SERVICE.value]:
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
@@ -19,8 +21,8 @@ class DBDelete:
                 if user is None:
                     raise ValueError(f"No user found with id {user_id}")
                 
-                private_key = cryptoUtils.loadPrivateKey() 
-                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
+                private_key = CryptoUtils.LoadPrivateKey() 
+                decrypted_role = CryptoUtils.DecryptWithPrivateKey(private_key, user[6])  
                 
                 if decrypted_role == role.value:
                     delete_query = "DELETE FROM users WHERE id = ? AND role = ?"
@@ -46,10 +48,12 @@ class DBDelete:
             if conn:
                 conn.close()
     
-    def deleteScooter(self, scooter_id, user, userContext):
+    def DeleteScooter(self, scooter_id, user, userContext):
         conn = None
         try:
-            if isinstance(user, users.systemAdministrator):
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+            if isinstance(user, users.SystemAdministrator):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
                 query = "SELECT * FROM scooters WHERE id = ?"
@@ -80,10 +84,12 @@ class DBDelete:
             if conn:
                 conn.close()
 
-    def deleteTraveller(self, traveller_id, user, userContext):
+    def DeleteTraveller(self, traveller_id, user, userContext):
         conn = None
         try:
-            if isinstance(user, users.systemAdministrator):
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+            if isinstance(user, users.SystemAdministrator):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
                 query = "SELECT * FROM travellers WHERE customer_id = ?"
@@ -114,10 +120,12 @@ class DBDelete:
             if conn:
                 conn.close()
 
-    def deleteRestoreCode(self,user,code, userContext):
+    def DeleteRestoreCode(self,user,code, userContext):
         conn = None
         try:
-            if isinstance(user, users.superAdministrator):
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+            if isinstance(user, users.SuperAdministrator):
                 if code:
                     conn = sqlite3.connect(self.databaseFile)
                     cursor = conn.cursor()
@@ -143,10 +151,12 @@ class DBDelete:
             if conn:
                 conn.close()
 
-    def deleteUserRestoreCodes(self, user_id, user, userContext):
+    def DeleteUserRestoreCodes(self, user_id, user, userContext):
         conn = None
         try:
-            if isinstance(user, users.systemAdministrator):
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+            if isinstance(user, users.SystemAdministrator):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
                 query = "DELETE FROM restore_codes WHERE system_admin_id = ?"

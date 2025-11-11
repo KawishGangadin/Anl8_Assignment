@@ -1,25 +1,25 @@
 from datetime import date
 import sqlite3
 from utility import Utility
-from cryptoUtils import cryptoUtils
-from inputValidation import Validation
+from cryptoUtils import CryptoUtils
+from inputValidation import InputValidation
 from .database_create import DBCreate
 from .database_update import DBUpdate
 from .database_delete import DBDelete
 from .database_retrieve import DBRetrieve
+from .authorization import Authorization
 
-
-class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
+class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete, Authorization):
     def __init__(self, databaseFile) -> None:
         self.databaseFile = databaseFile
     
-    def initSuperadmin(self):
+    def InitSuperadmin(self):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
-            public_key = cryptoUtils.loadPublicKey()
-            private_key = cryptoUtils.loadPrivateKey()
+            public_key = CryptoUtils.LoadPublicKey()
+            private_key = CryptoUtils.LoadPrivateKey()
 
             cursor.execute("SELECT * FROM users")
             users = cursor.fetchall()
@@ -27,7 +27,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             superadmin_exists = False
 
             for user in users:
-                decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
+                decrypted_role = CryptoUtils.DecryptWithPrivateKey(private_key, user[6])  
                 if decrypted_role == "superadmin":
                     superadmin_exists = True
                     break
@@ -35,9 +35,9 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if superadmin_exists:
                 print("Superadmin already exists.")
             else:
-                hashed_password, salt = cryptoUtils.hashPassword("Admin_123?")
-                encrypted_username = cryptoUtils.encryptWithPublicKey(public_key, "super_admin")
-                encrypted_role = cryptoUtils.encryptWithPublicKey(public_key, "superadmin")
+                hashed_password, salt = CryptoUtils.HashPassword("Admin_123?")
+                encrypted_username = CryptoUtils.EncryptWithPublicKey(public_key, "super_admin")
+                encrypted_role = CryptoUtils.EncryptWithPublicKey(public_key, "superadmin")
 
                 query = """
                 INSERT INTO users (first_name, last_name, username, password_hash, registration_date, role, temp, salt)
@@ -56,7 +56,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def findUserID(self, user_id, role):
+    def FindUserID(self, user_id, role):
         conn = None
         try:
             if str(user_id).isdigit():
@@ -67,11 +67,11 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                 users = cursor.fetchall()
                 cursor.close()
 
-                private_key = cryptoUtils.loadPrivateKey()  
+                private_key = CryptoUtils.LoadPrivateKey()  
                 decrypted_role = None
 
                 for user in users:
-                    decrypted_role = cryptoUtils.decryptWithPrivateKey(private_key, user[6])  
+                    decrypted_role = CryptoUtils.DecryptWithPrivateKey(private_key, user[6])  
                     if decrypted_role == role.value:
                         if user[0] == user_id:
                             return True 
@@ -84,16 +84,16 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def licenseExists(self, license_number):
+    def LicenseExists(self, license_number):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT license_number FROM travellers")
             records = cursor.fetchall()
-            private_key = cryptoUtils.loadPrivateKey()
+            private_key = CryptoUtils.LoadPrivateKey()
             for record in records:
-                decrypted = cryptoUtils.decryptWithPrivateKey(private_key, record[0])
+                decrypted = CryptoUtils.DecryptWithPrivateKey(private_key, record[0])
                 if decrypted == license_number:
                     return True
             return False
@@ -104,7 +104,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def validateSession(self, user_id,session_id,user_role):
+    def ValidateSession(self, user_id,session_id,user_role):
         conn = None
         try:
             if str(user_id).isdigit():
@@ -116,8 +116,8 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                 cursor.close()
 
                 if user:
-                    decryptedUserRole = Utility.safe_decrypt(user[6])
-                    decryptedSessionID = Utility.safe_decrypt(user[9])
+                    decryptedUserRole = Utility.SafeDecrypt(user[6])
+                    decryptedSessionID = Utility.SafeDecrypt(user[9])
                     if decryptedSessionID == str(session_id) and decryptedUserRole == user_role.value:
                         return True
                 return False
@@ -131,10 +131,10 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def findUsername(self, username):
+    def FindUsername(self, username):
         conn = None
         try:
-            if Validation.usernameValidation(username):
+            if InputValidation.ValidateUsername(username):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
                 query = "SELECT * FROM users"
@@ -143,10 +143,10 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                 users = cursor.fetchall()
                 cursor.close()
                 
-                private_key = cryptoUtils.loadPrivateKey()
+                private_key = CryptoUtils.LoadPrivateKey()
                 
                 for user in users:
-                    decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3])
+                    decrypted_username_bytes = CryptoUtils.DecryptWithPrivateKey(private_key, user[3])
                     decrypted_username = decrypted_username_bytes
                     
                     if decrypted_username == username:
@@ -160,10 +160,10 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def findTravellerID(self, customer_id):
+    def FindTravellerID(self, customer_id):
         conn = None
         try:
-            private_key = cryptoUtils.loadPrivateKey()
+            private_key = CryptoUtils.LoadPrivateKey()
 
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -173,7 +173,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
 
             for encrypted_cust_id, in travellers:
                 try:
-                    decrypted_id = cryptoUtils.decryptWithPrivateKey(private_key, encrypted_cust_id)
+                    decrypted_id = CryptoUtils.DecryptWithPrivateKey(private_key, encrypted_cust_id)
                     if decrypted_id == customer_id:
                         return True
                 except Exception:
@@ -188,7 +188,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def getUsernameByID(self, user_id):
+    def GetUsernameByID(self, user_id):
         conn = None
         try:
             if(str(user_id).isdigit()):
@@ -198,7 +198,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                 cursor.execute(query, (user_id,))
                 username = cursor.fetchone()
                 cursor.close()
-                return cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(),username[0]) if username else None
+                return CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(),username[0]) if username else None
             return None
         except sqlite3.Error as e:
             print("An error occurred while retrieving username by user ID:", e)
@@ -207,7 +207,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
 
-    def verifyUserLogin(self,username, password):
+    def VerifyUserLogin(self,username, password):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -217,13 +217,13 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             users = cursor.fetchall()
             verifiedUser = None
             for user in users:
-                if Utility.safe_decrypt(user[3]) == username and cryptoUtils.verifyPassword(password,user[4],user[8]):
+                if Utility.SafeDecrypt(user[3]) == username and CryptoUtils.VerifyPassword(password,user[4],user[8]):
                     verifiedUser = user
                     break
 
             if verifiedUser:
-                new_session_id = Utility.generate_session_id()
-                encrypted_session_id = cryptoUtils.encryptWithPublicKey(cryptoUtils.loadPublicKey(),new_session_id)
+                new_session_id = Utility.GenerateSessionID()
+                encrypted_session_id = CryptoUtils.EncryptWithPublicKey(CryptoUtils.LoadPublicKey(),new_session_id)
 
                 # Step 3: Update session ID in DB
                 update_query = "UPDATE users SET session_id = ? WHERE id = ?"
@@ -235,8 +235,8 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
                     # Step 5: Return decrypted user
                     return {
                         'id': verifiedUser[0],
-                        'role': Utility.safe_decrypt(verifiedUser[6]),
-                        'username': Utility.safe_decrypt(verifiedUser[3]),
+                        'role': Utility.SafeDecrypt(verifiedUser[6]),
+                        'username': Utility.SafeDecrypt(verifiedUser[3]),
                         'sessionID': new_session_id  # Plaintext session ID for current session
                     }
 
@@ -247,7 +247,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
         
-    def verifyAccountStatus(self,userID, sessionID):
+    def VerifyAccountStatus(self,userID, sessionID):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -257,7 +257,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             user = cursor.fetchone()
 
             if user:
-                decryptedSessionID = Utility.safe_decrypt(user[9])
+                decryptedSessionID = Utility.SafeDecrypt(user[9])
                 if str(sessionID) == decryptedSessionID:
                      return user[7] == 1
             return None
@@ -268,7 +268,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
     
-    def clearSession(self, userID,sessionID):
+    def ClearSession(self, userID,sessionID):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)
@@ -276,7 +276,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             query = "SELECT * FROM users WHERE id = ?"
             cursor.execute(query,(userID,))
             user = cursor.fetchone()
-            if Utility.safe_decrypt(user[9]) == sessionID:
+            if Utility.SafeDecrypt(user[9]) == sessionID:
                 update_query = "UPDATE users SET session_id = NULL WHERE id = ?"
                 cursor.execute(update_query, (userID,))
 
@@ -292,7 +292,7 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete):
             if conn:
                 conn.close()
     
-    def clearAllSessions(self):
+    def ClearAllSessions(self):
         conn = None
         try:
             conn = sqlite3.connect(self.databaseFile)

@@ -1,5 +1,5 @@
-from cryptoUtils import cryptoUtils
-from inputValidation import Validation
+from cryptoUtils import CryptoUtils
+from inputValidation import InputValidation
 from utility import Utility
 import sqlite3
 import users
@@ -7,9 +7,11 @@ import time
 
 class DBRetrieve:
 
-    def getAllTravellers(self, userContext):
+    def GetAllTravellers(self, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return []
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM travellers")
@@ -23,9 +25,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getAllScooters(self, userContext):
+    def GetAllScooters(self, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return []
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM scooters")
@@ -39,9 +43,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def getRestoreCodesByUser(self, user_id, userContext):
+    def GetRestoreCodesByUser(self, user_id, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             query = "SELECT code, backup_filename FROM restore_codes WHERE system_admin_id = ?"
@@ -49,12 +55,12 @@ class DBRetrieve:
             rows = cursor.fetchall()
             cursor.close()
 
-            private_key = cryptoUtils.loadPrivateKey()
+            private_key = CryptoUtils.LoadPrivateKey()
 
             decrypted_codes = []
             for encrypted_code, backup_filename in rows:
                 try:
-                    decrypted_code = cryptoUtils.decryptWithPrivateKey(private_key, encrypted_code)
+                    decrypted_code = CryptoUtils.DecryptWithPrivateKey(private_key, encrypted_code)
                     decrypted_codes.append((decrypted_code, backup_filename))
                 except Exception as e:
                     print(f"Failed to decrypt restore code: {e}")
@@ -69,10 +75,12 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getAllRestoreCodes(self, user, userContext):
+    def GetAllRestoreCodes(self, user, userContext):
         conn = None
         try:
-            if isinstance(user, users.superAdministrator):
+            if(self.IsAuthorized(userContext) == False):
+                return []
+            if isinstance(user, users.SuperAdministrator):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
                 query = "SELECT * FROM restore_codes"
@@ -90,10 +98,12 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def getUserData(self, username, userContext):
+    def GetUserData(self, username, userContext):
         conn = None
         try:
-            if Validation.usernameValidation(username):
+            if(self.IsAuthorized(userContext) == False):
+                return None
+            if InputValidation.ValidateUsername(username):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
                 query = "SELECT * FROM users"
@@ -101,9 +111,9 @@ class DBRetrieve:
                 users = cursor.fetchall()
                 cursor.close()
 
-                private_key = cryptoUtils.loadPrivateKey()
+                private_key = CryptoUtils.LoadPrivateKey()
                 for user in users:
-                    decrypted_username_bytes = cryptoUtils.decryptWithPrivateKey(private_key, user[3]) 
+                    decrypted_username_bytes = CryptoUtils.DecryptWithPrivateKey(private_key, user[3]) 
                     decrypted_username = decrypted_username_bytes
                     if decrypted_username == username:
                         return user
@@ -116,9 +126,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getUsernameByID(self, user_id, userContext):
+    def GetUsernameByID(self, user_id, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return None
             if(str(user_id).isdigit()):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
@@ -126,7 +138,7 @@ class DBRetrieve:
                 cursor.execute(query, (user_id,))
                 username = cursor.fetchone()
                 cursor.close()
-                return cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(),username[0]) if username else None
+                return CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(),username[0]) if username else None
             return None
         except sqlite3.Error as e:
             print("An error occurred while retrieving username by user ID:", e)
@@ -135,9 +147,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def getUsers(self, userContext ,role=None):
+    def GetUsers(self, userContext ,role=None):
         conn = None
         try:
+            if(self.IsAuthorized(userContext)):
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
 
@@ -152,10 +166,10 @@ class DBRetrieve:
             if role is not None:
                 for user in users:
                     encrypted_role = user[6]
-                    decrypted_role_bytes = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), encrypted_role)
+                    decrypted_role_bytes = CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(), encrypted_role)
                     if decrypted_role_bytes == role.value:
-                        decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3])
-                        decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6])
+                        decryptedUsername = CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(), user[3])
+                        decryptedRole = CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(), user[6])
                         hiddenPassword = "********"  
                         decryptedUser = (
                             user[0], 
@@ -171,8 +185,8 @@ class DBRetrieve:
                 return userList
 
             for user in users:
-                decryptedUsername = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[3])
-                decryptedRole = cryptoUtils.decryptWithPrivateKey(cryptoUtils.loadPrivateKey(), user[6])
+                decryptedUsername = CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(), user[3])
+                decryptedRole = CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(), user[6])
                 hiddenPassword = "********"  
                 decryptedUser = (
                     user[0], 
@@ -195,30 +209,34 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def displayAllTravellers(self, userContext):
+    def DisplayAllTravellers(self, userContext):
         try:
-            travellers = self.getAllTravellers()
+            if(self.IsAuthorized(userContext) == False):
+                return None
+            travellers = self.GetAllTravellers()
 
             print("\n======= Registered Travellers =======")
             for t in travellers:
-                print(f"Customer ID: {Utility.safe_decrypt(t[0])}")
-                print(f"Registration Date: {Utility.safe_decrypt(t[1])}")
-                print(f"Name: {Utility.safe_decrypt(t[2])} {Utility.safe_decrypt(t[3])}")
+                print(f"Customer ID: {Utility.SafeDecrypt(t[0])}")
+                print(f"Registration Date: {Utility.SafeDecrypt(t[1])}")
+                print(f"Name: {Utility.SafeDecrypt(t[2])} {Utility.SafeDecrypt(t[3])}")
                 print(f"Birthdate: {t[4]}")
-                print(f"Gender: {Utility.safe_decrypt(t[5])}")
-                print(f"Street: {Utility.safe_decrypt(t[6])} {Utility.safe_decrypt(t[7])}")
-                print(f"City: {Utility.safe_decrypt(t[8])}")
-                print(f"Zip: {Utility.safe_decrypt(t[9])}")
-                print(f"Email: {Utility.safe_decrypt(t[10])}")
-                print(f"Mobile: {Utility.safe_decrypt(t[11])}")
-                print(f"License: {Utility.safe_decrypt(t[12])}")
+                print(f"Gender: {Utility.SafeDecrypt(t[5])}")
+                print(f"Street: {Utility.SafeDecrypt(t[6])} {Utility.SafeDecrypt(t[7])}")
+                print(f"City: {Utility.SafeDecrypt(t[8])}")
+                print(f"Zip: {Utility.SafeDecrypt(t[9])}")
+                print(f"Email: {Utility.SafeDecrypt(t[10])}")
+                print(f"Mobile: {Utility.SafeDecrypt(t[11])}")
+                print(f"License: {Utility.SafeDecrypt(t[12])}")
                 print("-------------------------------------")
         except Exception as e:
             print("An error occurred while displaying travellers:", e)
 
-    def displayAllScooters(self, userContext):
+    def DisplayAllScooters(self, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM scooters")
@@ -231,12 +249,12 @@ class DBRetrieve:
                 print(f"In Service: {s[1]}")
                 print(f"Brand: {s[2]}")
                 print(f"Model: {s[3]}")
-                print(f"Serial Number: {Utility.safe_decrypt(s[4])}")
+                print(f"Serial Number: {Utility.SafeDecrypt(s[4])}")
                 print(f"Top Speed: {s[5]} km/h")
                 print(f"Battery Capacity: {s[6]} Wh")
                 print(f"SoC: {s[7]}%, Target Min: {s[8]}%, Target Max: {s[9]}%")
-                print(f"Latitude: {Utility.safe_decrypt(s[10])}")
-                print(f"Longitude: {Utility.safe_decrypt(s[11])}")
+                print(f"Latitude: {Utility.SafeDecrypt(s[10])}")
+                print(f"Longitude: {Utility.SafeDecrypt(s[11])}")
                 print(f"Out of Service: {'Yes' if s[12] else 'No'}")
                 print(f"Mileage: {s[13]} km")
                 print(f"Last Maintenance: {s[14]}")
@@ -248,9 +266,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def getScooterById(self, scooter_id, userContext):
+    def GetScooterById(self, scooter_id, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM scooters WHERE id = ?", (scooter_id,))
@@ -260,7 +280,7 @@ class DBRetrieve:
 
             cols = [desc[0] for desc in cursor.description]
             decrypted = {
-                cols[i]: Utility.safe_decrypt(val)
+                cols[i]: Utility.SafeDecrypt(val)
                 for i, val in enumerate(row)
             }
             return decrypted
@@ -272,11 +292,12 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-
-    def getTravellerById(self, traveller_id, userContext):
+    def GetTravellerById(self, traveller_id, userContext):
         conn = None
         try:
-            if not Validation.validateMembershipID(traveller_id):
+            if(self.IsAuthorized(userContext) == False):
+                return None
+            if not InputValidation.ValidateMembershipID(traveller_id):
                 print("Invalid traveller ID format.")
                 return None
             conn = sqlite3.connect(self.databaseFile)
@@ -288,7 +309,7 @@ class DBRetrieve:
 
             cols = [desc[0] for desc in cursor.description]
             decrypted = {
-                cols[i]: Utility.safe_decrypt(val)
+                cols[i]: Utility.SafeDecrypt(val)
                 for i, val in enumerate(row)
             }
             return decrypted 
@@ -299,9 +320,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def searchTraveller(self, search_term, userContext):
+    def SearchTraveller(self, search_term, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM travellers")
@@ -310,19 +333,19 @@ class DBRetrieve:
             matching_travellers = []
             for traveller in travellers:
                 try:
-                    decrypted_customer_id = Utility.safe_decrypt(traveller[0])
-                    decrypted_registration_date = Utility.safe_decrypt(traveller[1])
-                    decrypted_first_name = Utility.safe_decrypt(traveller[2])
-                    decrypted_last_name = Utility.safe_decrypt(traveller[3])
-                    decrypted_birthdate = Utility.safe_decrypt(traveller[4])
-                    decrypted_gender = Utility.safe_decrypt(traveller[5])
-                    decrypted_street = Utility.safe_decrypt(traveller[6])
-                    decrypted_house_number = Utility.safe_decrypt(traveller[7])
-                    decrypted_city = Utility.safe_decrypt(traveller[8])
-                    decrypted_zip = Utility.safe_decrypt(traveller[9])
-                    decrypted_email = Utility.safe_decrypt(traveller[10])
-                    decrypted_mobile = Utility.safe_decrypt(traveller[11])
-                    decrypted_license = Utility.safe_decrypt(traveller[12])
+                    decrypted_customer_id = Utility.SafeDecrypt(traveller[0])
+                    decrypted_registration_date = Utility.SafeDecrypt(traveller[1])
+                    decrypted_first_name = Utility.SafeDecrypt(traveller[2])
+                    decrypted_last_name = Utility.SafeDecrypt(traveller[3])
+                    decrypted_birthdate = Utility.SafeDecrypt(traveller[4])
+                    decrypted_gender = Utility.SafeDecrypt(traveller[5])
+                    decrypted_street = Utility.SafeDecrypt(traveller[6])
+                    decrypted_house_number = Utility.SafeDecrypt(traveller[7])
+                    decrypted_city = Utility.SafeDecrypt(traveller[8])
+                    decrypted_zip = Utility.SafeDecrypt(traveller[9])
+                    decrypted_email = Utility.SafeDecrypt(traveller[10])
+                    decrypted_mobile = Utility.SafeDecrypt(traveller[11])
+                    decrypted_license = Utility.SafeDecrypt(traveller[12])
 
                     if (search_term.lower() in decrypted_customer_id.lower() or
                         search_term.lower() in decrypted_registration_date.lower() or
@@ -373,9 +396,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def searchScooter(self, search_term, userContext):
+    def SearchScooter(self, search_term, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM scooters")
@@ -384,21 +409,21 @@ class DBRetrieve:
             matching_scooters = []
             for scooter in scooters:
                 try:
-                    decrypted_id = Utility.safe_decrypt(scooter[0])
-                    decrypted_isd = Utility.safe_decrypt(scooter[1])
-                    decrypted_brand = Utility.safe_decrypt(scooter[2])
-                    decrypted_model = Utility.safe_decrypt(scooter[3])
-                    decrypted_serial_number = Utility.safe_decrypt(scooter[4])
-                    decrypted_top_speed = Utility.safe_decrypt(scooter[5])
-                    decrypted_battery_capacity = Utility.safe_decrypt(scooter[6])
-                    decrypted_soc = Utility.safe_decrypt(scooter[7])
-                    decrypted_target_min = Utility.safe_decrypt(scooter[8])
-                    decrypted_target_max = Utility.safe_decrypt(scooter[9])
-                    decrypted_latitude = Utility.safe_decrypt(scooter[10])
-                    decrypted_longitude = Utility.safe_decrypt(scooter[11])
-                    decrypted_out_of_service = Utility.safe_decrypt(scooter[12])
-                    decrypted_mileage = Utility.safe_decrypt(scooter[13])
-                    decrypted_last_maintenance = Utility.safe_decrypt(scooter[14])
+                    decrypted_id = Utility.SafeDecrypt(scooter[0])
+                    decrypted_isd = Utility.SafeDecrypt(scooter[1])
+                    decrypted_brand = Utility.SafeDecrypt(scooter[2])
+                    decrypted_model = Utility.SafeDecrypt(scooter[3])
+                    decrypted_serial_number = Utility.SafeDecrypt(scooter[4])
+                    decrypted_top_speed = Utility.SafeDecrypt(scooter[5])
+                    decrypted_battery_capacity = Utility.SafeDecrypt(scooter[6])
+                    decrypted_soc = Utility.SafeDecrypt(scooter[7])
+                    decrypted_target_min = Utility.SafeDecrypt(scooter[8])
+                    decrypted_target_max = Utility.SafeDecrypt(scooter[9])
+                    decrypted_latitude = Utility.SafeDecrypt(scooter[10])
+                    decrypted_longitude = Utility.SafeDecrypt(scooter[11])
+                    decrypted_out_of_service = Utility.SafeDecrypt(scooter[12])
+                    decrypted_mileage = Utility.SafeDecrypt(scooter[13])
+                    decrypted_last_maintenance = Utility.SafeDecrypt(scooter[14])
 
                     if (search_term.lower() in decrypted_id.lower() or
                         search_term.lower() in decrypted_isd.lower() or
@@ -453,11 +478,13 @@ class DBRetrieve:
             if conn:
                 conn.close()
 
-    def findTravellerID(self, traveller_id, userContext):
+    def FindTravellerID(self, traveller_id, userContext):
         conn = None
-        private_key = cryptoUtils.loadPrivateKey() 
+        private_key = CryptoUtils.LoadPrivateKey() 
         try:
-            if Validation.validateMembershipID(traveller_id):
+            if(self.IsAuthorized(userContext) == False):
+                return None
+            if InputValidation.ValidateMembershipID(traveller_id):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
                 query = "SELECT * FROM travellers"
@@ -468,7 +495,7 @@ class DBRetrieve:
                 decrypted_membership_id = None
 
                 for member in members:
-                    decrypted_membership_id = cryptoUtils.decryptWithPrivateKey(private_key, member[0])  
+                    decrypted_membership_id = CryptoUtils.DecryptWithPrivateKey(private_key, member[0])  
                     if decrypted_membership_id == traveller_id:
                         return True  
 

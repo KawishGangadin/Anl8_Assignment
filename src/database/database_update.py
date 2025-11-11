@@ -1,18 +1,20 @@
-from cryptoUtils import cryptoUtils
+from cryptoUtils import CryptoUtils
 from utility import Utility
-from inputValidation import Validation
+from inputValidation import InputValidation
 import sqlite3
 
 class DBUpdate:
     
-    def updatePassword(self, userId, newPassword, userContext, temp=False, session=False,):
+    def UpdatePassword(self, userId, newPassword, userContext, temp=False, session=False,):
         conn = None
         try:
-            if Validation.passwordValidation(newPassword):
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+            if InputValidation.ValidatePassword(newPassword):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
 
-                hashed_password, salt = cryptoUtils.hashPassword(newPassword)
+                hashed_password, salt = CryptoUtils.HashPassword(newPassword)
 
                 temp_flag = 1 if temp else 0
                 query = "UPDATE users SET password_hash = ?, temp = ?, salt = ? WHERE id = ?"
@@ -31,13 +33,15 @@ class DBUpdate:
             if conn:
                 conn.close()
 
-    def updateUser(self, userId, firstName, lastName, username, userContext):
+    def UpdateUser(self, userId, firstName, lastName, username, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
             validationData = { "first_name": firstName, "last_name": lastName, "username": username }
-            if Validation.validateUserInformation(**validationData):
+            if InputValidation.ValidateUserInformation(**validationData):
                 conn = sqlite3.connect(self.databaseFile)
-                publicKey = cryptoUtils.loadPublicKey()
+                publicKey = CryptoUtils.LoadPublicKey()
                 cursor = conn.cursor()
                 query = """
                 UPDATE users
@@ -46,7 +50,7 @@ class DBUpdate:
                 """
             
                 if username:
-                    encrypted_username = cryptoUtils.encryptWithPublicKey(publicKey, username)
+                    encrypted_username = CryptoUtils.EncryptWithPublicKey(publicKey, username)
                 else:
                     encrypted_username = None
                 
@@ -76,27 +80,29 @@ class DBUpdate:
             if conn:
                 conn.close()
     
-    def updateScooter(self, scooter_id, updates: dict, userContext):
+    def UpdateScooter(self, scooter_id, updates: dict, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
             if not updates:
                 print("No fields to update.")
                 return "OK"
 
             validators = {
-                "brand":                Validation.validateBrandOrModel,
-                "model":                Validation.validateBrandOrModel,
-                "serial_number":        Validation.validateSerialNumber,
-                "top_speed":            lambda v: Validation.validateIntegerInRange(v, 5, 120),
-                "battery_capacity":     lambda v: Validation.validateIntegerInRange(v, 100, 2000),
-                "state_of_charge":      lambda v: Validation.validateIntegerInRange(v, 0, 100),
-                "target_soc_min":       lambda v: Validation.validateIntegerInRange(v, 0, 100),
-                "target_soc_max":       lambda v: Validation.validateIntegerInRange(v, 0, 100),
-                "mileage":              lambda v: Validation.validateIntegerInRange(v, 0, 999999),
+                "brand":                InputValidation.ValidateBrandOrModel,
+                "model":                InputValidation.ValidateBrandOrModel,
+                "serial_number":        InputValidation.ValidateSerialNumber,
+                "top_speed":            lambda v: InputValidation.ValidateIntegerInRange(v, 5, 120),
+                "battery_capacity":     lambda v: InputValidation.ValidateIntegerInRange(v, 100, 2000),
+                "state_of_charge":      lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
+                "target_soc_min":       lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
+                "target_soc_max":       lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
+                "mileage":              lambda v: InputValidation.ValidateIntegerInRange(v, 0, 999999),
                 "last_maintenance_date": Utility.ValidateBirthdate,
-                "latitude":             Validation.validateLatitude,
-                "longitude":            Validation.validateLongitude,
-                "out_of_service":           Validation.validateStatus
+                "latitude":             InputValidation.ValidateLatitude,
+                "longitude":            InputValidation.ValidateLongitude,
+                "out_of_service":           InputValidation.ValidateStatus
             }
 
             allowed_fields = set(validators.keys())
@@ -122,12 +128,12 @@ class DBUpdate:
                 print("Scooter not found.")
                 return "FAIL"
 
-            public_key = cryptoUtils.loadPublicKey()
+            public_key = CryptoUtils.LoadPublicKey()
             encrypted_updates = {}
 
             for key, value in validated_updates.items():
                 if key in ["serial_number", "latitude", "longitude"]:
-                    encrypted_updates[key] = cryptoUtils.encryptWithPublicKey(public_key, str(value))
+                    encrypted_updates[key] = CryptoUtils.EncryptWithPublicKey(public_key, str(value))
                 else:
                     encrypted_updates[key] = value
 
@@ -147,26 +153,27 @@ class DBUpdate:
             if conn:
                 conn.close()
 
-
-    def updateTraveller(self, traveller_id, updates: dict, userContext):
+    def UpdateTraveller(self, traveller_id, updates: dict, userContext):
         conn = None
         try:
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
             if not updates:
                 print("No fields to update.")
                 return "OK"
 
             validators = {
-                "first_name":     Validation.validateName,
-                "last_name":      Validation.validateName,
+                "first_name":     InputValidation.ValidateName,
+                "last_name":      InputValidation.ValidateName,
                 "birthday":       Utility.ValidateBirthdate,
-                "gender":         Validation.validateGender,
-                "street_name":    Validation.validateAddress,
-                "house_number":   Validation.validateHousenumber,
-                "city":           Validation.validateCity,
-                "zip_code":       Validation.validateZipcode,
-                "email":          Validation.validateEmail,
-                "mobile":         Validation.validateMobileNumber,
-                "license_number": Validation.validate_driving_license,
+                "gender":         InputValidation.ValidateGender,
+                "street_name":    InputValidation.ValidateAddress,
+                "house_number":   InputValidation.ValidateHousenumber,
+                "city":           InputValidation.ValidateCity,
+                "zip_code":       InputValidation.ValidateZipcode,
+                "email":          InputValidation.ValidateEmailAddress,
+                "mobile":         InputValidation.ValidateMobileNumber,
+                "license_number": InputValidation.ValidateDrivingLicense,
             }
 
             updates = {k: v for k, v in updates.items() if k in validators}
@@ -187,11 +194,11 @@ class DBUpdate:
                 print("Traveller not found.")
                 return "FAIL"
 
-            public_key = cryptoUtils.loadPublicKey()
+            public_key = CryptoUtils.LoadPublicKey()
             encrypted_updates = {}
             for key, value in updates.items():
                 if key in ["first_name", "last_name", "gender", "street_name", "house_number", "city", "zip_code", "email", "mobile", "license_number"]:
-                    encrypted_updates[key] = cryptoUtils.encryptWithPublicKey(public_key, str(value))
+                    encrypted_updates[key] = CryptoUtils.EncryptWithPublicKey(public_key, str(value))
                 else:
                     encrypted_updates[key] = value
 
@@ -210,10 +217,11 @@ class DBUpdate:
             if conn:
                 conn.close()
     
-    def updateSession(self, userID,sessionID, userContext):
+    def UpdateSession(self, userID,sessionID, userContext):
         conn = None
         try:
-            
+            if(self.IsAuthorized(userContext) == False):
+                return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             query = "SELECT * FROM users WHERE id = ?"
@@ -221,10 +229,10 @@ class DBUpdate:
             user = cursor.fetchone()
 
             if user:
-                decryptedSessionID = Utility.safe_decrypt(user[9])
+                decryptedSessionID = Utility.SafeDecrypt(user[9])
                 if str(sessionID) == decryptedSessionID:
-                    new_session_id = Utility.generate_session_id()
-                    encrypted_session_id = cryptoUtils.encryptWithPublicKey(cryptoUtils.loadPublicKey(),new_session_id)
+                    new_session_id = Utility.GenerateSessionID()
+                    encrypted_session_id = CryptoUtils.EncryptWithPublicKey(CryptoUtils.LoadPublicKey(),new_session_id)
 
                     # Step 3: Update session ID in DB
                     update_query = "UPDATE users SET session_id = ? WHERE id = ?"

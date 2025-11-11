@@ -3,20 +3,20 @@ import zipfile
 import logging
 from log import Logger
 import time
-from users import systemAdministrator, superAdministrator
+from users import SystemAdministrator, SuperAdministrator
 
-class backup:
+class Backup:
     def __init__(self):
         self.backupDir = os.path.dirname(os.path.abspath(__file__))
         self.backupFolder = os.path.join(self.backupDir, 'backups')
         self.logsFolder = os.path.join(self.backupDir, 'logs')
         self.log_format = '%(log_number)s | %(asctime)s | %(username)s | %(activity)s | %(additional_info)s | Suspicious: %(suspicious)s | Checked: %(checked)s | %(message)s'
 
-    def createBackupZip(self, user):
+    def CreateBackupZip(self, user):
 
-        if isinstance(user, (systemAdministrator, superAdministrator)):
+        if isinstance(user, (SystemAdministrator, SuperAdministrator)):
             logsFolder = self.logsFolder
-            backupName = f"backup{self.countBackups()}.zip"
+            backupName = f"backup{self.CountBackups()}.zip"
             
             if not os.path.exists(self.backupFolder):
                 os.makedirs(self.backupFolder)
@@ -53,7 +53,7 @@ class backup:
         else:
             print("Unauthorized access...")
 
-    def countBackups(self):
+    def CountBackups(self):
         if not os.path.exists(self.backupFolder):
             return 1 
         
@@ -65,7 +65,7 @@ class backup:
         
         return numBackups + 1
     
-    def restoreBackup(self, backupName, username =''):
+    def RestoreBackup(self, backupName, username =''):
         logging.shutdown()
         backupFilePath = os.path.join(self.backupFolder, backupName)
 
@@ -97,7 +97,7 @@ class backup:
             print("Restoration complete.")
             logging.basicConfig(filename=os.path.join(self.logsFolder, logFile), filemode='a', level=logging.INFO, format=self.log_format, datefmt='%Y-%m-%d %H:%M:%S')
             logSys = Logger()
-            logSys.log("Backup restored", False,additional_info= f"Backup: {backupName} has been restored", username=username)
+            logSys.Log("Backup restored", False,additional_info= f"Backup: {backupName} has been restored", username=username)
             time.sleep(2)
             
         except Exception as e:
@@ -115,7 +115,7 @@ class backup:
         except Exception as e:
             print(f"Error moving files: {e}")
     
-    def listBackupNames(self):
+    def ListBackupNames(self):
         if not os.path.exists(self.backupFolder):
             print("No backups found.")
             return
@@ -131,12 +131,12 @@ class backup:
                 print(name)
     
     @staticmethod
-    def doesBackupExist(backup_name):
+    def DoesBackupExist(backupName):
         backupDir = os.path.dirname(os.path.abspath(__file__))
         backupFolder = os.path.join(backupDir, 'backups')
         files = os.listdir(backupFolder)
         for file in files:
-            if str(backup_name) == str(file):
+            if str(backupName) == str(file):
                 return True
         
 

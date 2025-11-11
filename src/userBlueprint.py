@@ -7,7 +7,7 @@ class UserContext:
         self.session = session
 
 
-class userBlueprint:
+class UserBlueprint:
     def __init__(self, id, role, userName, session):
         self._id = id
         self._userName = userName
@@ -29,11 +29,11 @@ class userBlueprint:
     def GetUserContext(self):
         return UserContext(self.id, self.role, self.session)
 
-    def updateSession(self, db, loggingSys):
+    def UpdateSession(self, db, loggingSys):
         try:
-            result = db.updateSession(self.id, self.session)
+            result = db.UpdateSession(self.id, self.session)
             if result:
                 self.session = result
         except Exception as e:
             if loggingSys:
-                loggingSys.log(f"Session update failed: {e}", True, username=self.userName)
+                loggingSys.Log(f"Session update failed: {e}", True, username=self.userName)

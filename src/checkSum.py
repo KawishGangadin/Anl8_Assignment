@@ -2,7 +2,7 @@ from datetime import datetime
 import random
 
 class Checksum:
-    def generateTravellerID(db):
+    def GenerateTravellerID(db):
         travellerID = ""
         while True:
             currentYear = datetime.now().year
@@ -14,7 +14,7 @@ class Checksum:
 
             checkDigit = sum(int(digit) for digit in travellerID) % 10
             travellerID += str(checkDigit)
-            if db.findTravellerID(travellerID):
+            if db.FindTravellerID(travellerID):
                 pass
             else:
                 break

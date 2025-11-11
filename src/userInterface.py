@@ -1,9 +1,9 @@
 from users import roles
-from users import service
-from users import systemAdministrator
-from users import superAdministrator
+from users import Service
+from users import SystemAdministrator
+from users import SuperAdministrator
 from roles import roles
-from cryptoUtils import cryptoUtils
+from cryptoUtils import CryptoUtils
 import os
 import time
 
@@ -11,7 +11,7 @@ class UI:
     def __init__(self) -> None:
         pass
 
-    def displayLogo(self):
+    def DisplayLogo(self):
         ascii_art = """
 
 $$\   $$\ $$$$$$$\  $$$$$$$\   $$$$$$\  $$\   $$\       $$\      $$\  $$$$$$\  $$$$$$$\  $$$$$$\ $$\       $$$$$$\ $$$$$$$$\ $$\     $$\ 
@@ -27,96 +27,96 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
             """
         print(ascii_art)
     
-    def clearScreen(self):
+    def ClearScreen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def optionMenu(self, user, db, loggingSys, backupSys):
+    def OptionMenu(self, user, db, loggingSys, backupSys):
         while user is not None:
             time.sleep(1)
-            if isinstance(user, superAdministrator):
-                self.clearScreen()
-                self.displayLogo()
+            if isinstance(user, SuperAdministrator):
+                self.ClearScreen()
+                self.DisplayLogo()
 
-                if not db.validateSession(user.id, user.session,user.role):
+                if not db.ValidateSession(user.id, user.session,user.role):
                     print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", True,"User ID associated with role Super Admin not found.",f"{user.userName}")
+                    loggingSys.Log("Logged out", True,"User ID associated with role Super Admin not found.",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break
 
-                logoutResult = self.superAdministrator_Menu(user, db, loggingSys, backupSys)
+                logoutResult = self.SuperAdminMenu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
-                    db.clearSession(user.id,user.session)
+                    db.ClearSession(user.id,user.session)
                     user = None
                     break
 
-            elif isinstance(user, systemAdministrator):
-                self.clearScreen()
-                self.displayLogo()
+            elif isinstance(user, SystemAdministrator):
+                self.ClearScreen()
+                self.DisplayLogo()
 
-                if not db.validateSession(user.id, user.session,user.role):
+                if not db.ValidateSession(user.id, user.session,user.role):
                     print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", False,"User ID associated with role Admin not found ",f"{user.userName}")
-                    user = None
-                    time.sleep(2)
-                    break 
-
-                logoutResult = self.systemAdministrator_Menu(user, db, loggingSys, backupSys)
-                if logoutResult is True:
-                    db.clearSession(user.id,user.session)
-                    user = None
-                    break
-
-            elif isinstance(user, service):
-                self.clearScreen()
-                self.displayLogo()
-
-                if not db.validateSession(user.id, user.session,user.role):
-                    print("You will now be logged out of the system...")
-                    loggingSys.log("Logged out", False,"User ID associated with role SERVICE not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
+                    loggingSys.Log("Logged out", False,"User ID associated with role Admin not found ",f"{user.userName}")
                     user = None
                     time.sleep(2)
                     break 
 
-                logoutResult = self.service_Menu(user, db, loggingSys)
+                logoutResult = self.SystemAdminMenu(user, db, loggingSys, backupSys)
                 if logoutResult is True:
-                    db.clearSession(user.id,user.session)
+                    db.ClearSession(user.id,user.session)
+                    user = None
+                    break
+
+            elif isinstance(user, Service):
+                self.ClearScreen()
+                self.DisplayLogo()
+
+                if not db.ValidateSession(user.id, user.session,user.role):
+                    print("You will now be logged out of the system...")
+                    loggingSys.Log("Logged out", False,"User ID associated with role SERVICE not found (possibly due to a removal of their account during a backup restore.)",f"{user.userName}")
+                    user = None
+                    time.sleep(2)
+                    break 
+
+                logoutResult = self.ServiceMenu(user, db, loggingSys)
+                if logoutResult is True:
+                    db.ClearSession(user.id,user.session)
                     user = None
                     break
 
             else:
                 print("Unauthorized access to menu!")
-                loggingSys.log("User tried to access options with invalid role.", True, username=user.userName)
+                loggingSys.Log("User tried to access options with invalid role.", True, username=user.userName)
                 break
 
-    def superAdministrator_Menu(self,user,db,loggingSys,backupSys):
+    def SuperAdminMenu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
-            "1": lambda : user.displayUsers(db),
-            "2": lambda : user.userCreation(db, roles.SERVICE,loggingSys),
-            "3": lambda : user.editUser(db,roles.SERVICE,loggingSys),
-            "4": lambda : user.deletion( db, roles.SERVICE, loggingSys),
-            "5": lambda : user.resetPassword(db,roles.SERVICE,loggingSys), 
-            "6": lambda : user.userCreation(db, roles.ADMIN,loggingSys),
-            "7": lambda : user.editUser(db,roles.ADMIN,loggingSys),
-            "8": lambda : user.deletion(db, roles.ADMIN, loggingSys),
-            "9": lambda : user.resetPassword(db,roles.ADMIN,loggingSys), 
+            "1": lambda : user.DisplayUsers(db),
+            "2": lambda : user.UserCreation(db, roles.SERVICE,loggingSys),
+            "3": lambda : user.EditUser(db,roles.SERVICE,loggingSys),
+            "4": lambda : user.Deletion( db, roles.SERVICE, loggingSys),
+            "5": lambda : user.ResetPassword(db,roles.SERVICE,loggingSys), 
+            "6": lambda : user.UserCreation(db, roles.ADMIN,loggingSys),
+            "7": lambda : user.EditUser(db,roles.ADMIN,loggingSys),
+            "8": lambda : user.Deletion(db, roles.ADMIN, loggingSys),
+            "9": lambda : user.ResetPassword(db,roles.ADMIN,loggingSys), 
 
-            "10": lambda : user.createBackup(backupSys,loggingSys),
-            "11": lambda : user.restoreBackup(backupSys,loggingSys,db),
-            "12": lambda : user.generateRestoreCode(db,backupSys,loggingSys),
-            "13" : lambda : user.manageRestoreCodes(db, loggingSys),
-            '14': lambda : user.displayLogs(loggingSys),
+            "10": lambda : user.CreateBackup(backupSys,loggingSys),
+            "11": lambda : user.RestoreBackup(backupSys,loggingSys,db),
+            "12": lambda : user.GenerateRestoreCode(db,backupSys,loggingSys),
+            "13" : lambda : user.ManageRestoreCodes(db, loggingSys),
+            '14': lambda : user.DisplayLogs(loggingSys),
 
-            "15": lambda : user.createScooter(db, loggingSys),
-            "16": lambda : user.editScooter(db,loggingSys),
-            "17": lambda : user.deleteScooter(db,loggingSys),
-            "18": lambda : user.searchScooter(db,loggingSys),
+            "15": lambda : user.CreateScooter(db, loggingSys),
+            "16": lambda : user.EditScooter(db,loggingSys),
+            "17": lambda : user.DeleteScooter(db,loggingSys),
+            "18": lambda : user.SearchScooter(db,loggingSys),
                         
-            "19": lambda : user.createTraveller(db,roles.SUPERADMIN,loggingSys),
-            "20": lambda : user.editTraveller(db,loggingSys),
-            "21": lambda : user.deleteTraveller(db,loggingSys),
-            "22": lambda : user.searchTraveller(db,loggingSys),
+            "19": lambda : user.CreateTraveller(db,roles.SUPERADMIN,loggingSys),
+            "20": lambda : user.EditTraveller(db,loggingSys),
+            "21": lambda : user.DeleteTraveller(db,loggingSys),
+            "22": lambda : user.SearchTraveller(db,loggingSys),
             }
         print("""
 =====================================================
@@ -161,7 +161,7 @@ Traveller Management:
 
 [0] or [Q] - Quit
 """)
-        user.alertLogs(loggingSys)
+        user.AlertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
             print("Logging out...")
@@ -169,46 +169,46 @@ Traveller Management:
             return True
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
-                self.clearScreen()
-                self.displayLogo()
+                self.ClearScreen()
+                self.DisplayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
+                loggingSys.Log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
-            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
+            loggingSys.Log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
             print("Invalid input given")
             time.sleep(1)
 
         return False 
 
-    def systemAdministrator_Menu(self,user,db,loggingSys,backupSys):
+    def SystemAdminMenu(self,user,db,loggingSys,backupSys):
         print(f"Welcome {user.userName}")
         methodCall = {
-            "1": lambda : user.changePassword(db,loggingSys), 
-            "2": lambda : user.editOwnAccount(db,loggingSys),
-            "3": lambda : user.accountDeletion(db, loggingSys),
+            "1": lambda : user.ChangePassword(db,loggingSys), 
+            "2": lambda : user.EditOwnAccount(db,loggingSys),
+            "3": lambda : user.AccountDeletion(db, loggingSys),
 
-            "4": lambda :  user.displayLogs(loggingSys),
-            "5": lambda :  user.createBackup(backupSys,loggingSys), 
-            "6": lambda : user.restoreBackup(backupSys,loggingSys,db),
+            "4": lambda :  user.DisplayLogs(loggingSys),
+            "5": lambda :  user.CreateBackup(backupSys,loggingSys), 
+            "6": lambda : user.RestoreBackup(backupSys,loggingSys,db),
 
-            "7": lambda : user.displayUsers(db),
-            "8": lambda : user.userCreation(db, roles.SERVICE,loggingSys),
-            "9": lambda : user.editUser(db,roles.SERVICE,loggingSys),
-            "10": lambda : user.deletion(db, roles.SERVICE, loggingSys),
-            "11": lambda : user.resetPassword(db,roles.SERVICE,loggingSys), 
+            "7": lambda : user.DisplayUsers(db),
+            "8": lambda : user.UserCreation(db, roles.SERVICE,loggingSys),
+            "9": lambda : user.EditUser(db,roles.SERVICE,loggingSys),
+            "10": lambda : user.Deletion(db, roles.SERVICE, loggingSys),
+            "11": lambda : user.ResetPassword(db,roles.SERVICE,loggingSys), 
 
-            "15": lambda : user.createScooter(db, loggingSys),
-            "16": lambda : user.editScooter(db,loggingSys),
-            "17": lambda : user.deleteScooter(db,loggingSys),
-            "18": lambda : user.searchScooter(db,loggingSys),
+            "15": lambda : user.CreateScooter(db, loggingSys),
+            "16": lambda : user.EditScooter(db,loggingSys),
+            "17": lambda : user.DeleteScooter(db,loggingSys),
+            "18": lambda : user.SearchScooter(db,loggingSys),
                         
-            "19": lambda : user.createTraveller(db,roles.ADMIN,loggingSys),
-            "20": lambda : user.editTraveller(db,loggingSys),
-            "21": lambda : user.deleteTraveller(db,loggingSys),
-            "22": lambda : user.searchTraveller(db,loggingSys),
+            "19": lambda : user.CreateTraveller(db,roles.ADMIN,loggingSys),
+            "20": lambda : user.EditTraveller(db,loggingSys),
+            "21": lambda : user.DeleteTraveller(db,loggingSys),
+            "22": lambda : user.SearchTraveller(db,loggingSys),
         }
 
 
@@ -254,7 +254,7 @@ Traveller Management:
               
 [0] or [Q]- Quit
 """)
-        user.alertLogs(loggingSys)
+        user.AlertLogs(loggingSys)
         input_ = input("Press a key:").strip().upper()
         if input_ in ['0', 'Q']:
             print("Logging out...")
@@ -262,26 +262,26 @@ Traveller Management:
             return True
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
-                self.clearScreen()
-                self.displayLogo()
+                self.ClearScreen()
+                self.DisplayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
+                loggingSys.Log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
-            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
+            loggingSys.Log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
             print("Invalid input given")
             time.sleep(1)
         
         return False
 
-    def service_Menu(self,user,db,loggingSys):
+    def ServiceMenu(self,user,db,loggingSys):
         print(f"Welcome {user.userName}")
         methodCall = {
-            "1": lambda : user.changePassword(db,loggingSys), 
-            "2": lambda : user.editScooter(db,loggingSys),
-            "3": lambda : user.searchScooter(db,loggingSys),
+            "1": lambda : user.ChangePassword(db,loggingSys), 
+            "2": lambda : user.EditScooter(db,loggingSys),
+            "3": lambda : user.SearchScooter(db,loggingSys),
         }
 
 
@@ -312,15 +312,15 @@ Scooter Management:
             return True
         elif isinstance(input_.upper(),str):
             if input_.upper() in methodCall:
-                self.clearScreen()
-                self.displayLogo()
+                self.ClearScreen()
+                self.DisplayLogo()
                 methodCall[input_.upper()]()
             else:
-                loggingSys.log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
+                loggingSys.Log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
                 time.sleep(1)
         else:
-            loggingSys.log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
+            loggingSys.Log("User gave an invalid option.",True, additional_info='Input was not a string instance.', username=user.userName)
             print("Invalid input given")
             time.sleep(1)
         

@@ -1,25 +1,25 @@
 import logging
 import os
 from datetime import datetime
-from cryptoUtils import cryptoUtils
+from cryptoUtils import CryptoUtils
 
 class Logger:
     def __init__(self):
         self.log_format = '%(log_number)s | %(asctime)s | %(username)s | %(activity)s | %(additional_info)s | Suspicious: %(suspicious)s | Checked: %(checked)s | %(message)s'
         self.log_dir = os.path.dirname(os.path.abspath(__file__))
         self.log_file = os.path.join(self.log_dir, 'logs', 'urbanmobility.log')
-        self.checkLogFile()
-        self.basicConfig()
-        self.public_key = cryptoUtils.loadPublicKey() 
-        self.private_key = cryptoUtils.loadPrivateKey() 
+        self.CheckLogFile()
+        self.BasicConfig()
+        self.public_key = CryptoUtils.LoadPublicKey() 
+        self.private_key = CryptoUtils.LoadPrivateKey() 
 
-    def basicConfig(self):
+    def BasicConfig(self):
         logging.basicConfig(filename=self.log_file, filemode='a', level=logging.INFO, format='%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-    def log(self, activity, suspicious=False, additional_info='-', username='no username'):
-        log_number = self.nextNumber()
-        log_message = self.log_format % {
-            'log_number': log_number,
+    def Log(self, activity, suspicious=False, additional_info='-', username='no username'):
+        logNumber = self.NextNumber()
+        logMessage = self.log_format % {
+            'log_number': logNumber,
             'asctime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'username': username,
             'activity': activity,
@@ -28,38 +28,38 @@ class Logger:
             'checked': False,
             'message': ''
         }
-        encrypted_message = cryptoUtils.encryptWithPublicKey(self.public_key, log_message)
+        encrypted_message = CryptoUtils.EncryptWithPublicKey(self.public_key, logMessage)
         logging.info(encrypted_message.hex())
 
-    def checkLogFile(self):
+    def CheckLogFile(self):
         os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
         if not os.path.exists(self.log_file):
             with open(self.log_file, 'w'):
                 pass
 
-    def nextNumber(self):
+    def NextNumber(self):
         if os.path.exists(self.log_file):
             with open(self.log_file, 'r') as file:
                 lines = file.readlines()
                 return len(lines) + 1
         return 1
 
-    def printLogs(self):
+    def PrintLogs(self):
         if os.path.exists(self.log_file):
             with open(self.log_file, 'r') as file:
                 logs = file.readlines()
                 for log in logs:
                     try:
-                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
+                        decrypted_log = CryptoUtils.DecryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
                         print("-"* len(decrypted_log))
                         print(decrypted_log)
                     except Exception as e:
                         print(f"Error decrypting log: {e}")
-            self.markLogs()
+            self.MarkLogs()
         else:
             print("No logs found.")
 
-    def markLogs(self):
+    def MarkLogs(self):
         if os.path.exists(self.log_file):
             with open(self.log_file, 'r') as file:
                 logs = file.readlines()
@@ -67,11 +67,11 @@ class Logger:
             with open(self.log_file, 'w') as file:
                 for log in logs:
                     try:
-                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
+                        decrypted_log = CryptoUtils.DecryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
                         log_parts = decrypted_log.strip().split('|')
                         if len(log_parts) > 6 and "Checked: False" in log_parts[6]:
                             log_parts[6] = "Checked: True"
-                        encrypted_log = cryptoUtils.encryptWithPublicKey(self.public_key, '|'.join(log_parts))
+                        encrypted_log = CryptoUtils.EncryptWithPublicKey(self.public_key, '|'.join(log_parts))
                         file.write(encrypted_log.hex() + "\n")
                     except Exception as e:
                         print(f"Error decrypting log: {e}")
@@ -80,13 +80,13 @@ class Logger:
         else:
             print("No logs found.")
     
-    def hasUncheckedSuspiciousLogs(self):
+    def HasUncheckedSuspiciousLogs(self):
         if os.path.exists(self.log_file):
             with open(self.log_file, 'r') as file:
                 logs = file.readlines()
                 for log in logs:
                     try:
-                        decrypted_log = cryptoUtils.decryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
+                        decrypted_log = CryptoUtils.DecryptWithPrivateKey(self.private_key, bytes.fromhex(log.strip()))
                         log_parts = decrypted_log.strip().split('|')
                         if len(log_parts) > 5 and "Suspicious: True" in log_parts[5] and "Checked: False" in log_parts[6]:
                             return True

@@ -1,18 +1,18 @@
 from datetime import datetime
-from cryptoUtils import cryptoUtils
-from inputValidation import Validation
+from cryptoUtils import CryptoUtils
+from inputValidation import InputValidation
 import base64
 import secrets
 import sys
 
 class Utility:
     @staticmethod
-    def get_valid_input(prompt, validator, username="", loggingSys=None, fieldName=None):
+    def GetValidInput(prompt, validator, username="", loggingSys=None, fieldName=None):
         while True:
             value = input(f"{prompt} ")
             if value.upper() == 'Q':
                 return None
-            if not Validation.detectBadInput(value):
+            if not InputValidation.DetectBadInput(value):
                 if bool(validator(value)):
                     return value
                 else:
@@ -25,14 +25,14 @@ class Utility:
                     loggingSys.log(f"Bad input found '({value})' for field: {fieldName}", True, username)
 
     @staticmethod
-    def get_optional_update(prompt, validator, current_value, username="", loggingSys=None, fieldName=None):
+    def GetOptionalUpdate(prompt, validator, current_value, username="", loggingSys=None, fieldName=None):
         while True:
             value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ")
             if value.upper() == 'Q':
                 return "Q"
             if value == '':
                 return current_value
-            if not Validation.detectBadInput(value):
+            if not InputValidation.DetectBadInput(value):
                 if bool(validator(value)):
                     return value
                 else:
@@ -47,18 +47,18 @@ class Utility:
 
     
     @staticmethod
-    def safe_decrypt(value):
-        private_key = cryptoUtils.loadPrivateKey()
+    def SafeDecrypt(value):
+        private_key = CryptoUtils.LoadPrivateKey()
         try:
             if isinstance(value, bytes):
-                return cryptoUtils.decryptWithPrivateKey(private_key, value)
+                return CryptoUtils.DecryptWithPrivateKey(private_key, value)
             return str(value)
         except:
             print("Decryption failed.")
             return None
             
     @staticmethod
-    def generate_session_id(length: int = 32):
+    def GenerateSessionID(length: int = 32):
         """
         Generates a secure, URL-safe session ID.
         - `length` is the number of bytes before encoding (default 32 = 256-bit key).
@@ -77,7 +77,7 @@ class Utility:
 
     @staticmethod
     def ValidateBirthdate(Birthdate: str) -> bool:
-        if not Validation.ValidateDateFormat(Birthdate):
+        if not InputValidation.ValidateDateFormat(Birthdate):
             return False
         try:
             datetime.strptime(Birthdate, "%Y-%m-%d")

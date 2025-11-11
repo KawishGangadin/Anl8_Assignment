@@ -3,38 +3,34 @@ from roles import roles
 
 class Authorization:
 
-    @staticmethod
-    def IsAuthorized(userContext, database):
+    def IsAuthorized(self,userContext):
         try:
-            result = database.validateSession(userContext.id, userContext.session, userContext.role)
-            return bool(result)
+            result = self.ValidateSession(userContext.id, userContext.session, userContext.role)
+            return (bool(result))
         except:
             return False
 
-    @staticmethod
-    def AuthorizeAction(userContext, requiredRole, database):
+    def AuthorizeAction(self,userContext, requiredRole):
         try:
-            if Authorization.IsAuthorized(userContext, database):
+            if Authorization.IsAuthorized(userContext):
                 return userContext.role == requiredRole
             return False
         except:
             return False
 
-    @staticmethod
-    def AuthorizeAny(userContext, allowedRoles, database):
+    def AuthorizeAny(self,userContext, allowedRoles):
         try:
-            if not Authorization.IsAuthorized(userContext, database):
+            if not Authorization.IsAuthorized(userContext):
                 return False
             return userContext.role in set(allowedRoles or [])
         except:
             return False
 
-    @staticmethod
-    def AuthorizeManage(userContext, targetRole, database):
+    def AuthorizeManage(self,userContext, targetRole):
         try:
-            if not Authorization.IsAuthorized(userContext, database):
+            if not Authorization.IsAuthorized(userContext):
                 return False
-            if userContext.role == roles.SUPER_ADMIN:
+            if userContext.role == roles.SUPERADMIN:
                 return targetRole in [roles.ADMIN, roles.SERVICE]
             if userContext.role == roles.ADMIN:
                 return targetRole == roles.SERVICE
@@ -43,17 +39,16 @@ class Authorization:
         except:
             return False
 
-    @staticmethod
-    def AuthorizeRestore(userContext, database, backupFileName=None, restoreCode=None):
+    def AuthorizeRestore(self,userContext, database, backupFileName=None, restoreCode=None):
         try:
             if not Authorization.IsAuthorized(userContext, database):
                 return False
-            if userContext.role == roles.SUPER_ADMIN:
+            if userContext.role == roles.SUPERADMIN:
                 return True
             if userContext.role == roles.SERVICE:
                 return False
             if userContext.role == roles.ADMIN:
-                restoreCodePairs = database.getRestoreCodesByUser(userContext.id)
+                restoreCodePairs = database.GetRestoreCodesByUser(userContext.id)
                 if not restoreCodePairs:
                     return False
 

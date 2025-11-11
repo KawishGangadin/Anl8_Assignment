@@ -1,26 +1,26 @@
 from users import roles
-from users import service
-from users import systemAdministrator
-from users import superAdministrator
-from cryptoUtils import cryptoUtils
+from users import Service
+from users import SystemAdministrator
+from users import SuperAdministrator
+from cryptoUtils import CryptoUtils
 
-class loginAuth:
+class LoginAuthentication:
     def __init__(self, db):
         self.db = db
 
-    def loginFunc(self, username, password):
+    def Login(self, username, password):
         try:
-            user = self.db.verifyUserLogin(username,password)
+            user = self.db.VerifyUserLogin(username,password)
 
             roleType = user["role"]
             print(roleType)
             print(roles.SUPERADMIN)
             if roleType == roles.SERVICE.value:
-                return service(user["id"], roles.SERVICE, user["username"], user["sessionID"])
+                return Service(user["id"], roles.SERVICE, user["username"], user["sessionID"])
             elif roleType == roles.ADMIN.value:
-                return systemAdministrator(user["id"], roles.ADMIN, user["username"],  user["sessionID"])
+                return SystemAdministrator(user["id"], roles.ADMIN, user["username"],  user["sessionID"])
             elif roleType == roles.SUPERADMIN.value:
-                return superAdministrator(user["id"], roles.SUPERADMIN, user["username"], user["sessionID"])
+                return SuperAdministrator(user["id"], roles.SUPERADMIN, user["username"], user["sessionID"])
             else:
                 print("Unknown role detected")
                 return None
