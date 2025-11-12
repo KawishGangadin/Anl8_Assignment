@@ -196,6 +196,10 @@ class SystemAdministrator(Service):
 
     def SearchTraveller(self, db, loggingSys):
         try:
+            if(db.AuthorizeTavellerManagement(self.GetUserContext()) == False):
+                print("You are not authorized to create travellers.")
+                loggingSys.Log("Unauthorized traveller creation attempt", True, username=self.userName)
+                return
             search_term = input("Enter the search key: ")
             if not InputValidation.DetectBadInput(search_term) and len(search_term) <= 35:
                 result = db.SearchTraveller(search_term,self.GetUserContext())
@@ -220,6 +224,10 @@ class SystemAdministrator(Service):
 
     def DeleteTraveller(self, db, loggingSys):
         try:
+            if(db.AuthorizeTavellerManagement(self.GetUserContext()) == False):
+                print("You are not authorized to create travellers.")
+                loggingSys.Log("Unauthorized traveller creation attempt", True, username=self.userName)
+                return
             db.DisplayAllTravellers(self.GetUserContext())
 
             while True:
@@ -335,6 +343,10 @@ class SystemAdministrator(Service):
 
     def CreateTraveller(self, db, role, loggingSys):
         try:
+            if(db.AuthorizeTavellerManagement(self.GetUserContext()) == False):
+                print("You are not authorized to create travellers.")
+                loggingSys.Log("Unauthorized traveller creation attempt", True, username=self.userName)
+                return
             print("========== Traveller Registration ==========")
             traveller = {}
 
@@ -441,7 +453,7 @@ class SystemAdministrator(Service):
 
     def UserCreation(self, db, role, loggingSys):
         try:
-            if (db.AuthorizeUserCreation(self.GetUserContext(), role)) == False:
+            if (db.AuthorizeUserManagement(self.GetUserContext(), role)) == False:
                 print("Invalid role")
                 loggingSys.Log("User tried to create a user with an invalid RoleType", True, username=self.userName)
                 return
@@ -554,8 +566,12 @@ class SystemAdministrator(Service):
         except Exception as e:
             print(f"An error occurred while displaying users: {str(e)}")
     
-    def DisplayLogs(self, loggingSys):
+    def DisplayLogs(self, db ,loggingSys):
         try:
+            if(db.AuthorizeAny(self.GetUserContext(),[roles.ADMIN,roles.SUPERADMIN]) == False):
+                print("You are not authorized to view logs.")
+                loggingSys.Log("Unauthorized log viewing attempt", True, username=self.userName)
+                return
             print("====================Unique Meal Logs====================\n")
             loggingSys.PrintLogs()
             print("Press any key to continue...")
@@ -576,6 +592,10 @@ class SystemAdministrator(Service):
 
     def EditTraveller(self, db, loggingSys):
         try:
+            if(db.AuthorizeTavellerManagement(self.GetUserContext()) == False):
+                print("You are not authorized to create travellers.")
+                loggingSys.Log("Unauthorized traveller creation attempt", True, username=self.userName)
+                return
             db.DisplayAllTravellers(self.GetUserContext())
             while True:
                 traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ")
@@ -708,16 +728,8 @@ class SystemAdministrator(Service):
                     else:
                         print("Failed to update user information.")
 
-            if isinstance(self, SuperAdministrator):
-                if role in [roles.ADMIN, roles.SERVICE]:
-                    processEdit(role)
-                else:
-                    print("Invalid request....")
-            elif isinstance(self, SystemAdministrator):
-                if role == roles.SERVICE:
-                    processEdit(role)
-                else:
-                    print("Unauthorized request.")
+            if (db.AuthorizeUserManagement(self.GetUserContext(), role)):
+                processEdit(role)
             else:
                 print("Unauthorized access...")
 
@@ -830,6 +842,7 @@ class SystemAdministrator(Service):
 
                     if (code, name) in codes:
                         print("Restore code valid. Restoring backup...")
+                        db.DeleteUserRestoreCodes( self.id, self, self.GetUserContext())
                         backUpSystem.RestoreBackup(name, username=self.userName)
                         break
                     else:

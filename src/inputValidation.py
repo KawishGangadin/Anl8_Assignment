@@ -32,10 +32,6 @@ class InputValidation:
     @staticmethod
     def ValidateDateFormat(birthdate):
         return re.fullmatch(r"\d{4}-\d{2}-\d{2}", birthdate)
-
-    @staticmethod
-    def ValidateDrivingLicense(license_number):
-        return re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number)
     
     @staticmethod
     def ValidateUsername(name):
@@ -54,6 +50,10 @@ class InputValidation:
     @staticmethod
     def ValidateHousenumber(houseNumber):
         return re.fullmatch(r"[1-9]\d{0,5}[A-Za-z]?", houseNumber)
+
+    @staticmethod 
+    def ValidateDrivingLicense(license_number): 
+        return re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number)
 
     @staticmethod
     def ValidateZipcode(zip_code):

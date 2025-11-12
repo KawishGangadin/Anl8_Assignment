@@ -9,7 +9,7 @@ class DBDelete:
     def DeleteUser(self, user_id, role, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeUserManagement(userContext,role) == False):
                 return "FAIL"
             if str(user_id).isdigit() and role.value in [roles.ADMIN.value, roles.SERVICE.value]:
                 conn = sqlite3.connect(self.databaseFile)
@@ -129,7 +129,7 @@ class DBDelete:
     def DeleteRestoreCode(self,user,code, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN]) == False):
                 return "FAIL"
             if isinstance(user, users.SuperAdministrator):
                 if code:
@@ -160,8 +160,7 @@ class DBDelete:
     def DeleteUserRestoreCodes(self, user_id, user, userContext):
         conn = None
         try:
-            required_role = roles.SUPERADMIN
-            if(self.AuthorizeAction(userContext,required_role) == False):
+            if(self.IsAuthorized(userContext) == False):
                 return "FAIL"
             if isinstance(user, users.SystemAdministrator):
                 conn = sqlite3.connect(self.databaseFile)

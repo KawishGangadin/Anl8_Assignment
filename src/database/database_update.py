@@ -1,3 +1,4 @@
+import sys
 from cryptoUtils import CryptoUtils
 from utility import Utility
 from inputValidation import InputValidation
@@ -85,44 +86,10 @@ class DBUpdate:
         try:
             if(self.IsAuthorized(userContext) == False):
                 return "FAIL"
-            validationData = { "first_name": firstName, "last_name": lastName, "username": username }
-            if InputValidation.ValidateUserInformation(**validationData):
-                conn = sqlite3.connect(self.databaseFile)
-                publicKey = CryptoUtils.LoadPublicKey()
-                cursor = conn.cursor()
-                query = """
-                UPDATE users
-                SET first_name = ?, last_name = ?, username = ?
-                WHERE id = ?
-                """
-            
-                if username:
-                    encrypted_username = CryptoUtils.EncryptWithPublicKey(publicKey, username)
-                else:
-                    encrypted_username = None
-                
-                parameters = (firstName, lastName, encrypted_username,userId)
-
-                cursor.execute(query, parameters)
-                
-                if cursor.rowcount > 0:
-                    result = "OK"
-                else:
-                    result = "FAIL"
-                conn.commit() 
-                
-                cursor.close()
-                return result
-            return "FAIL"
-
-        except sqlite3.Error as e:
-            print("SQLite error:", e)
-            return None
-
+            self.UpdateUser(userId, firstName, lastName, username, userContext)
         except Exception as e:
             print("An error occurred while updating the user:", e)
             return None
-
         finally:
             if conn:
                 conn.close() 
@@ -147,8 +114,8 @@ class DBUpdate:
                 "target_soc_max":       lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
                 "mileage":              lambda v: Utility.ValidateIntegerInRange(v, 0, 999999),
                 "last_maintenance_date": Utility.ValidateDate,
-                "latitude":             InputValidation.ValidateLatitude,
-                "longitude":            InputValidation.ValidateLongitude,
+                "latitude":             Utility.ValidateLatitude,
+                "longitude":            Utility.ValidateLongtitude,
                 "out_of_service":           InputValidation.ValidateStatus
             }
 
@@ -268,6 +235,8 @@ class DBUpdate:
         conn = None
         try:
             if(self.IsAuthorized(userContext) == False):
+                print("Unauthorized access detected. Exiting.")
+                sys.exit()
                 return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()

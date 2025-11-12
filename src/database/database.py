@@ -8,6 +8,7 @@ from .database_update import DBUpdate
 from .database_delete import DBDelete
 from .database_retrieve import DBRetrieve
 from .authorization import Authorization
+from roles import roles
 
 class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete, Authorization):
     def __init__(self, databaseFile) -> None:
@@ -225,19 +226,16 @@ class DB(DBUpdate, DBCreate, DBRetrieve, DBDelete, Authorization):
                 new_session_id = Utility.GenerateSessionID()
                 encrypted_session_id = CryptoUtils.EncryptWithPublicKey(CryptoUtils.LoadPublicKey(),new_session_id)
 
-                # Step 3: Update session ID in DB
                 update_query = "UPDATE users SET session_id = ? WHERE id = ?"
                 cursor.execute(update_query, (encrypted_session_id, verifiedUser[0]))
 
-                # Step 4: Check if update was successful
                 if cursor.rowcount == 1:
                     conn.commit()
-                    # Step 5: Return decrypted user
                     return {
                         'id': verifiedUser[0],
                         'role': Utility.SafeDecrypt(verifiedUser[6]),
                         'username': Utility.SafeDecrypt(verifiedUser[3]),
-                        'sessionID': new_session_id  # Plaintext session ID for current session
+                        'sessionID': new_session_id
                     }
 
             return None 

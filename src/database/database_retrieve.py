@@ -4,6 +4,7 @@ from utility import Utility
 import sqlite3
 import users
 import time
+from roles import roles
 
 class DBRetrieve:
 
@@ -150,8 +151,16 @@ class DBRetrieve:
     def GetUsers(self, userContext ,role=None):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
-                return None
+            if (role == None):
+                if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
+                    return None
+                else:
+                    pass
+            else:
+                if(self.AuthorizeUserManagement(userContext,role) == False):
+                    return None
+                else:
+                    pass
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
 
@@ -209,11 +218,31 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
+    def GetUserRole(self, userID):
+        conn = None
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT role FROM users WHERE id = ?"
+            cursor.execute(query, (userID,))
+            role = cursor.fetchone()
+            cursor.close()
+            if role:
+                decrypted_role = CryptoUtils.DecryptWithPrivateKey(CryptoUtils.LoadPrivateKey(), role[0])
+                return decrypted_role
+            return None
+        except sqlite3.Error as e:
+            print("An error occurred while retrieving user role:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+
     def DisplayAllTravellers(self, userContext):
         try:
             if(self.IsAuthorized(userContext) == False):
                 return None
-            travellers = self.GetAllTravellers()
+            travellers = self.GetAllTravellers(userContext)
 
             print("\n======= Registered Travellers =======")
             for t in travellers:

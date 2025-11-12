@@ -106,7 +106,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
             "11": lambda : user.RestoreBackup(backupSys,loggingSys,db),
             "12": lambda : user.GenerateRestoreCode(db,backupSys,loggingSys),
             "13" : lambda : user.ManageRestoreCodes(db, loggingSys),
-            '14': lambda : user.DisplayLogs(loggingSys),
+            '14': lambda : user.DisplayLogs(db,loggingSys),
 
             "15": lambda : user.CreateScooter(db, loggingSys),
             "16": lambda : user.EditScooter(db,loggingSys),
@@ -190,7 +190,7 @@ Traveller Management:
             "2": lambda : user.EditOwnAccount(db,loggingSys),
             "3": lambda : user.AccountDeletion(db, loggingSys),
 
-            "4": lambda :  user.DisplayLogs(loggingSys),
+            "4": lambda :  user.DisplayLogs(db,loggingSys),
             "5": lambda :  user.CreateBackup(backupSys,loggingSys), 
             "6": lambda : user.RestoreBackup(backupSys,loggingSys,db),
 

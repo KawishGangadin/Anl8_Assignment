@@ -2,7 +2,6 @@ from users import roles
 from users import Service
 from users import SystemAdministrator
 from users import SuperAdministrator
-from cryptoUtils import CryptoUtils
 
 class LoginAuthentication:
     def __init__(self, db):
