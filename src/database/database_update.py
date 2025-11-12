@@ -79,6 +79,53 @@ class DBUpdate:
         finally:
             if conn:
                 conn.close()
+
+    def UpdateSelf(self, userId, firstName, lastName, username, userContext):
+        conn = None
+        try:
+            if(self.IsAuthorized(userContext) == False):
+                return "FAIL"
+            validationData = { "first_name": firstName, "last_name": lastName, "username": username }
+            if InputValidation.ValidateUserInformation(**validationData):
+                conn = sqlite3.connect(self.databaseFile)
+                publicKey = CryptoUtils.LoadPublicKey()
+                cursor = conn.cursor()
+                query = """
+                UPDATE users
+                SET first_name = ?, last_name = ?, username = ?
+                WHERE id = ?
+                """
+            
+                if username:
+                    encrypted_username = CryptoUtils.EncryptWithPublicKey(publicKey, username)
+                else:
+                    encrypted_username = None
+                
+                parameters = (firstName, lastName, encrypted_username,userId)
+
+                cursor.execute(query, parameters)
+                
+                if cursor.rowcount > 0:
+                    result = "OK"
+                else:
+                    result = "FAIL"
+                conn.commit() 
+                
+                cursor.close()
+                return result
+            return "FAIL"
+
+        except sqlite3.Error as e:
+            print("SQLite error:", e)
+            return None
+
+        except Exception as e:
+            print("An error occurred while updating the user:", e)
+            return None
+
+        finally:
+            if conn:
+                conn.close() 
     
     def UpdateScooter(self, scooter_id, updates: dict, userContext):
         conn = None

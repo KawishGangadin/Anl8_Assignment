@@ -911,7 +911,7 @@ class SystemAdministrator(Service):
                 break
 
 
-            result = db.UpdateUser(self.id, first_name, last_name, username.lower(),self.GetUserContext())
+            result = db.UpdateSelf(self.id, first_name, last_name, username.lower(),self.GetUserContext())
             if result == "OK":
                 self.UpdateSession(db,loggingsys)
                 print("Account updated successfully.")

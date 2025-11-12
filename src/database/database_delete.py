@@ -51,8 +51,11 @@ class DBDelete:
     def DeleteScooter(self, scooter_id, user, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            
+            required_roles = [roles.ADMIN, roles.SUPERADMIN]
+            if(self.AuthorizeAny(userContext,required_roles) == False):
                 return "FAIL"
+            
             if isinstance(user, users.SystemAdministrator):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
@@ -87,8 +90,11 @@ class DBDelete:
     def DeleteTraveller(self, traveller_id, user, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+
+            required_roles = [roles.ADMIN, roles.SUPERADMIN]
+            if(self.AuthorizeAny(userContext,required_roles) == False):
                 return "FAIL"
+            
             if isinstance(user, users.SystemAdministrator):
                 conn = sqlite3.connect(self.databaseFile)
                 cursor = conn.cursor()
@@ -154,7 +160,8 @@ class DBDelete:
     def DeleteUserRestoreCodes(self, user_id, user, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            required_role = roles.SUPERADMIN
+            if(self.AuthorizeAction(userContext,required_role) == False):
                 return "FAIL"
             if isinstance(user, users.SystemAdministrator):
                 conn = sqlite3.connect(self.databaseFile)

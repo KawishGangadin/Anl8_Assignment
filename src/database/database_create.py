@@ -263,7 +263,7 @@ class DBCreate:
     def CreateUser(self, first_name, last_name, username, password, registration_date, role, temp, userContext):
         conn = None
         try:
-            if(self.AuthorizeUserCreation(userContext,role) == False):
+            if(self.AuthorizeUserManagement(userContext,role) == False):
                 return "FAIL"
             public_key = CryptoUtils.LoadPublicKey()
             validationData = { "first_name": first_name, "last_name": last_name, "username": username, "password": password }
@@ -290,7 +290,7 @@ class DBCreate:
                 conn.close()
 
     def CreateRestoreCode(self, user_id, backup_name,backupSys,userContext,required_role=roles.ADMIN):
-        if(self.IsAuthorized(userContext) == False):
+        if(self.AuthorizeAction(userContext,roles.SUPERADMIN) == False):
                 return "FAIL"
         if not self.FindUserID(user_id, required_role):
             print("User ID is invalid or does not have the required role.")
