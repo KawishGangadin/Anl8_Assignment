@@ -18,11 +18,11 @@ class Utility:
                 else:
                     print("Invalid input! Please try again.")
                     if loggingSys:
-                        loggingSys.log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+                        loggingSys.Log(f"Invalid input ({value}) for field: {fieldName}", False, username)
             else:
                 print("Input contains invalid characters! Please try again.")
                 if loggingSys:
-                    loggingSys.log(f"Bad input found '({value})' for field: {fieldName}", True, username)
+                    loggingSys.Log(f"Bad input found '({value})' for field: {fieldName}", True, username)
 
     @staticmethod
     def GetOptionalUpdate(prompt, validator, current_value, username="", loggingSys=None, fieldName=None):
@@ -38,11 +38,11 @@ class Utility:
                 else:
                     print("Invalid input! Please try again.")
                     if loggingSys:
-                        loggingSys.log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+                        loggingSys.Log(f"Invalid input ({value}) for field: {fieldName}", False, username)
             else:
                 print("Input contains invalid characters! Please try again.")
                 if loggingSys:
-                    loggingSys.log(f"Bad input found '({value})' for field: {fieldName}", True, username)
+                    loggingSys.Log(f"Bad input found '({value})' for field: {fieldName}", True, username)
 
 
     
@@ -68,19 +68,60 @@ class Utility:
         return session_id
 
     @staticmethod
-    def ValidateLongtitude():
-        pass
+    def ValidateLatitude(latitudeValue):
+        rotterdamMinLat = 51.80
+        rotterdamMaxLat = 52.05
+
+        if not InputValidation.ValidateDecimal(latitudeValue):
+            return False
+
+        try:
+            latitudeNumber = float(latitudeValue)
+        except ValueError:
+            return False
+
+        return rotterdamMinLat <= latitudeNumber <= rotterdamMaxLat
 
     @staticmethod
-    def ValidateLatitude():
-        pass
+    def ValidateLongtitude(longitudeValue):
+        rotterdamMinLon = 3.90
+        rotterdamMaxLon = 4.80
+        if not InputValidation.ValidateDecimal(longitudeValue):
+            return False
+
+        try:
+            longitudeNumber = float(longitudeValue)
+        except ValueError:
+            return False
+
+        return rotterdamMinLon <= longitudeNumber <= rotterdamMaxLon
 
     @staticmethod
-    def ValidateBirthdate(Birthdate: str) -> bool:
-        if not InputValidation.ValidateDateFormat(Birthdate):
+    def ValidateIntegerInRange(value, minVal, maxVal):
+
+        if not (
+            InputValidation.ValidateNumericInput(value)
+            and InputValidation.ValidateNumericInput(minVal)
+            and InputValidation.ValidateNumericInput(maxVal)
+        ):
+            return False
+
+        number   = int(value)
+        minValue = int(minVal)
+        maxValue = int(maxVal)
+
+        if minValue > maxValue:
+            return False
+
+        return minValue <= number <= maxValue
+
+
+    @staticmethod
+    def ValidateDate(date):
+        if not InputValidation.ValidateDateFormat(date):
             return False
         try:
-            datetime.strptime(Birthdate, "%Y-%m-%d")
+            datetime.strptime(date, "%Y-%m-%d")
             return True
         except ValueError:
             return False

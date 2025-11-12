@@ -124,7 +124,7 @@ class DBCreate:
             if not (
                 InputValidation.ValidateName(traveller_data["first_name"]) and
                 InputValidation.ValidateName(traveller_data["last_name"]) and
-                Utility.ValidateBirthdate(traveller_data["birthdate"]) and
+                Utility.ValidateDate(traveller_data["birthdate"]) and
                 InputValidation.ValidateGender(traveller_data["gender"]) and
                 InputValidation.ValidateAddress(traveller_data["street"]) and
                 InputValidation.ValidateHousenumber(str(traveller_data["house_number"])) and
@@ -211,12 +211,12 @@ class DBCreate:
             if not (InputValidation.ValidateBrandOrModel(brand) and 
                     InputValidation.ValidateBrandOrModel(model) and
                     InputValidation.ValidateSerialNumber(serial_number) and
-                    InputValidation.ValidateIntegerInRange(top_speed, 5, 120) and
-                    InputValidation.ValidateIntegerInRange(battery_capacity, 100, 2000) and
-                    InputValidation.ValidateIntegerInRange(state_of_charge, 0, 100) and
-                    InputValidation.ValidateIntegerInRange(target_soc_min, 0, 100) and
-                    InputValidation.ValidateIntegerInRange(target_soc_max, 0, 100) and
-                    InputValidation.ValidateIntegerInRange(mileage, 0, 999999) and
+                    InputValidation.Utility(top_speed, 5, 120) and
+                    InputValidation.Utility(battery_capacity, 100, 2000) and
+                    InputValidation.Utility(state_of_charge, 0, 100) and
+                    InputValidation.Utility(target_soc_min, 0, 100) and
+                    InputValidation.Utility(target_soc_max, 0, 100) and
+                    InputValidation.Utility(mileage, 0, 999999) and
                     InputValidation.ValidateLatitude(latitude) and
                     InputValidation.ValidateLongitude(longitude)):
                 print("Validation failed.")
@@ -263,7 +263,7 @@ class DBCreate:
     def CreateUser(self, first_name, last_name, username, password, registration_date, role, temp, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeUserCreation(userContext,role) == False):
                 return "FAIL"
             public_key = CryptoUtils.LoadPublicKey()
             validationData = { "first_name": first_name, "last_name": last_name, "username": username, "password": password }

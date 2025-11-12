@@ -10,6 +10,23 @@ class Authorization:
         except:
             return False
 
+    def AuthorizeUserCreation(self, userContext, targetRole):
+        try:
+            if not self.IsAuthorized(userContext):
+                return False
+            if targetRole not in (roles.ADMIN, roles.SERVICE):
+                return False
+
+            if userContext.role == roles.SUPERADMIN:
+                return targetRole in (roles.ADMIN, roles.SERVICE)
+
+            if userContext.role == roles.ADMIN:
+                return targetRole == roles.SERVICE
+            return False
+        except:
+            return False
+
+
     def AuthorizeAction(self,userContext, requiredRole):
         try:
             if Authorization.IsAuthorized(userContext):

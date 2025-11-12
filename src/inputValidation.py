@@ -16,27 +16,18 @@ class InputValidation:
         return re.fullmatch(r'^[A-Za-z0-9]{10,17}$', serial_number)
 
     @staticmethod
-    def ValidateIntegerInRange(value, min_val, max_val):
-        return len(value) <= 10 and value.isdigit() and min_val <= int(value) <= max_val
-
-    @staticmethod
     def ValidateNumericInput(input):
         return re.fullmatch(r'(0|[1-9][0-9]{0,9})', input)
     
     @staticmethod
     def ValidateBrandOrModel(value):
         return re.fullmatch(r'^[A-Za-z0-9](?:[A-Za-z0-9-]{0,28}[A-Za-z0-9])?$', value)
-        
-    @staticmethod
-    def ValidateLatitude(latitude):
-        return re.fullmatch(r'^\d{2}\.\d{5}$', latitude)
     
     def ValidateStatus(oos_status):
-        return len(oos_status) <= 5 and oos_status.lower() in ["true", "false"]
-        
-    @staticmethod
-    def ValidateLongitude(longitude):
-        return re.fullmatch(r'^\d{1,2}\.\d{5}$', longitude)
+        return oos_status in ["true", "false"]
+
+    def ValidateDecimal(value):
+        return re.fullmatch(r'^\d{1,2}\.\d{5}$', value) is not None
 
     @staticmethod
     def ValidateDateFormat(birthdate):
@@ -45,10 +36,6 @@ class InputValidation:
     @staticmethod
     def ValidateDrivingLicense(license_number):
         return re.fullmatch(r'^([A-Z]{2}\d{7}|[A-Z]{1}\d{8})$', license_number)
-
-    @staticmethod
-    def ValidateScooterID(scooter_id):
-        return len(scooter_id) < 10 and scooter_id.isdigit() and (0 <= int(scooter_id) <= 10000)
     
     @staticmethod
     def ValidateUsername(name):
@@ -65,8 +52,8 @@ class InputValidation:
         return re.fullmatch(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
     
     @staticmethod
-    def ValidateHousenumber(housenumber):
-        return  re.fullmatch(r"[1-9]\d{0,3}", housenumber)
+    def ValidateHousenumber(houseNumber):
+        return re.fullmatch(r"[1-9]\d{0,5}[A-Za-z]?", houseNumber)
 
     @staticmethod
     def ValidateZipcode(zip_code):

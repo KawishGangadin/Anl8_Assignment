@@ -84,7 +84,7 @@ class Service(UserBlueprint):
                 scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ")
                 if scooter_id.upper() == 'Q':
                     return
-                if not InputValidation.ValidateScooterID(scooter_id):
+                if not InputValidation.ValidateNumericInput(scooter_id):
                     print("Invalid ID format.")
                     continue
 
@@ -99,15 +99,15 @@ class Service(UserBlueprint):
                 "brand":               InputValidation.ValidateBrandOrModel,
                 "model":               InputValidation.ValidateBrandOrModel,
                 "serial_number":       InputValidation.ValidateSerialNumber,
-                "top_speed":           lambda v: InputValidation.ValidateIntegerInRange(v, 5, 120),
-                "battery_capacity":    lambda v: InputValidation.ValidateIntegerInRange(v, 100, 2000),
-                "state_of_charge":     lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
-                "target_soc_min":      lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
-                "target_soc_max":      lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
-                "mileage":             lambda v: InputValidation.ValidateIntegerInRange(v, 0, 999999),
-                "last_maintenance_date":InputValidation.ValidateDateFormat,
-                "latitude":            InputValidation.ValidateLatitude,
-                "longitude":           InputValidation.ValidateLongitude,
+                "top_speed":           lambda v: Utility.ValidateIntegerInRange(v, 5, 120),
+                "battery_capacity":    lambda v: Utility.ValidateIntegerInRange(v, 100, 2000),
+                "state_of_charge":     lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
+                "target_soc_min":      lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
+                "target_soc_max":      lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
+                "mileage":             lambda v: Utility.ValidateIntegerInRange(v, 0, 999999),
+                "last_maintenance_date":Utility.ValidateDate,
+                "latitude":            Utility.ValidateLatitude,
+                "longitude":           Utility.ValidateLongtitude,
                 "out_of_service":          InputValidation.ValidateStatus
             }
 
@@ -255,7 +255,7 @@ class SystemAdministrator(Service):
                 scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ")
                 if scooter_id.upper() == 'Q':
                     return
-                if not InputValidation.ValidateScooterID(scooter_id):
+                if not InputValidation.ValidateNumericInput(scooter_id):
                     print("Invalid ID format.")
                     continue
 
@@ -347,7 +347,7 @@ class SystemAdministrator(Service):
 
             traveller["first_name"] = ask("First Name", "Enter traveller's first name: ", InputValidation.ValidateName)
             traveller["last_name"] = ask("Last Name", "Enter traveller's last name: ", InputValidation.ValidateName)
-            traveller["birthdate"] = ask("Birthdate","Enter traveller's birthdate: ",Utility.ValidateBirthdate)
+            traveller["birthdate"] = ask("Birthdate","Enter traveller's birthdate: ",Utility.ValidateDate)
             traveller["gender"] = ask("Gender", "Enter traveller's gender (male/female/other): ",InputValidation.ValidateGender)
             traveller["street"] = ask("Street","Enter traveller's street name: ",InputValidation.ValidateAddress)
             traveller["house_number"] = ask("House number","Enter traveller's house number: ",InputValidation.ValidateHousenumber)
@@ -391,14 +391,14 @@ class SystemAdministrator(Service):
             scooter["serial_number"] = ask("Serial Number", "Enter serial number:", InputValidation.ValidateSerialNumber)
             scooter["brand"] = ask("Brand", "Enter scooter brand:", InputValidation.ValidateBrandOrModel)
             scooter["model"] = ask("Model", "Enter scooter model:", InputValidation.ValidateBrandOrModel)
-            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: InputValidation.ValidateIntegerInRange(v, 5, 120))
-            scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: InputValidation.ValidateIntegerInRange(v, 100, 2000))
-            scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100))
-            scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100))
-            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):', lambda v: InputValidation.ValidateIntegerInRange(v, int(scooter["target_soc_min"]), 100))
-            scooter["mileage"] = ask("Mileage", "Enter current mileage (default 0):", lambda v: InputValidation.ValidateIntegerInRange(v, 0, 999999))
-            scooter["latitude"] = ask("Latitude", "Enter scooter latitude (e.g. 51.92250):", InputValidation.ValidateLatitude)
-            scooter["longitude"] = ask("Longitude", "Enter scooter longitude (e.g. 4.47917):", InputValidation.ValidateLongitude)
+            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Utility.ValidateIntegerInRange(v, 5, 120))
+            scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Utility.ValidateIntegerInRange(v, 100, 2000))
+            scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Utility.ValidateIntegerInRange(v, 0, 100))
+            scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Utility.ValidateIntegerInRange(v, 0, 100))
+            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):', lambda v: Utility.ValidateIntegerInRange(v, int(scooter["target_soc_min"]), 100))
+            scooter["mileage"] = ask("Mileage", "Enter current mileage (default 0):", lambda v: Utility.ValidateIntegerInRange(v, 0, 999999))
+            scooter["latitude"] = ask("Latitude", "Enter scooter latitude (e.g. 51.92250):", Utility.ValidateLatitude)
+            scooter["longitude"] = ask("Longitude", "Enter scooter longitude (e.g. 4.47917):", Utility.ValidateLongtitude)
 
             scooter["in_service_date"] = datetime.today().strftime("%Y-%m-%d")
             scooter["last_maintenance_date"] = scooter["in_service_date"]
@@ -441,7 +441,7 @@ class SystemAdministrator(Service):
 
     def UserCreation(self, db, role, loggingSys):
         try:
-            if role not in [roles.ADMIN, roles.SERVICE]:
+            if (db.AuthorizeUserCreation(self.GetUserContext(), role)) == False:
                 print("Invalid role")
                 loggingSys.Log("User tried to create a user with an invalid RoleType", True, username=self.userName)
                 return
@@ -597,7 +597,7 @@ class SystemAdministrator(Service):
             editable_fields = {
                 "first_name":     InputValidation.ValidateName,
                 "last_name":      InputValidation.ValidateName,
-                "birthday":       Utility.ValidateBirthdate,
+                "birthday":       Utility.ValidateDate,
                 "gender":         InputValidation.ValidateGender,
                 "street_name":    InputValidation.ValidateAddress,
                 "house_number":   InputValidation.ValidateHousenumber,
@@ -916,6 +916,7 @@ class SystemAdministrator(Service):
                 self.UpdateSession(db,loggingsys)
                 print("Account updated successfully.")
                 loggingsys.Log("Account updated", False, f"User {self.userName} updated their account.", self.userName)
+                self._userName = username.lower()
             else:
                 print("Failed to update account.")
                 loggingsys.Log("Account update failed", True, f"User {self.userName} failed to update their account.", self.userName)

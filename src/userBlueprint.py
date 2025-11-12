@@ -31,7 +31,7 @@ class UserBlueprint:
 
     def UpdateSession(self, db, loggingSys):
         try:
-            result = db.UpdateSession(self.id, self.session)
+            result = db.UpdateSession(self.id, self.session,self.GetUserContext())
             if result:
                 self.session = result
         except Exception as e:

@@ -93,13 +93,13 @@ class DBUpdate:
                 "brand":                InputValidation.ValidateBrandOrModel,
                 "model":                InputValidation.ValidateBrandOrModel,
                 "serial_number":        InputValidation.ValidateSerialNumber,
-                "top_speed":            lambda v: InputValidation.ValidateIntegerInRange(v, 5, 120),
-                "battery_capacity":     lambda v: InputValidation.ValidateIntegerInRange(v, 100, 2000),
-                "state_of_charge":      lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
-                "target_soc_min":       lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
-                "target_soc_max":       lambda v: InputValidation.ValidateIntegerInRange(v, 0, 100),
-                "mileage":              lambda v: InputValidation.ValidateIntegerInRange(v, 0, 999999),
-                "last_maintenance_date": Utility.ValidateBirthdate,
+                "top_speed":            lambda v: Utility.ValidateIntegerInRange(v, 5, 120),
+                "battery_capacity":     lambda v: Utility.ValidateIntegerInRange(v, 100, 2000),
+                "state_of_charge":      lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
+                "target_soc_min":       lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
+                "target_soc_max":       lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
+                "mileage":              lambda v: Utility.ValidateIntegerInRange(v, 0, 999999),
+                "last_maintenance_date": Utility.ValidateDate,
                 "latitude":             InputValidation.ValidateLatitude,
                 "longitude":            InputValidation.ValidateLongitude,
                 "out_of_service":           InputValidation.ValidateStatus
@@ -165,7 +165,7 @@ class DBUpdate:
             validators = {
                 "first_name":     InputValidation.ValidateName,
                 "last_name":      InputValidation.ValidateName,
-                "birthday":       Utility.ValidateBirthdate,
+                "birthday":       Utility.ValidateDate,
                 "gender":         InputValidation.ValidateGender,
                 "street_name":    InputValidation.ValidateAddress,
                 "house_number":   InputValidation.ValidateHousenumber,
@@ -233,8 +233,6 @@ class DBUpdate:
                 if str(sessionID) == decryptedSessionID:
                     new_session_id = Utility.GenerateSessionID()
                     encrypted_session_id = CryptoUtils.EncryptWithPublicKey(CryptoUtils.LoadPublicKey(),new_session_id)
-
-                    # Step 3: Update session ID in DB
                     update_query = "UPDATE users SET session_id = ? WHERE id = ?"
                     cursor.execute(update_query, (encrypted_session_id, userID))
                     if cursor.rowcount == 1:

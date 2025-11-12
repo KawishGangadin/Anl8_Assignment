@@ -150,7 +150,7 @@ class DBRetrieve:
     def GetUsers(self, userContext ,role=None):
         conn = None
         try:
-            if(self.IsAuthorized(userContext)):
+            if(self.IsAuthorized(userContext) == False):
                 return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
