@@ -111,7 +111,7 @@ def main():
                             exit()
 
                         elif InputValidation.ValidatePassword(newPassword):
-                            respone = dataBase.UpdatePassword(user.id,newPassword,user.GetUserContext())
+                            respone = dataBase.UpdateOwnPassword(user.id,newPassword,user.GetUserContext())
                             user.UpdateSession(dataBase,loggingSys)
                             
                             if respone == "OK":

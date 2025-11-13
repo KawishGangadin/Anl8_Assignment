@@ -10,7 +10,7 @@ class DBUpdate:
     def UpdatePassword(self, userId, newPassword, userContext, role,temp=False):
         conn = None
         try:
-            if(self.AuthorizeUserManagement(userContext) == False):
+            if(self.AuthorizeUserManagement(userContext,role) == False):
                 return "FAIL"
             if InputValidation.ValidatePassword(newPassword):
                 conn = sqlite3.connect(self.databaseFile)

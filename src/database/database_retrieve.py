@@ -99,8 +99,7 @@ class DBRetrieve:
     def GetOwnUserData(self, username, userContext):
         conn = None
         try:
-            if (username.upper() == userContext.userName.upper() 
-            and self.IsAuthorized(userContext) == False):
+            if (self.IsAuthorized(userContext) == False):
                 return None
             if InputValidation.ValidateUsername(username):
                 conn = sqlite3.connect(self.databaseFile)
