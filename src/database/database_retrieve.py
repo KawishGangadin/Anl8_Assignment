@@ -96,10 +96,11 @@ class DBRetrieve:
             if conn:
                 conn.close()
     
-    def GetUserData(self, username, userContext):
+    def GetOwnUserData(self, username, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if (username.upper() == userContext.userName.upper() 
+            and self.IsAuthorized(userContext) == False):
                 return None
             if InputValidation.ValidateUsername(username):
                 conn = sqlite3.connect(self.databaseFile)
@@ -127,7 +128,7 @@ class DBRetrieve:
     def GetUsernameByID(self, user_id, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.ADMIN,roles.SUPERADMIN]) == False):
                 return None
             if(str(user_id).isdigit()):
                 conn = sqlite3.connect(self.databaseFile)
@@ -237,7 +238,7 @@ class DBRetrieve:
 
     def DisplayAllTravellers(self, userContext):
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return None
             travellers = self.GetAllTravellers(userContext)
 

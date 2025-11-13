@@ -26,7 +26,7 @@ class Service(UserBlueprint):
                         time.sleep(0.5)
                         return
                     elif InputValidation.ValidatePassword(password):
-                        data = db.GetUserData(self.userName,self.GetUserContext())
+                        data = db.GetOwnUserData(self.userName,self.GetUserContext())
                         if data  != None:
                             storedPassword = data[4] 
                             storedSalt = data[8]  
@@ -528,7 +528,6 @@ class SystemAdministrator(Service):
 
                 while not validPassword:
                     password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
-                    data = db.GetUserData(username,self.GetUserContext())
                     if password.upper() == 'Q':
                         return
                     if not InputValidation.ValidatePassword(password):
