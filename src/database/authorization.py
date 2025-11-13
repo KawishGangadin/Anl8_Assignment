@@ -47,8 +47,6 @@ class Authorization:
         try:
             if not self.IsAuthorized(userContext):
                 return False
-            print(userContext.role)
-            print(allowedRoles)
             return userContext.role in allowedRoles
         except:
             return False

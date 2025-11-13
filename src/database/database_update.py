@@ -7,7 +7,7 @@ from roles import roles
 
 class DBUpdate:
     
-    def UpdatePassword(self, userId, newPassword, userContext, temp=False):
+    def UpdatePassword(self, userId, newPassword, userContext, role,temp=False):
         conn = None
         try:
             if(self.AuthorizeUserManagement(userContext) == False):

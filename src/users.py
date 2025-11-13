@@ -776,7 +776,7 @@ class SystemAdministrator(Service):
                             time.sleep(0.5)
                             return
                         elif InputValidation.ValidatePassword(password):
-                            result = db.UpdatePassword(userID, password,self.GetUserContext() ,True)
+                            result = db.UpdatePassword(userID, password,self.GetUserContext(),role ,True)
                             
                             if result == "OK":
                                 print("Password updated successfully.")
