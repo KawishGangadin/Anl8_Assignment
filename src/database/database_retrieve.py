@@ -11,7 +11,7 @@ class DBRetrieve:
     def GetAllTravellers(self, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return []
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -47,8 +47,8 @@ class DBRetrieve:
     def GetRestoreCodesByUser(self, user_id, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
-                return None
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.SYSTEMADMIN]) == False):
+                return []
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
             query = "SELECT code, backup_filename FROM restore_codes WHERE system_admin_id = ?"
@@ -79,19 +79,16 @@ class DBRetrieve:
     def GetAllRestoreCodes(self, user, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
-                return []
-            if isinstance(user, users.SuperAdministrator):
-                conn = sqlite3.connect(self.databaseFile)
-                cursor = conn.cursor()
-                query = "SELECT * FROM restore_codes"
-                cursor.execute(query)
-                codes = cursor.fetchall()
-                cursor.close()
-                return codes
-            else:
+            if(self.AuthorizeAction(userContext, roles.SUPERADMIN)== False):
                 print("Only superadmin can retrieve all restore codes.")
-                return "FAIL"
+                return []
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = "SELECT * FROM restore_codes"
+            cursor.execute(query)
+            codes = cursor.fetchall()
+            cursor.close()
+            return codes
         except sqlite3.Error as e:
             print("An error occurred while fetching all restore codes:", e)
             return []
@@ -324,7 +321,7 @@ class DBRetrieve:
     def GetTravellerById(self, traveller_id, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return None
             if not InputValidation.ValidateMembershipID(traveller_id):
                 print("Invalid traveller ID format.")
@@ -352,7 +349,7 @@ class DBRetrieve:
     def SearchTraveller(self, search_term, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return None
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()
@@ -511,7 +508,7 @@ class DBRetrieve:
         conn = None
         private_key = CryptoUtils.LoadPrivateKey() 
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return None
             if InputValidation.ValidateMembershipID(traveller_id):
                 conn = sqlite3.connect(self.databaseFile)

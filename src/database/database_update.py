@@ -3,13 +3,14 @@ from cryptoUtils import CryptoUtils
 from utility import Utility
 from inputValidation import InputValidation
 import sqlite3
+from roles import roles
 
 class DBUpdate:
     
-    def UpdatePassword(self, userId, newPassword, userContext, temp=False, session=False,):
+    def UpdatePassword(self, userId, newPassword, userContext, temp=False):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeUserManagement(userContext) == False):
                 return "FAIL"
             if InputValidation.ValidatePassword(newPassword):
                 conn = sqlite3.connect(self.databaseFile)
@@ -34,10 +35,41 @@ class DBUpdate:
             if conn:
                 conn.close()
 
-    def UpdateUser(self, userId, firstName, lastName, username, userContext):
+    def UpdateOwnPassword(self, userId, newPassword, userContext, temp=False):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(userId == userContext.id and self.AuthorizeAny(userContext,[roles.ADMIN,roles.SERVICE]) == False):
+                return "FAIL"
+            if InputValidation.ValidatePassword(newPassword):
+                conn = sqlite3.connect(self.databaseFile)
+                cursor = conn.cursor()
+
+                hashed_password, salt = CryptoUtils.HashPassword(newPassword)
+
+                temp_flag = 1 if temp else 0
+                query = "UPDATE users SET password_hash = ?, temp = ?, salt = ? WHERE id = ?"
+                parameters = (hashed_password, temp_flag, salt, userId)
+
+                cursor.execute(query, parameters)
+                conn.commit()
+                cursor.close()
+                return "OK"
+            else:
+                return "FAIL"
+        except sqlite3.Error as e:
+            print("An error occurred while updating the password:", e)
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def UpdateUser(self, userId, firstName, lastName, username, userContext,role):
+        conn = None
+        try:
+            if (self.AuthorizeUserManagement(userContext, role)):
+                pass
+            else:
+                print("You are not authorized to reset passwords for other users.")
                 return "FAIL"
             validationData = { "first_name": firstName, "last_name": lastName, "username": username }
             if InputValidation.ValidateUserInformation(**validationData):
@@ -84,16 +116,49 @@ class DBUpdate:
     def UpdateSelf(self, userId, firstName, lastName, username, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(userId == userContext.id and self.IsAuthorized(userContext) == False):
                 return "FAIL"
-            self.UpdateUser(userId, firstName, lastName, username, userContext)
+            validationData = { "first_name": firstName, "last_name": lastName, "username": username }
+            if InputValidation.ValidateUserInformation(**validationData):
+                conn = sqlite3.connect(self.databaseFile)
+                publicKey = CryptoUtils.LoadPublicKey()
+                cursor = conn.cursor()
+                query = """
+                UPDATE users
+                SET first_name = ?, last_name = ?, username = ?
+                WHERE id = ?
+                """
+            
+                if username:
+                    encrypted_username = CryptoUtils.EncryptWithPublicKey(publicKey, username)
+                else:
+                    encrypted_username = None
+                
+                parameters = (firstName, lastName, encrypted_username,userId)
+
+                cursor.execute(query, parameters)
+                
+                if cursor.rowcount > 0:
+                    result = "OK"
+                else:
+                    result = "FAIL"
+                conn.commit() 
+                
+                cursor.close()
+                return result
+            return "FAIL"
+
+        except sqlite3.Error as e:
+            print("SQLite error:", e)
+            return None
+
         except Exception as e:
             print("An error occurred while updating the user:", e)
             return None
+
         finally:
             if conn:
-                conn.close() 
-    
+                conn.close()
     def UpdateScooter(self, scooter_id, updates: dict, userContext):
         conn = None
         try:
@@ -118,8 +183,23 @@ class DBUpdate:
                 "longitude":            Utility.ValidateLongtitude,
                 "out_of_service":           InputValidation.ValidateStatus
             }
-
+            
             allowed_fields = set(validators.keys())
+            if userContext.role == roles.SERVICE:
+                allowed_fields = {
+                    "state_of_charge",
+                    "target_soc_min",
+                    "target_soc_max",
+                    "mileage",
+                    "last_maintenance_date",
+                    "out_of_service"
+                }
+            else:
+                allowed_fields = set(validators.keys())
+            disallowed = [k for k in updates.keys() if k not in allowed_fields]
+            if disallowed:
+                print(f"These fields are not allowed for your role: {', '.join(disallowed)}")
+                return "FAIL"
 
             validated_updates = {k: v for k, v in updates.items() if k in allowed_fields}
             if not validated_updates:
@@ -170,7 +250,7 @@ class DBUpdate:
     def UpdateTraveller(self, traveller_id, updates: dict, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeTavellerManagement(userContext) == False):
                 return "FAIL"
             if not updates:
                 print("No fields to update.")

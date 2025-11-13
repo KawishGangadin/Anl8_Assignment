@@ -119,7 +119,7 @@ class DBCreate:
     def CreateTraveller(self, traveller_data, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return "FAIL"
             if not (
                 InputValidation.ValidateName(traveller_data["first_name"]) and
@@ -192,7 +192,7 @@ class DBCreate:
     def CreateScooter(self, scooter_data, userContext):
         conn = None
         try:
-            if(self.IsAuthorized(userContext) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return "FAIL"
             in_service_date = scooter_data['in_service_date']
             brand = scooter_data['brand']

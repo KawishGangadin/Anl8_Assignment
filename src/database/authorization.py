@@ -26,27 +26,12 @@ class Authorization:
         except:
             return False
 
-    def AuthorizeAndRetrieveRole(self, userContext):
-        try:
-            if not self.IsAuthorized(userContext):
-                return None
-
-            return userContext.role
-        except:
-            return None
-
     def AuthorizeTavellerManagement(self, userContext):
         try:
             if not self.IsAuthorized(userContext):
                 return False
 
             return userContext.role in (roles.SUPERADMIN, roles.ADMIN)
-        except:
-            return False
-
-    def AuthorizeSelfAction(self,userContext, targetUserID):
-        try:
-            return True
         except:
             return False
 

@@ -102,7 +102,7 @@ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |      $$ |\$  /$$ |$$ |  $$ |$
             "8": lambda : user.Deletion(db, roles.ADMIN, loggingSys),
             "9": lambda : user.ResetPassword(db,roles.ADMIN,loggingSys), 
 
-            "10": lambda : user.CreateBackup(backupSys,loggingSys),
+            "10": lambda : user.CreateBackup(db,backupSys,loggingSys),
             "11": lambda : user.RestoreBackup(backupSys,loggingSys,db),
             "12": lambda : user.GenerateRestoreCode(db,backupSys,loggingSys),
             "13" : lambda : user.ManageRestoreCodes(db, loggingSys),
@@ -191,7 +191,7 @@ Traveller Management:
             "3": lambda : user.AccountDeletion(db, loggingSys),
 
             "4": lambda :  user.DisplayLogs(db,loggingSys),
-            "5": lambda :  user.CreateBackup(backupSys,loggingSys), 
+            "5": lambda :  user.CreateBackup(db,backupSys,loggingSys), 
             "6": lambda : user.RestoreBackup(backupSys,loggingSys,db),
 
             "7": lambda : user.DisplayUsers(db),

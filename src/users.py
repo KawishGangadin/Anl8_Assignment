@@ -48,7 +48,7 @@ class Service(UserBlueprint):
                         time.sleep(0.5)
                         return
                     elif InputValidation.ValidatePassword(newPassword):
-                        result = db.UpdatePassword(self.id, newPassword, self.GetUserContext())
+                        result = db.UpdateOwnPassword(self.id, newPassword, self.GetUserContext())
                         if result == "OK":
                             self.UpdateSession(db,loggingSys)
                             print("Password has been successfully changed!")
@@ -61,16 +61,12 @@ class Service(UserBlueprint):
                     else:
                         print("Please input a valid password...")
 
-            if isinstance(self, SuperAdministrator):
-                print("Unauthorized access...")
-                time.sleep(0.5)
+            if(db.AuthorizeAny(self.GetUserContext(),[roles.SERVICE,roles.ADMIN]) == False):
+                print("You are not authorized to change password.")
+                loggingSys.Log("Unauthorized access attempt to change password", True, username=self.userName)
                 return
-            elif isinstance(self, SystemAdministrator):
-                processChangePW()
-            elif isinstance(self, Service):
-                processChangePW()
             else:
-                print("Unauthorized access...")
+                processChangePW()
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -78,6 +74,10 @@ class Service(UserBlueprint):
 
     def EditScooter(self, db, loggingSys):
         try:
+            if(db.IsAuthorized(self.GetUserContext()) == False):
+                print("You are not authorized to edit scooters.")
+                loggingSys.Log("Unauthorized scooter edit attempt", True, username=self.userName)
+                return
             db.DisplayAllScooters(self.GetUserContext())
 
             while True:
@@ -170,6 +170,10 @@ class Service(UserBlueprint):
 
     def SearchScooter(self, db, loggingSys):
         try:
+            if(db.IsAuthorized(self.GetUserContext()) == False):
+                print("You are not authorized to search scooters.")
+                loggingSys.Log("Unauthorized scooter search attempt", True, username=self.userName)
+                return
             search_term = input("Enter the search key: ")
             if not InputValidation.DetectBadInput(search_term) and len(search_term) <= 35:
                 result = db.SearchScooter(search_term,self.GetUserContext())
@@ -257,6 +261,10 @@ class SystemAdministrator(Service):
 
     def DeleteScooter(self, db, loggingSys):
         try:
+            if(db.AuthorizeAny(self.GetUserContext(),[roles.SUPERADMIN,roles.ADMIN]) == False):
+                print("You are not authorized to delete scooters.")
+                loggingSys.Log("Unauthorized scooter deletion attempt", True, username=self.userName)
+                return
             db.DisplayAllScooters(self.GetUserContext())
 
             while True:
@@ -320,22 +328,12 @@ class SystemAdministrator(Service):
                         loggingSys.Log("Failed to delete user", True, f"An error occurred while deleting the user: {deletedUsername}.", self.userName)
                     time.sleep(1)
 
-            if isinstance(self, SuperAdministrator):
-                if role in [roles.ADMIN, roles.SERVICE]:
-                    processDeletion(role)
-                else:
-                    print("Invalid request...")
-            elif isinstance(self, SystemAdministrator):
-                if role == roles.SERVICE:
-                    processDeletion(role)
-                else:
-                    print("Unauthorized request.")
-            elif isinstance(self, Service):
-                print("You are not authorized to delete any users.")
-                loggingSys.Log("Unauthorized deletion attempt by service user", True, username=self.userName)
+            if (db.AuthorizeUserManagement(self.GetUserContext(), role)):
+                processDeletion(role)
             else:
-                print("Unauthorized access...")
-                loggingSys.Log("Unauthorized access attempt", True, username=self.userName)
+                print("You are not authorized to reset passwords for other users.")
+                loggingSys.Log("Unauthorized access attempt to reset password", True, username=self.userName)
+                return 
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -390,6 +388,10 @@ class SystemAdministrator(Service):
 
     def CreateScooter(self, db, loggingSys):
         try:
+            if(db.AuthorizeAny(self.GetUserContext(),[roles.SUPERADMIN,roles.ADMIN]) == False):
+                print("You are not authorized to create scooters.")
+                loggingSys.Log("Unauthorized scooter creation attempt", True, username=self.userName)
+                return
             print("========== Scooter Registration ==========")
             scooter = {}
 
@@ -432,8 +434,13 @@ class SystemAdministrator(Service):
             print(f"An error occurred: {e}")
             loggingSys.Log(f"Scooter creation error: {str(e)}", True, username=self.userName)
 
-    def CreateBackup(self, backUpSystem, loggingSys):
+    def CreateBackup(self,db ,backUpSystem, loggingSys):
         try:
+            if(db.AuthorizeAny(self.GetUserContext(),[roles.ADMIN,roles.SUPERADMIN]) == False):
+                print("You are not authorized to create backups.")
+                loggingSys.Log("Unauthorized backup creation attempt", True, username=self.userName)
+                time.sleep(0.5)
+                return
             while True:
                 keyPress = input("Would you like to create a back up [Y/N] ")
                 if keyPress.upper() == "Y":
@@ -549,6 +556,8 @@ class SystemAdministrator(Service):
     def DisplayUsers(self, db, role=None):
         try:
             userContext = self.GetUserContext()
+            if(db.AuthorizeAny(userContext, [roles.SUPERADMIN,roles.ADMIN]) == False):
+                print("You are not authorized to view users of this role.")
             allUsers = db.GetUsers(userContext,role)
             title = "user" if role is None else f"{role.value}"
             print(f"======== List of {title}s ====================================================================================================")
@@ -722,7 +731,7 @@ class SystemAdministrator(Service):
                             print("Username already exists!")
                         else:
                             break
-                    result = db.UpdateUser(userID, firstName, lastName, username.lower(),self.GetUserContext())
+                    result = db.UpdateUser(userID, firstName, lastName, username.lower(),self.GetUserContext(),role)
                     if result == "OK":
                         print("User information updated successfully.")
                     else:
@@ -731,7 +740,9 @@ class SystemAdministrator(Service):
             if (db.AuthorizeUserManagement(self.GetUserContext(), role)):
                 processEdit(role)
             else:
-                print("Unauthorized access...")
+                print("You are not authorized to reset passwords for other users.")
+                loggingSys.Log("Unauthorized access attempt to reset password", True, username=self.userName)
+                return 
 
         except Exception as e:
             print(f"An error occurred while editing user: {str(e)}")
@@ -778,27 +789,24 @@ class SystemAdministrator(Service):
                         else:
                             print("Please enter a valid password!")
             
-            if isinstance(self, SuperAdministrator):
-                if role in [roles.ADMIN, roles.SERVICE]:
-                    processReset(role)
-                else:
-                    print("Invalid request.")
-            elif isinstance(self, SystemAdministrator):
-                if role == roles.SERVICE:
-                    processReset(role)
-                else:
-                    print("Unauthorized request.")
-            print("Unauthorized access.")
-            loggingSys.Log("Unauthorized access attempt to reset password", True, username=self.userName)
-
+            if (db.AuthorizeUserManagement(self.GetUserContext(), role)):
+                processReset(role)
+            else:
+                print("You are not authorized to reset passwords for other users.")
+                loggingSys.Log("Unauthorized access attempt to reset password", True, username=self.userName)
+                return 
         except Exception as e:
             print(f"An error occurred while resetting password: {str(e)}")
             loggingSys.Log(f"Error occurred during password reset: {str(e)}", True, username=self.userName)
 
     def RestoreBackup(self, backUpSystem, loggingSys,db):
         try:
+            if(db.AuthorizeAny(self.GetUserContext(),[roles.ADMIN,roles.SUPERADMIN]) == False):
+                print("You are not authorized to restore backups.")
+                loggingSys.Log("Unauthorized backup restoration attempt", True, username=self.userName)
+                return
             backUpSystem.ListBackupNames()
-            if isinstance(self, SuperAdministrator):
+            if(self.role == roles.SUPERADMIN):
                 while True:
                     name = input("Enter the name of the backup file to restore or press Q to quit: ")
                     if name.upper() == "Q":
@@ -814,7 +822,7 @@ class SystemAdministrator(Service):
                     db.ClearAllSessions()
                     break
                 return
-            elif isinstance(self, SystemAdministrator):
+            elif(self.role == roles.SUPERADMIN):
                 codes = db.GetRestoreCodesByUser(self.id,self.GetUserContext())
                 if not codes:
                     print("No restore codes found for your account.")
@@ -857,8 +865,9 @@ class SystemAdministrator(Service):
 
     def AccountDeletion(self,db, loggingSys):
         try:
-            if isinstance(self, SuperAdministrator):
-                print("Super Administrators cannot delete their own accounts.")
+            if(db.AuthorizeAction(self.GetUserContext(), roles.ADMIN) == False):
+                print("You are not authorized to delete your account.")
+                loggingSys.Log("Unauthorized account deletion attempt", True, username=self.userName)
                 return
 
             randomPhrase = ' '.join(
@@ -888,6 +897,10 @@ class SystemAdministrator(Service):
 
     def EditOwnAccount(self,db,loggingsys):
         try:
+            if(db.AuthorizeAction(self.GetUserContext(), roles.ADMIN) == False):
+                print("You are not authorized to edit your account.")
+                loggingsys.Log("Unauthorized account edit attempt", True, username=self.userName)
+                return
             print("======= Edit Your Account =======")
             print("You can edit your first name, last name, username, and password.")
             print("Press 'Q' at any time to quit.")
@@ -941,6 +954,10 @@ class SuperAdministrator(SystemAdministrator):
 
     def GenerateRestoreCode(self, db,backupSys,loggingSys):
         try:
+            if(db.AuthorizeAction(self.GetUserContext(), roles.SUPERADMIN) == False):
+                print("You are not authorized to generate restore codes.")
+                loggingSys.Log("Unauthorized restore code generation attempt", True, username=self.userName)
+                return
             backupSys.ListBackupNames()
             self.DisplayUsers(db, roles.ADMIN)
 
@@ -976,6 +993,10 @@ class SuperAdministrator(SystemAdministrator):
 
     def ManageRestoreCodes(self, db, loggingSys):
         try:
+            if(db.AuthorizeAction(self.GetUserContext(), roles.SUPERADMIN) == False):
+                print("You are not authorized to generate restore codes.")
+                loggingSys.Log("Unauthorized restore code generation attempt", True, username=self.userName)
+                return
             codes = db.GetAllRestoreCodes(self,self.GetUserContext())
             if codes != "FAIL":
                 print("======== List of Restore Codes ====================================================================================================")
