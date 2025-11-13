@@ -211,14 +211,14 @@ class DBCreate:
             if not (InputValidation.ValidateBrandOrModel(brand) and 
                     InputValidation.ValidateBrandOrModel(model) and
                     InputValidation.ValidateSerialNumber(serial_number) and
-                    InputValidation.Utility(top_speed, 5, 120) and
-                    InputValidation.Utility(battery_capacity, 100, 2000) and
-                    InputValidation.Utility(state_of_charge, 0, 100) and
-                    InputValidation.Utility(target_soc_min, 0, 100) and
-                    InputValidation.Utility(target_soc_max, 0, 100) and
-                    InputValidation.Utility(mileage, 0, 999999) and
-                    InputValidation.ValidateLatitude(latitude) and
-                    InputValidation.ValidateLongitude(longitude)):
+                    Utility.ValidateIntegerInRange(top_speed, "5", "120") and
+                    Utility.ValidateIntegerInRange(battery_capacity, "100", "2000") and
+                    Utility.ValidateIntegerInRange(state_of_charge, "0", "100") and
+                    Utility.ValidateIntegerInRange(target_soc_min, "0", "100") and
+                    Utility.ValidateIntegerInRange(target_soc_max, "0", "100") and
+                    Utility.ValidateIntegerInRange(mileage, "0", "999999") and
+                    Utility.ValidateLatitude(latitude) and
+                    Utility.ValidateLongitude(longitude)):
                 print("Validation failed.")
                 return "FAIL"
 
