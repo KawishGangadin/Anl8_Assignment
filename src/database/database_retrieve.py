@@ -47,7 +47,7 @@ class DBRetrieve:
     def GetRestoreCodesByUser(self, user_id, userContext):
         conn = None
         try:
-            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.SYSTEMADMIN]) == False):
+            if(self.AuthorizeAny(userContext,[roles.SUPERADMIN,roles.ADMIN]) == False):
                 return []
             conn = sqlite3.connect(self.databaseFile)
             cursor = conn.cursor()

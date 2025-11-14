@@ -83,7 +83,7 @@ def main():
                 
                 if user:
                     loggedIn = True
-                    loggingSys.Log("User successfully logged into Unique Meal", False, username=username.lower())
+                    loggingSys.Log("User successfully logged into Urban Mobility", False, username=username.lower())
                     time.sleep(1)
                     break
                 else:

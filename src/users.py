@@ -821,7 +821,7 @@ class SystemAdministrator(Service):
                     db.ClearAllSessions()
                     break
                 return
-            elif(self.role == roles.SUPERADMIN):
+            elif(self.role == roles.ADMIN):
                 codes = db.GetRestoreCodesByUser(self.id,self.GetUserContext())
                 if not codes:
                     print("No restore codes found for your account.")
@@ -1009,7 +1009,7 @@ class SuperAdministrator(SystemAdministrator):
                         return
                     if code_id.isdigit():
                         code_id = int(code_id)
-                        if db.DeleteRestoreCode(self,code_id,self.GetUserContext()):
+                        if db.DeleteRestoreCode(self,code_id,self.GetUserContext()) != "FAIL":
                             print(f"Restore code {code_id} deleted successfully.")
                             loggingSys.Log(f"Restore code {code_id} deleted successfully.", False, username=self.userName)
                             return
