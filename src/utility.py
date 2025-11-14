@@ -59,10 +59,6 @@ class Utility:
             
     @staticmethod
     def GenerateSessionID(length: int = 32):
-        """
-        Generates a secure, URL-safe session ID.
-        - `length` is the number of bytes before encoding (default 32 = 256-bit key).
-        """
         random_bytes = secrets.token_bytes(length)
         session_id = base64.urlsafe_b64encode(random_bytes).rstrip(b'=').decode('utf-8')
         return session_id

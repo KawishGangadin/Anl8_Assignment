@@ -99,12 +99,12 @@ class Service(UserBlueprint):
                 "brand":               InputValidation.ValidateBrandOrModel,
                 "model":               InputValidation.ValidateBrandOrModel,
                 "serial_number":       InputValidation.ValidateSerialNumber,
-                "top_speed":           lambda v: Utility.ValidateIntegerInRange(v, 5, 120),
-                "battery_capacity":    lambda v: Utility.ValidateIntegerInRange(v, 100, 2000),
-                "state_of_charge":     lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
-                "target_soc_min":      lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
-                "target_soc_max":      lambda v: Utility.ValidateIntegerInRange(v, 0, 100),
-                "mileage":             lambda v: Utility.ValidateIntegerInRange(v, 0, 999999),
+                "top_speed":           lambda v: Utility.ValidateIntegerInRange(v, "5", "120"),
+                "battery_capacity":    lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"),
+                "state_of_charge":     lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),
+                "target_soc_min":      lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),
+                "target_soc_max":      lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),
+                "mileage":             lambda v: Utility.ValidateIntegerInRange(v, "0", "999999"),
                 "last_maintenance_date":Utility.ValidateDate,
                 "latitude":            Utility.ValidateLatitude,
                 "longitude":           Utility.ValidateLongtitude,
@@ -405,12 +405,12 @@ class SystemAdministrator(Service):
             scooter["serial_number"] = ask("Serial Number", "Enter serial number:", InputValidation.ValidateSerialNumber)
             scooter["brand"] = ask("Brand", "Enter scooter brand:", InputValidation.ValidateBrandOrModel)
             scooter["model"] = ask("Model", "Enter scooter model:", InputValidation.ValidateBrandOrModel)
-            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Utility.ValidateIntegerInRange(v, 5, 120))
-            scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Utility.ValidateIntegerInRange(v, 100, 2000))
-            scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Utility.ValidateIntegerInRange(v, 0, 100))
-            scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Utility.ValidateIntegerInRange(v, 0, 100))
-            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):', lambda v: Utility.ValidateIntegerInRange(v, int(scooter["target_soc_min"]), 100))
-            scooter["mileage"] = ask("Mileage", "Enter current mileage (default 0):", lambda v: Utility.ValidateIntegerInRange(v, 0, 999999))
+            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Utility.ValidateIntegerInRange(v, "5", "120"))
+            scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"))
+            scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"))
+            scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"))
+            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):', lambda v: Utility.ValidateIntegerInRange(v, scooter["target_soc_min"], "100"))
+            scooter["mileage"] = ask("Mileage", "Enter current mileage (default 0):", lambda v: Utility.ValidateIntegerInRange(v, "0", "999999"))
             scooter["latitude"] = ask("Latitude", "Enter scooter latitude (e.g. 51.92250):", Utility.ValidateLatitude)
             scooter["longitude"] = ask("Longitude", "Enter scooter longitude (e.g. 4.47917):", Utility.ValidateLongtitude)
 
