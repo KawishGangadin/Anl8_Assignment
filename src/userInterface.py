@@ -162,16 +162,16 @@ Traveller Management:
 [0] or [Q] - Quit
 """)
         user.AlertLogs(loggingSys)
-        input_ = input("Press a key:").strip().upper()
+        input_ = input("Press a key:")
         if input_ in ['0', 'Q']:
             print("Logging out...")
             time.sleep(2)
             return True
-        elif isinstance(input_.upper(),str):
-            if input_.upper() in methodCall:
+        elif isinstance(input_,str):
+            if input_ in methodCall:
                 self.ClearScreen()
                 self.DisplayLogo()
-                methodCall[input_.upper()]()
+                methodCall[input_]()
             else:
                 loggingSys.Log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
@@ -255,16 +255,16 @@ Traveller Management:
 [0] or [Q]- Quit
 """)
         user.AlertLogs(loggingSys)
-        input_ = input("Press a key:").strip().upper()
+        input_ = input("Press a key:")
         if input_ in ['0', 'Q']:
             print("Logging out...")
             time.sleep(2)
             return True
-        elif isinstance(input_.upper(),str):
-            if input_.upper() in methodCall:
+        elif isinstance(input_,str):
+            if input_ in methodCall:
                 self.ClearScreen()
                 self.DisplayLogo()
-                methodCall[input_.upper()]()
+                methodCall[input_]()
             else:
                 loggingSys.Log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")
@@ -305,16 +305,16 @@ Scooter Management:
               
 [0] - [Q] Quit
 """)
-        input_ = input("Press a key:").strip().upper()
+        input_ = input("Press a key:")
         if input_ in ['0', 'Q']:
             print("Logging out...")
             time.sleep(2)
             return True
-        elif isinstance(input_.upper(),str):
-            if input_.upper() in methodCall:
+        elif isinstance(input_,str):
+            if input_ in methodCall:
                 self.ClearScreen()
                 self.DisplayLogo()
-                methodCall[input_.upper()]()
+                methodCall[input_]()
             else:
                 loggingSys.Log("User gave an invalid option.",False,additional_info='Input was not in the list of options', username=user.userName)
                 print("Invalid input given")

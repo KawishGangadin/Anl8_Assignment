@@ -455,6 +455,7 @@ class SystemAdministrator(Service):
                     break
                 else:
                     print("Invalid input...")
+                loggingSys.Log("Backup created successfully", False, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred while creating backup: {str(e)}")

@@ -64,11 +64,11 @@ def main():
                 userInterface.ClearScreen()
                 userInterface.DisplayLogo()
                 username = input("Enter your username: \n")
-                attemptedUsernames.append(username.lower())
+                attemptedUsernames.append(username)
                 password = input("Enter your password: \n")
                 attemptedPasswords.append(password)
 
-                if not InputValidation.ValidateUsername(username.lower()) or not InputValidation.ValidatePassword(password):
+                if not InputValidation.ValidateUsername(username) or not InputValidation.ValidatePassword(password):
                     maxTries -= 1
                     print("Incorrect username or password! You have " + str(maxTries) + " attempts remaining.")
                     if len(username) < 10:
