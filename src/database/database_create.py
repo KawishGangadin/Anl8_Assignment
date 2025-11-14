@@ -218,7 +218,7 @@ class DBCreate:
                     Utility.ValidateIntegerInRange(target_soc_max, "0", "100") and
                     Utility.ValidateIntegerInRange(mileage, "0", "999999") and
                     Utility.ValidateLatitude(latitude) and
-                    Utility.ValidateLongitude(longitude)):
+                    Utility.ValidateLongtitude(longitude)):
                 print("Validation failed.")
                 return "FAIL"
 
