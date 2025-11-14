@@ -34,6 +34,10 @@ class InputValidation:
         return re.fullmatch(r"\d{4}-\d{2}-\d{2}", birthdate)
     
     @staticmethod
+    def ValidateSpeed(speed) -> bool:
+        return re.fullmatch(r"([1-9]|[1-4][0-9]|5[0])", speed) is not None
+    
+    @staticmethod
     def ValidateUsername(name):
         return re.fullmatch(r"^[a-zA-Z_][a-zA-Z0-9_.']{7,9}$", name) or name == "super_admin"
    

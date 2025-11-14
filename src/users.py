@@ -407,7 +407,7 @@ class SystemAdministrator(Service):
             scooter["serial_number"] = ask("Serial Number", "Enter serial number:", InputValidation.ValidateSerialNumber, "10-17 characters, letters and digits")
             scooter["brand"] = ask("Brand", "Enter scooter brand:", InputValidation.ValidateBrandOrModel)
             scooter["model"] = ask("Model", "Enter scooter model:", InputValidation.ValidateBrandOrModel)
-            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Utility.ValidateIntegerInRange(v, "5", "120"), "5-120")
+            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: InputValidation.ValidateSpeed(v, "5", "120"), "5-120")
             scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"), "100-2000")
             scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"), "0-100")
             scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"), "0-100")
