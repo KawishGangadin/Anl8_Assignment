@@ -172,7 +172,7 @@ class DBUpdate:
                 "brand":                InputValidation.ValidateBrandOrModel,
                 "model":                InputValidation.ValidateBrandOrModel,
                 "serial_number":        InputValidation.ValidateSerialNumber,
-                "top_speed":            lambda v: Utility.ValidateIntegerInRange(v, "5", "120"),
+                "top_speed":            lambda v: InputValidation.ValidateSpeed(v),
                 "battery_capacity":     lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"),
                 "state_of_charge":      lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),
                 "target_soc_min":       lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),

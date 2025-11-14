@@ -13,10 +13,10 @@ class Utility:
                 value = input(f"{prompt} (format: {format}, or Q to quit): ")
             else:
                 value = input(f"{prompt} ")
-            if value.upper() == 'Q':
-                return None
             if validator(value):
                 return value
+            elif value == 'Q':
+                return None
             else:
                 print("Invalid input! Please try again.")
                 if loggingSys:
@@ -30,7 +30,7 @@ class Utility:
                 value = input(f"{prompt} [Current: {current_value}] (format: {format}, leave empty to keep or Q to quit): ")
             else:
                 value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ")
-            if value.upper() == 'Q':
+            if value == 'Q':
                 return "Q"
             if value == '':
                 return current_value

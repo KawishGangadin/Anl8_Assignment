@@ -211,7 +211,7 @@ class DBCreate:
             if not (InputValidation.ValidateBrandOrModel(brand) and 
                     InputValidation.ValidateBrandOrModel(model) and
                     InputValidation.ValidateSerialNumber(serial_number) and
-                    Utility.ValidateIntegerInRange(top_speed, "5", "120") and
+                    InputValidation.ValidateSpeed(top_speed) and
                     Utility.ValidateIntegerInRange(battery_capacity, "100", "2000") and
                     Utility.ValidateIntegerInRange(state_of_charge, "0", "100") and
                     Utility.ValidateIntegerInRange(target_soc_min, "0", "100") and
