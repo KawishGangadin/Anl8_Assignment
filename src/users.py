@@ -21,7 +21,7 @@ class Service(UserBlueprint):
                 correctPassword = False
                 while True:
                     password = input("Input your current password or press Q to quit: ")
-                    if password.upper() == "Q":
+                    if password == "Q":
                         print("Exiting...")
                         time.sleep(0.5)
                         return
@@ -43,7 +43,7 @@ class Service(UserBlueprint):
 
                 while correctPassword:
                     newPassword = input("Please input your new password or press Q to quit: ")
-                    if newPassword.upper() == "Q":
+                    if newPassword == "Q":
                         print("Exiting...")
                         time.sleep(0.5)
                         return
@@ -82,7 +82,7 @@ class Service(UserBlueprint):
 
             while True:
                 scooter_id = input("Enter the ID of the scooter you want to edit (or 'Q' to quit): ")
-                if scooter_id.upper() == 'Q':
+                if scooter_id == 'Q':
                     return
                 if not InputValidation.ValidateNumericInput(scooter_id):
                     print("Invalid ID format.")
@@ -177,22 +177,18 @@ class Service(UserBlueprint):
                 loggingSys.Log("Unauthorized scooter search attempt", True, username=self.userName)
                 return
             search_term = input("Enter the search key: ")
-            if not InputValidation.DetectBadInput(search_term) and len(search_term) <= 35:
-                result = db.SearchScooter(search_term,self.GetUserContext())
-            
-                if result:
-                    print("Search Results:")
+            result = db.SearchScooter(search_term,self.GetUserContext())
+        
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"Scooter ID: {row[0]} | In Service Date: {row[1]} | Brand: {row[2]} | Model: {row[3]} | Serial Number: {row[4]} | Top Speed: {row[5]} km/h | Battery Capacity: {row[6]} Wh | State of Charge: {row[7]}% | Target SOC Min: {row[8]}% | Target SOC Max: {row[9]}% | Latitude: {row[10]} | Longitude: {row[11]} | Out of service: {row[12]} | Mileage: {row[13]} km | Last Maintenance Date: {row[14]}")
                     print("----------------")
-                    for row in result:
-                        print(f"Scooter ID: {row[0]} | In Service Date: {row[1]} | Brand: {row[2]} | Model: {row[3]} | Serial Number: {row[4]} | Top Speed: {row[5]} km/h | Battery Capacity: {row[6]} Wh | State of Charge: {row[7]}% | Target SOC Min: {row[8]}% | Target SOC Max: {row[9]}% | Latitude: {row[10]} | Longitude: {row[11]} | Out of service: {row[12]} | Mileage: {row[13]} km | Last Maintenance Date: {row[14]}")
-                        print("----------------")
-                else:
-                    print("No results found.")
-            
-                input("Press any key to continue...")
             else:
-                print("Invalid search key")
-                return
+                print("No results found.")
+        
+            input("Press any key to continue...")
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -207,22 +203,18 @@ class SystemAdministrator(Service):
                 loggingSys.Log("Unauthorized traveller creation attempt", True, username=self.userName)
                 return
             search_term = input("Enter the search key: ")
-            if not InputValidation.DetectBadInput(search_term) and len(search_term) <= 35:
-                result = db.SearchTraveller(search_term,self.GetUserContext())
-            
-                if result:
-                    print("Search Results:")
+            result = db.SearchTraveller(search_term,self.GetUserContext())
+        
+            if result:
+                print("Search Results:")
+                print("----------------")
+                for row in result:
+                    print(f"Customer ID: {row[0]} | Registration Date: {row[1]} | First Name: {row[2]} | Last Name: {row[3]} | Birthdate: {row[4]} | Gender: {row[5]} | Street: {row[6]} | House Number: {row[7]} | City: {row[8]} | Zip Code: {row[9]} | Email: {row[10]} | Mobile: {row[11]} | License Number: {row[12]}")
                     print("----------------")
-                    for row in result:
-                        print(f"Customer ID: {row[0]} | Registration Date: {row[1]} | First Name: {row[2]} | Last Name: {row[3]} | Birthdate: {row[4]} | Gender: {row[5]} | Street: {row[6]} | House Number: {row[7]} | City: {row[8]} | Zip Code: {row[9]} | Email: {row[10]} | Mobile: {row[11]} | License Number: {row[12]}")
-                        print("----------------")
-                else:
-                    print("No results found.")
-            
-                input("Press any key to continue...")
             else:
-                print("Invalid search key")
-                return
+                print("No results found.")
+        
+            input("Press any key to continue...")
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
@@ -238,7 +230,7 @@ class SystemAdministrator(Service):
 
             while True:
                 traveller_id = input("Enter the ID of the traveller you want to delete or press 'Q' to quit: ")
-                if traveller_id.upper() == 'Q':
+                if traveller_id == 'Q':
                     return
                 if not InputValidation.ValidateMembershipID(traveller_id):
                     print("Invalid ID format.")
@@ -271,7 +263,7 @@ class SystemAdministrator(Service):
 
             while True:
                 scooter_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ")
-                if scooter_id.upper() == 'Q':
+                if scooter_id == 'Q':
                     return
                 if not InputValidation.ValidateNumericInput(scooter_id):
                     print("Invalid ID format.")
@@ -302,7 +294,7 @@ class SystemAdministrator(Service):
                 validID = False
                 while True:
                     Id = input(f"Enter the ID of the {roleType} you would like to delete or enter 'Q' to quit: ")
-                    if Id.upper() == "Q":
+                    if Id == "Q":
                         return
 
                     if not InputValidation.ValidateNumericInput(Id):
@@ -445,13 +437,13 @@ class SystemAdministrator(Service):
                 return
             while True:
                 keyPress = input("Would you like to create a back up [Y/N] ")
-                if keyPress.upper() == "Y":
+                if keyPress == "Y":
                     print("Creating backup....")
                     backUpSystem.CreateBackupZip(self)
                     time.sleep(5)
                     loggingSys.Log("Backup created successfully", False, username=self.userName)
                     break
-                elif keyPress.upper() == "N":
+                elif keyPress == "N":
                     print("Exiting.....")
                     break
                 else:
@@ -494,7 +486,7 @@ class SystemAdministrator(Service):
 
                 while not validF_Name:
                     firstName = input(f"Enter the first name of the new {roleType} or press Q to quit...\n")
-                    if firstName.upper() == 'Q':
+                    if firstName == 'Q':
                         return
                     if not InputValidation.ValidateName(firstName):
                         print("Please enter a valid firstname!!!")
@@ -505,7 +497,7 @@ class SystemAdministrator(Service):
 
                 while not validL_Name:
                     lastName = input(f"Enter the last name of the new {roleType} or press Q to quit...\n")
-                    if lastName.upper() == 'Q':
+                    if lastName == 'Q':
                         return
                     if not InputValidation.ValidateName(lastName):
                         print("Please enter a valid lastname!!!")
@@ -516,7 +508,7 @@ class SystemAdministrator(Service):
 
                 while not availableUsername:
                     username = input(f"Enter the username of the new {roleType} or press Q to quit...\n")
-                    if username.upper() == 'Q':
+                    if username == 'Q':
                         return
                     if not InputValidation.ValidateUsername(username):
                         print("Please insert a valid username...")
@@ -531,7 +523,7 @@ class SystemAdministrator(Service):
 
                 while not validPassword:
                     password = input(f"Enter the password of the new {roleType} or press Q to quit...\n")
-                    if password.upper() == 'Q':
+                    if password == 'Q':
                         return
                     if not InputValidation.ValidatePassword(password):
                         print("Please enter a valid password!!!")
@@ -610,7 +602,7 @@ class SystemAdministrator(Service):
             db.DisplayAllTravellers(self.GetUserContext())
             while True:
                 traveller_id = input("Enter the ID of the traveller you want to edit (or Q to quit): ")
-                if traveller_id.upper() == 'Q':
+                if traveller_id == 'Q':
                     return
                 if not InputValidation.ValidateMembershipID(traveller_id):
                     print("Invalid ID")
@@ -696,7 +688,7 @@ class SystemAdministrator(Service):
                 userID = ""
                 while True:
                     userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ")
-                    if userID.upper() == "Q":
+                    if userID == "Q":
                         return
                     elif InputValidation.ValidateNumericInput(userID):
                         if db.FindUserID(int(userID), role):
@@ -709,7 +701,7 @@ class SystemAdministrator(Service):
                 if validID:
                     while True:
                         firstName = input(f"Enter the new first name for user or press 'Q' to quit: ")
-                        if firstName.upper() == 'Q':
+                        if firstName == 'Q':
                             return
                         if not InputValidation.ValidateName(firstName):
                             print("Invalid first name!")
@@ -718,7 +710,7 @@ class SystemAdministrator(Service):
 
                     while True:
                         lastName = input(f"Enter the new last name for user( or press 'Q' to quit: ")
-                        if lastName.upper() == 'Q':
+                        if lastName == 'Q':
                             return
                         if not InputValidation.ValidateName(lastName):
                             print("Invalid last name!")
@@ -727,7 +719,7 @@ class SystemAdministrator(Service):
 
                     while True:
                         username = input(f"Enter the new username (8-10 characters, can contain 0-9 A-z _'.)) for user or press 'Q' to quit: ")
-                        if username.upper() == 'Q':
+                        if username == 'Q':
                             return
                         if not InputValidation.ValidateUsername(username.lower()):
                             print("Invalid username!")
@@ -762,7 +754,7 @@ class SystemAdministrator(Service):
                 while True:
                     userID = input(f"Enter the ID of the {role.value} you would like to edit or enter 'Q' to quit: ")
                     
-                    if userID.upper() == "Q":
+                    if userID == "Q":
                         return
                     elif InputValidation.ValidateNumericInput(userID):
                         if db.FindUserID(int(userID), role):
@@ -776,7 +768,7 @@ class SystemAdministrator(Service):
                     while True:
                         password = input("Enter the new temporary password for the user or press Q to quit: ")
                         
-                        if password.upper() == "Q":
+                        if password == "Q":
                             print("Exiting...")
                             time.sleep(0.5)
                             return
@@ -813,7 +805,7 @@ class SystemAdministrator(Service):
             if(self.role == roles.SUPERADMIN):
                 while True:
                     name = input("Enter the name of the backup file to restore or press Q to quit: ")
-                    if name.upper() == "Q":
+                    if name == "Q":
                         print("Quitting...")
                         break
 
@@ -839,7 +831,7 @@ class SystemAdministrator(Service):
 
                 while True:
                     name = input("Enter the name of the backup file to restore or press Q to quit: ")
-                    if name.upper() == "Q":
+                    if name == "Q":
                         print("Quitting...")
                         break
 
@@ -848,7 +840,7 @@ class SystemAdministrator(Service):
                         continue
 
                     code = input("Enter your restore code or press Q to quit: ")
-                    if code.upper() == "Q":
+                    if code == "Q":
                         print("Quitting...")
                         break
 
@@ -885,7 +877,7 @@ class SystemAdministrator(Service):
                 if confirmation == randomPhrase:
                     print("Confirmation successful. Proceeding with account deletion...")
                     break
-                elif confirmation.upper() == "Q":
+                elif confirmation == "Q":
                     print("Exiting account deletion...")
                     return
                 else:
@@ -911,7 +903,7 @@ class SystemAdministrator(Service):
 
             while True:
                 first_name = input(f"Enter new first name (current: ): ")
-                if first_name.upper() == 'Q':
+                if first_name == 'Q':
                     return
                 if not InputValidation.ValidateName(first_name):
                     print("Invalid first name. Please try again.")
@@ -921,7 +913,7 @@ class SystemAdministrator(Service):
 
             while True:
                 last_name = input(f"Enter new last name (current: ): ")
-                if last_name.upper() == 'Q':
+                if last_name == 'Q':
                     return
                 if not InputValidation.ValidateName(last_name):
                     print("Invalid last name. Please try again.")
@@ -930,7 +922,7 @@ class SystemAdministrator(Service):
 
             while True:
                 username = input(f"Enter new username (current: {self.userName}): ")
-                if username.upper() == 'Q':
+                if username == 'Q':
                     return
                 if not InputValidation.ValidateUsername(username.lower()):
                     print("Invalid username. Please try again.")
@@ -967,7 +959,7 @@ class SuperAdministrator(SystemAdministrator):
 
             while True:
                 admin_id = input("Enter the ID of the System Administrator to generate a restore code for, or press Q to quit: ")
-                if admin_id.upper() == "Q":
+                if admin_id == "Q":
                     return
                 if InputValidation.ValidateNumericInput(admin_id) and db.FindUserID(int(admin_id), roles.ADMIN):
                     admin_id = int(admin_id)
@@ -977,7 +969,7 @@ class SuperAdministrator(SystemAdministrator):
                     time.sleep(0.5)
 
             backup_name = input("Enter the exact name of the backup file (e.g., backup_20240601_1700.zip) or press Q to quit: ")
-            if backup_name.upper() == "Q":
+            if backup_name == "Q":
                 return
         
             if not backupSys.DoesBackupExist(backup_name):
@@ -1010,7 +1002,7 @@ class SuperAdministrator(SystemAdministrator):
                 print("Press the id of the restore code you want to delete or press 'Q' to quit:")
                 while True:
                     code_id = input()
-                    if code_id.upper() == "Q":
+                    if code_id == "Q":
                         return
                     if code_id.isdigit():
                         code_id = int(code_id)
