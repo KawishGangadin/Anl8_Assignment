@@ -7,9 +7,12 @@ import sys
 
 class Utility:
     @staticmethod
-    def GetValidInput(prompt, validator, username="", loggingSys=None, fieldName=None):
+    def GetValidInput(prompt, validator, username="", loggingSys=None, fieldName=None, format=None):
         while True:
-            value = input(f"{prompt} ")
+            if format:
+                value = input(f"{prompt} (format: {format}, or Q to quit): ")
+            else:
+                value = input(f"{prompt} ")
             if value.upper() == 'Q':
                 return None
             if not InputValidation.DetectBadInput(value):
@@ -25,9 +28,12 @@ class Utility:
                     loggingSys.Log(f"Bad input found '({value})' for field: {fieldName}", True, username)
 
     @staticmethod
-    def GetOptionalUpdate(prompt, validator, current_value, username="", loggingSys=None, fieldName=None):
+    def GetOptionalUpdate(prompt, validator, current_value, username="", loggingSys=None, fieldName=None, format=None):
         while True:
-            value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ")
+            if format:
+                value = input(f"{prompt} [Current: {current_value}] (format: {format}, leave empty to keep or Q to quit): ")
+            else:
+                value = input(f"{prompt} [Current: {current_value}] (leave empty to keep or Q to quit): ")
             if value.upper() == 'Q':
                 return "Q"
             if value == '':
@@ -117,7 +123,19 @@ class Utility:
         if not InputValidation.ValidateDateFormat(date):
             return False
         try:
-            datetime.strptime(date, "%Y-%m-%d")
-            return True
+            parsedDate = datetime.strptime(date, "%Y-%m-%d")
+            return parsedDate <= datetime.now()
+        except ValueError:
+            return False
+        
+    @staticmethod
+    def ValidateBirthdate(date):
+        if not InputValidation.ValidateDateFormat(date):
+            return False
+        try:
+            birthdate = datetime.strptime(date, "%Y-%m-%d")
+            today = datetime.today()
+            age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+            return 120 >=age >= 18
         except ValueError:
             return False

@@ -73,7 +73,7 @@ class InputValidation:
     
     @staticmethod
     def ValidateAddress(address):
-        return re.fullmatch(r"^[A-Za-z0-9][A-Za-z0-9 '-]{0,34}$", address)
+        return re.fullmatch(r"^[A-Za-z][A-Za-z '-]{0,34}$", address)
 
     @staticmethod
     def ValidateCity(city):

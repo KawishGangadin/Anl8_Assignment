@@ -95,20 +95,21 @@ class Service(UserBlueprint):
                 else:
                     print("Scooter ID not found.")
 
+            # field : [ validator_function, format_description ]
             editable_fields = {
-                "brand":               InputValidation.ValidateBrandOrModel,
-                "model":               InputValidation.ValidateBrandOrModel,
-                "serial_number":       InputValidation.ValidateSerialNumber,
-                "top_speed":           lambda v: Utility.ValidateIntegerInRange(v, "5", "120"),
-                "battery_capacity":    lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"),
-                "state_of_charge":     lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),
-                "target_soc_min":      lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),
-                "target_soc_max":      lambda v: Utility.ValidateIntegerInRange(v, "0", "100"),
-                "mileage":             lambda v: Utility.ValidateIntegerInRange(v, "0", "999999"),
-                "last_maintenance_date":Utility.ValidateDate,
-                "latitude":            Utility.ValidateLatitude,
-                "longitude":           Utility.ValidateLongtitude,
-                "out_of_service":          InputValidation.ValidateStatus
+                "brand":               [ InputValidation.ValidateBrandOrModel, None ],
+                "model":               [ InputValidation.ValidateBrandOrModel, None ],
+                "serial_number":       [ InputValidation.ValidateSerialNumber, "10-17 characters, letters and digits" ],
+                "top_speed":           [ lambda v: Utility.ValidateIntegerInRange(v, "5", "120"), "5-120" ],
+                "battery_capacity":    [ lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"), "100-2000" ],
+                "state_of_charge":     [ lambda v: Utility.ValidateIntegerInRange(v, "0", "100"), "0-100" ],
+                "target_soc_min":      [ lambda v: Utility.ValidateIntegerInRange(v, "0", "100"), "0-100" ],
+                "target_soc_max":      [ lambda v: Utility.ValidateIntegerInRange(v, "0", "100"), "0-100" ],
+                "mileage":             [ lambda v: Utility.ValidateIntegerInRange(v, "0", "999999"), None ],
+                "last_maintenance_date":[Utility.ValidateDate, None],
+                "latitude":            [Utility.ValidateLatitude, "5 decimal places"],
+                "longitude":           [Utility.ValidateLongtitude, "5 decimal places"],
+                "out_of_service":          [InputValidation.ValidateStatus, None]
             }
 
             if self.role == roles.SERVICE:
@@ -126,11 +127,12 @@ class Service(UserBlueprint):
                 current_val = scooter_data.get(field, "")
                 new_val = Utility.GetOptionalUpdate(
                     f"Update {field.replace('_', ' ').title()}",
-                    validator,
+                    validator[0],
                     current_val,
                     self.userName,
                     loggingSys=loggingSys,
-                    fieldName=field
+                    fieldName=field,
+                    format=validator[1]
                 )
                 if new_val == "Q":
                     print("Cancelled editing.")
@@ -142,7 +144,7 @@ class Service(UserBlueprint):
                 print("No changes were made.")
                 return
 
-            if db.updateScooter(scooter_id, updates,self.GetUserContext()) == "OK":
+            if db.UpdateScooter(scooter_id, updates,self.GetUserContext()) == "OK":
                 print("Scooter updated successfully.")
                 loggingSys.Log(
                     "Scooter edited",
@@ -235,7 +237,7 @@ class SystemAdministrator(Service):
             db.DisplayAllTravellers(self.GetUserContext())
 
             while True:
-                traveller_id = input("Enter the ID of the scooter you want to edit or press 'Q' to quit: ")
+                traveller_id = input("Enter the ID of the traveller you want to delete or press 'Q' to quit: ")
                 if traveller_id.upper() == 'Q':
                     return
                 if not InputValidation.ValidateMembershipID(traveller_id):
@@ -348,8 +350,8 @@ class SystemAdministrator(Service):
             print("========== Traveller Registration ==========")
             traveller = {}
 
-            def ask(field, prompt, validator):
-                val = Utility.GetValidInput(prompt, validator, self.userName, loggingSys, field)
+            def ask(field, prompt, validator, format=None):
+                val = Utility.GetValidInput(prompt, validator, self.userName, loggingSys, field, format)
                 if val == None:
                     print("Cancelled input. Exiting registration.")
                     raise KeyboardInterrupt
@@ -357,15 +359,15 @@ class SystemAdministrator(Service):
 
             traveller["first_name"] = ask("First Name", "Enter traveller's first name: ", InputValidation.ValidateName)
             traveller["last_name"] = ask("Last Name", "Enter traveller's last name: ", InputValidation.ValidateName)
-            traveller["birthdate"] = ask("Birthdate","Enter traveller's birthdate: ",Utility.ValidateDate)
-            traveller["gender"] = ask("Gender", "Enter traveller's gender (male/female/other): ",InputValidation.ValidateGender)
+            traveller["birthdate"] = ask("Birthdate","Enter traveller's birthdate: ",Utility.ValidateBirthdate, "YYYY-MM-DD")
+            traveller["gender"] = ask("Gender", "Enter traveller's gender (Male/Female/Other): ",InputValidation.ValidateGender)
             traveller["street"] = ask("Street","Enter traveller's street name: ",InputValidation.ValidateAddress)
             traveller["house_number"] = ask("House number","Enter traveller's house number: ",InputValidation.ValidateHousenumber)
             traveller["city"] = ask("City","Enter traveller's city: ",InputValidation.ValidateCity)
-            traveller["zip_code"] = ask("Zipcode","Enter traveller's zipcode: ",InputValidation.ValidateZipcode)
+            traveller["zip_code"] = ask("Zipcode","Enter traveller's zipcode: ",InputValidation.ValidateZipcode, "1234AB")
             traveller["email"] = ask("Email","Enter traveller's email",InputValidation.ValidateEmailAddress)
             traveller["mobile"] = ask("Mobile number","Enter traveller's mobile number : +316-",InputValidation.ValidateMobileNumber)
-            traveller["license_number"] = ask("License number","Enter traveller's license number: ",InputValidation.ValidateDrivingLicense)
+            traveller["license_number"] = ask("License number","Enter traveller's license number: ",InputValidation.ValidateDrivingLicense, "AA1234567 or A12345678")
             traveller["registration_date"] = date.today().strftime("%Y-%m-%d")
             traveller["customer_id"] = Checksum.GenerateTravellerID(db)
 
@@ -395,24 +397,24 @@ class SystemAdministrator(Service):
             print("========== Scooter Registration ==========")
             scooter = {}
 
-            def ask(field, prompt, validator):
-                val = Utility.GetValidInput(prompt, validator, self.userName, loggingSys, field)
+            def ask(field, prompt, validator, format=None):
+                val = Utility.GetValidInput(prompt, validator, self.userName, loggingSys, field, format)
                 if val is None:
                     print("Cancelled input. Exiting registration.")
                     raise KeyboardInterrupt
                 return val
 
-            scooter["serial_number"] = ask("Serial Number", "Enter serial number:", InputValidation.ValidateSerialNumber)
+            scooter["serial_number"] = ask("Serial Number", "Enter serial number:", InputValidation.ValidateSerialNumber, "10-17 characters, letters and digits")
             scooter["brand"] = ask("Brand", "Enter scooter brand:", InputValidation.ValidateBrandOrModel)
             scooter["model"] = ask("Model", "Enter scooter model:", InputValidation.ValidateBrandOrModel)
-            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Utility.ValidateIntegerInRange(v, "5", "120"))
-            scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"))
-            scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"))
-            scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"))
-            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):', lambda v: Utility.ValidateIntegerInRange(v, scooter["target_soc_min"], "100"))
+            scooter["top_speed"] = ask("Top Speed", "Enter top speed (km/h):", lambda v: Utility.ValidateIntegerInRange(v, "5", "120"), "5-120")
+            scooter["battery_capacity"] = ask("Battery Capacity", "Enter battery capacity (Wh):", lambda v: Utility.ValidateIntegerInRange(v, "100", "2000"), "100-2000")
+            scooter["state_of_charge"] = ask("State of Charge", "Enter current charge (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"), "0-100")
+            scooter["target_soc_min"] = ask("Target SOC Min", "Enter minimum charge threshold (0-100):", lambda v: Utility.ValidateIntegerInRange(v, "0", "100"), "0-100")
+            scooter["target_soc_max"] = ask("Target SOC Max", f'Enter maximum charge threshold ({scooter["target_soc_min"]}-100):', lambda v: Utility.ValidateIntegerInRange(v, scooter["target_soc_min"], "100"), "0-100")
             scooter["mileage"] = ask("Mileage", "Enter current mileage (default 0):", lambda v: Utility.ValidateIntegerInRange(v, "0", "999999"))
-            scooter["latitude"] = ask("Latitude", "Enter scooter latitude (e.g. 51.92250):", Utility.ValidateLatitude)
-            scooter["longitude"] = ask("Longitude", "Enter scooter longitude (e.g. 4.47917):", Utility.ValidateLongtitude)
+            scooter["latitude"] = ask("Latitude", "Enter scooter latitude:", Utility.ValidateLatitude, "5 decimal places, e.g. 51.92250")
+            scooter["longitude"] = ask("Longitude", "Enter scooter longitude:", Utility.ValidateLongtitude, "5 decimal places, e.g. 4.47917")
 
             scooter["in_service_date"] = datetime.today().strftime("%Y-%m-%d")
             scooter["last_maintenance_date"] = scooter["in_service_date"]
@@ -622,18 +624,19 @@ class SystemAdministrator(Service):
                 print(f"  {field.replace('_', ' ').title()}: {val}")
             print()
 
+            # field : [ validator_function, format_description ]
             editable_fields = {
-                "first_name":     InputValidation.ValidateName,
-                "last_name":      InputValidation.ValidateName,
-                "birthday":       Utility.ValidateDate,
-                "gender":         InputValidation.ValidateGender,
-                "street_name":    InputValidation.ValidateAddress,
-                "house_number":   InputValidation.ValidateHousenumber,
-                "city":           InputValidation.ValidateCity,
-                "zip_code":       InputValidation.ValidateZipcode,
-                "email":          InputValidation.ValidateEmailAddress,
-                "mobile":         InputValidation.ValidateMobileNumber,
-                "license_number": InputValidation.ValidateDrivingLicense,
+                "first_name":     [ InputValidation.ValidateName, None ],
+                "last_name":      [ InputValidation.ValidateName, None ],
+                "birthday":       [ Utility.ValidateBirthdate, "YYYY-MM-DD" ],
+                "gender":         [ InputValidation.ValidateGender, "Male/Female/Other" ],
+                "street_name":    [ InputValidation.ValidateAddress, None ],
+                "house_number":   [ InputValidation.ValidateHousenumber, None ],
+                "city":           [ InputValidation.ValidateCity, None ],
+                "zip_code":       [ InputValidation.ValidateZipcode, "1234AB" ],
+                "email":          [ InputValidation.ValidateEmailAddress, None ],
+                "mobile":         [ InputValidation.ValidateMobileNumber, None ],
+                "license_number": [ InputValidation.ValidateDrivingLicense, "AB1234567 or A12345678" ],
             }
 
             updates = {}
@@ -641,11 +644,12 @@ class SystemAdministrator(Service):
                 current = traveller_data.get(field, "")
                 new_val = Utility.GetOptionalUpdate(
                     f"Update {field.replace('_', ' ').title()}",
-                    validator,
+                    validator[0],
                     current,
                     self.userName,
                     loggingSys,
-                    fieldName=field
+                    fieldName=field,
+                    format=validator[1]
                 )
                 if new_val == "Q":
                     print("Cancelled editing.")
@@ -712,7 +716,7 @@ class SystemAdministrator(Service):
                             break
 
                     while True:
-                        lastName = input(f"Enter the new last name for user or press 'Q' to quit: ")
+                        lastName = input(f"Enter the new last name for user( or press 'Q' to quit: ")
                         if lastName.upper() == 'Q':
                             return
                         if not InputValidation.ValidateName(lastName):
@@ -721,7 +725,7 @@ class SystemAdministrator(Service):
                             break
 
                     while True:
-                        username = input(f"Enter the new username for user or press 'Q' to quit: ")
+                        username = input(f"Enter the new username (8-10 characters, can contain 0-9 A-z _'.)) for user or press 'Q' to quit: ")
                         if username.upper() == 'Q':
                             return
                         if not InputValidation.ValidateUsername(username.lower()):

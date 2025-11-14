@@ -200,15 +200,15 @@ Traveller Management:
             "10": lambda : user.Deletion(db, roles.SERVICE, loggingSys),
             "11": lambda : user.ResetPassword(db,roles.SERVICE,loggingSys), 
 
-            "15": lambda : user.CreateScooter(db, loggingSys),
-            "16": lambda : user.EditScooter(db,loggingSys),
-            "17": lambda : user.DeleteScooter(db,loggingSys),
-            "18": lambda : user.SearchScooter(db,loggingSys),
+            "12": lambda : user.CreateScooter(db, loggingSys),
+            "13": lambda : user.EditScooter(db,loggingSys),
+            "14": lambda : user.DeleteScooter(db,loggingSys),
+            "15": lambda : user.SearchScooter(db,loggingSys),
                         
-            "19": lambda : user.CreateTraveller(db,roles.ADMIN,loggingSys),
-            "20": lambda : user.EditTraveller(db,loggingSys),
-            "21": lambda : user.DeleteTraveller(db,loggingSys),
-            "22": lambda : user.SearchTraveller(db,loggingSys),
+            "16": lambda : user.CreateTraveller(db,roles.ADMIN,loggingSys),
+            "17": lambda : user.EditTraveller(db,loggingSys),
+            "18": lambda : user.DeleteTraveller(db,loggingSys),
+            "19": lambda : user.SearchTraveller(db,loggingSys),
         }
 
 

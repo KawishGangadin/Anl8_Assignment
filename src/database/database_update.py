@@ -259,7 +259,7 @@ class DBUpdate:
             validators = {
                 "first_name":     InputValidation.ValidateName,
                 "last_name":      InputValidation.ValidateName,
-                "birthday":       Utility.ValidateDate,
+                "birthday":       Utility.ValidateBirthdate,
                 "gender":         InputValidation.ValidateGender,
                 "street_name":    InputValidation.ValidateAddress,
                 "house_number":   InputValidation.ValidateHousenumber,

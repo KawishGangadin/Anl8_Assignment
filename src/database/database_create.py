@@ -124,7 +124,7 @@ class DBCreate:
             if not (
                 InputValidation.ValidateName(traveller_data["first_name"]) and
                 InputValidation.ValidateName(traveller_data["last_name"]) and
-                Utility.ValidateDate(traveller_data["birthdate"]) and
+                Utility.ValidateBirthdate(traveller_data["birthdate"]) and
                 InputValidation.ValidateGender(traveller_data["gender"]) and
                 InputValidation.ValidateAddress(traveller_data["street"]) and
                 InputValidation.ValidateHousenumber(str(traveller_data["house_number"])) and
