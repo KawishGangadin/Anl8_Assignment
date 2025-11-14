@@ -449,13 +449,13 @@ class SystemAdministrator(Service):
                     print("Creating backup....")
                     backUpSystem.CreateBackupZip(self)
                     time.sleep(5)
+                    loggingSys.Log("Backup created successfully", False, username=self.userName)
                     break
                 elif keyPress.upper() == "N":
                     print("Exiting.....")
                     break
                 else:
                     print("Invalid input...")
-                loggingSys.Log("Backup created successfully", False, username=self.userName)
 
         except Exception as e:
             print(f"An error occurred while creating backup: {str(e)}")
