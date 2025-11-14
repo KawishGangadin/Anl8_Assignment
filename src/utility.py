@@ -15,17 +15,13 @@ class Utility:
                 value = input(f"{prompt} ")
             if value.upper() == 'Q':
                 return None
-            if not InputValidation.DetectBadInput(value):
-                if bool(validator(value)):
-                    return value
-                else:
-                    print("Invalid input! Please try again.")
-                    if loggingSys:
-                        loggingSys.Log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+            if validator(value):
+                return value
             else:
-                print("Input contains invalid characters! Please try again.")
+                print("Invalid input! Please try again.")
                 if loggingSys:
-                    loggingSys.Log(f"Bad input found '({value})' for field: {fieldName}", True, username)
+                    loggingSys.Log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+
 
     @staticmethod
     def GetOptionalUpdate(prompt, validator, current_value, username="", loggingSys=None, fieldName=None, format=None):
@@ -38,19 +34,12 @@ class Utility:
                 return "Q"
             if value == '':
                 return current_value
-            if not InputValidation.DetectBadInput(value):
-                if bool(validator(value)):
-                    return value
-                else:
-                    print("Invalid input! Please try again.")
-                    if loggingSys:
-                        loggingSys.Log(f"Invalid input ({value}) for field: {fieldName}", False, username)
+            if validator(value):
+                return value
             else:
-                print("Input contains invalid characters! Please try again.")
+                print("Invalid input! Please try again.")
                 if loggingSys:
-                    loggingSys.Log(f"Bad input found '({value})' for field: {fieldName}", True, username)
-
-
+                    loggingSys.Log(f"Invalid input ({value}) for field: {fieldName}", False, username)
     
     @staticmethod
     def SafeDecrypt(value):
